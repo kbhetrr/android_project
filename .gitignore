@@ -1,0 +1,65 @@
+# ==============================
+# Android Studio & IntelliJ
+# ==============================
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# ==============================
+# Build & Gradle
+# ==============================
+.gradle/
+build/
+*/build/
+!gradle-wrapper.jar
+.gradle-cache/
+local.properties
+
+# ==============================
+# Log & OS 파일
+# ==============================
+*.log
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db
+
+# ==============================
+# Kotlin & Java
+# ==============================
+*.class
+*.jar
+*.war
+*.ear
+
+# ==============================
+# Android specific
+# ==============================
+captures/
+outputs/
+.externalNativeBuild/
+.cxx/
+
+# ==============================
+# Jetpack Compose Preview cache
+# ==============================
+androidx.compose.compiler.plugins.kotlin.analysis.*
+.idea/.compose
+
+# ==============================
+# Other
+# ==============================
+*.keystore
+*.jks
+
+# ==============================
+# VSCode settings (Optional)
+# ==============================
+.vscode/
+
+# ==============================
+# Environment / IDE tools
+# ==============================
+.env
+*.env
