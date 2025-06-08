@@ -56,4 +56,9 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    implementation("com.google.android.material:material:1.11.0") // 최신 버전 확인
+    // Navigation Component를 사용하려면 다음도 추가
+    implementation("androidx.navigation:navigation-fragment-ktx:2.7.7") // 최신 버전 확인
+    implementation("androidx.navigation:navigation-ui-ktx:2.7.7")     // 최신 버전 확인
 }
