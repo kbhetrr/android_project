@@ -1,4 +1,4 @@
-package com.example.softwareproject.data.entity
+package com.example.softwareproject.data.entity.base
 
 import androidx.room.ColumnInfo
 
