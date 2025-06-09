@@ -1,7 +1,6 @@
-package com.example.softwareproject.data.entity
+package com.example.softwareproject.data.entity.base
 
 import androidx.room.ColumnInfo
-import androidx.room.PrimaryKey
 import java.util.Date
 
 open class BaseEntity {
