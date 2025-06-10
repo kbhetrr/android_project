@@ -1,4 +1,4 @@
-package com.example.softwareproject.data.entity.base
+package com.example.softwareproject.util
 
 enum class BaekjoonTier(val tierValue: Int, val displayName: String) {
     BRONZE_5(1, "Bronze V"),

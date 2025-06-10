@@ -5,8 +5,8 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.example.softwareproject.data.entity.base.DifficultyCs
-import com.example.softwareproject.data.entity.base.Topic
+import com.example.softwareproject.util.DifficultyCs
+import com.example.softwareproject.util.Topic
 
 @Entity(tableName = "cs_room",
     foreignKeys = [

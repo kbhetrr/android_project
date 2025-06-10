@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.example.softwareproject.data.entity.base.BaekjoonTier
+import com.example.softwareproject.util.BaekjoonTier
 
 @Entity(tableName = "coding_room",
     foreignKeys = [

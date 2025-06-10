@@ -6,7 +6,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.example.softwareproject.data.entity.base.BaseEntity
-import com.example.softwareproject.data.entity.base.TokenSource
+import com.example.softwareproject.util.TokenSource
 import java.util.Date
 
 

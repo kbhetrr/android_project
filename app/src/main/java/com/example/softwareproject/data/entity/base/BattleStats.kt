@@ -1,6 +1,7 @@
 package com.example.softwareproject.data.entity.base
 
 import androidx.room.ColumnInfo
+import com.example.softwareproject.util.UserRole
 
 open class BattleStats {
     @ColumnInfo(name = "hp")

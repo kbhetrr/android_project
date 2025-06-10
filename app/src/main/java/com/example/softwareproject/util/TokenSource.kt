@@ -1,4 +1,4 @@
-package com.example.softwareproject.data.entity.base
+package com.example.softwareproject.util
 
 enum class TokenSource(val source : Int) {
     GITHUB(1)

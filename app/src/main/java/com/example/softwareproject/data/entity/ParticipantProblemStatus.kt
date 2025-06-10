@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import com.example.softwareproject.data.entity.base.RoomType
+import com.example.softwareproject.util.RoomType
 @Entity(tableName = "participant_problem_status",
     foreignKeys = [
         ForeignKey(
