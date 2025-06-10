@@ -16,6 +16,12 @@ build/
 .gradle-cache/
 local.properties
 
+# (혹시 위 설정이 변경돼 gradle/ 밑에 캐시가 생긴 경우)
+gradle/caches/
+gradle/daemon/
+gradle/kotlin-profile/
+gradle/native/
+
 # ==============================
 # Log & OS 파일
 # ==============================
