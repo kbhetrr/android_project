@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources><!-- res/values/styles.xml -->
+    <style name="CustomBottomNavTextActive" parent="TextAppearance.AppCompat.Caption">
+        <item name="android:textSize">10sp</item> <!-- 원하는 선택 시 글자 크기 -->
+        <!-- <item name="android:textStyle">bold</item> -->
+    </style>
+
+    <style name="CustomBottomNavTextInactive" parent="TextAppearance.AppCompat.Caption">
+        <item name="android:textSize">10sp</item> <!-- 원하는 비선택 시 글자 크기 -->
+    </style>
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:fontFamily">@font/pretendard</item>
+    </style>
+</resources>

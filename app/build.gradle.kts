@@ -63,6 +63,7 @@ android {
 }
 
 dependencies {
+
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
     implementation("androidx.activity:activity-compose:1.8.2")
@@ -96,4 +97,9 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.51")
     kapt("com.google.dagger:hilt-compiler:2.51")
     add("kotlinCompilerPluginClasspath", "androidx.compose.compiler:compiler:1.5.13")
+    
+    implementation("com.google.android.material:material:1.11.0") // 최신 버전 확인
+    // Navigation Component를 사용하려면 다음도 추가
+    implementation("androidx.navigation:navigation-fragment-ktx:2.7.7") // 최신 버전 확인
+    implementation("androidx.navigation:navigation-ui-ktx:2.7.7")     // 최신 버전 확인
 }
