@@ -2,12 +2,10 @@ package com.example.softwareproject.data.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
-import androidx.room.Entity
-import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.example.softwareproject.data.entity.base.BaseEntity
-import com.example.softwareproject.data.entity.base.RoomState
-import com.example.softwareproject.data.entity.base.RoomType
+import com.example.softwareproject.util.RoomState
+import com.example.softwareproject.util.RoomType
 
 
 

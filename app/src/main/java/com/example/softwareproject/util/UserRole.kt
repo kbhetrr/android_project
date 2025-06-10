@@ -1,4 +1,4 @@
-package com.example.softwareproject.data.entity.base
+package com.example.softwareproject.util
 
 enum class UserRole(val role: Int) {
     HOST(1),

@@ -1,5 +1,6 @@
 package com.example.softwareproject // 자신의 패키지 이름으로 변경하세요.
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
@@ -8,6 +9,7 @@ import androidx.navigation.fragment.NavHostFragment
 // import androidx.navigation.ui.setupActionBarWithNavController // ActionBar를 사용하지 않으므로 주석 처리 또는 삭제
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+
 // import com.example.softwareproject.R
 
 class MainActivity : AppCompatActivity() {

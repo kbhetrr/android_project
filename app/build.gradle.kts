@@ -1,8 +1,22 @@
+import java.util.Properties
+import java.io.FileInputStream
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmOptions
+import com.android.build.api.dsl.ApplicationExtension
+
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android") version "1.9.23"
+    id("org.jetbrains.kotlin.kapt") version "1.9.23"
+    id("com.google.dagger.hilt.android")
 }
+
+val localProperties = Properties().apply {
+    load(FileInputStream(rootProject.file("local.properties")))
+}
+
+val githubClientId = localProperties["GITHUB_CLIENT_ID"] as String
+val githubClientSecret = localProperties["GITHUB_CLIENT_SECRET"] as String
+
 
 android {
     namespace = "com.example.softwareproject"
@@ -14,7 +28,8 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
-
+        buildConfigField("String", "GITHUB_CLIENT_ID", "\"$githubClientId\"")
+        buildConfigField("String", "GITHUB_CLIENT_SECRET", "\"$githubClientSecret\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -27,37 +42,62 @@ android {
             )
         }
     }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.13"
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
+
     kotlinOptions {
         jvmTarget = "11"
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
 dependencies {
 
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
-    implementation(libs.androidx.room.common.jvm)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
-
+    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
+    implementation("androidx.activity:activity-compose:1.8.2")
+    implementation(platform("androidx.compose:compose-bom:2024.05.00"))
+    implementation("androidx.compose.ui:ui:1.6.0")
+    implementation("androidx.compose.ui:ui-graphics:1.6.0")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.6.0")
+    implementation("androidx.compose.material3:material3:1.2.0")
+    implementation("androidx.room:room-common:2.6.1")
+    implementation("com.google.firebase:firebase-firestore-ktx:24.10.0")
+    implementation("com.google.firebase:firebase-crashlytics-buildtools:2.9.9")
+    implementation("androidx.browser:browser:1.7.0")
+    implementation("androidx.test.espresso:espresso-core:3.5.1")
+    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("androidx.constraintlayout:constraintlayout:2.2.0-alpha13")
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation(platform("androidx.compose:compose-bom:2024.05.00"))
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.6.0")
+    debugImplementation("androidx.compose.ui:ui-tooling:1.6.0")
+    debugImplementation("androidx.compose.ui:ui-test-manifest:1.6.0")
+    implementation("io.ktor:ktor-client-core:2.3.5")
+    implementation("io.ktor:ktor-client-okhttp:2.3.8")
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-moshi:2.11.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("androidx.fragment:fragment-ktx:1.6.2")
+    implementation("com.google.firebase:firebase-firestore-ktx:24.10.0")
+    implementation("com.google.firebase:firebase-crashlytics-buildtools:2.9.9")
+    implementation("com.google.dagger:hilt-android:2.51")
+    kapt("com.google.dagger:hilt-compiler:2.51")
+    add("kotlinCompilerPluginClasspath", "androidx.compose.compiler:compiler:1.5.13")
+    
     implementation("com.google.android.material:material:1.11.0") // 최신 버전 확인
     // Navigation Component를 사용하려면 다음도 추가
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.7") // 최신 버전 확인
