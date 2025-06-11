@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "943163484022",
+    "project_id": "copet-f1a59",
+    "storage_bucket": "copet-f1a59.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:943163484022:android:b80e303b0734b739befc57",
+        "android_client_info": {
+          "package_name": "com.example.softwareproject"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDU8vg-t5LhYjFpJ9ZvvegjFycTnG9QPb0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
