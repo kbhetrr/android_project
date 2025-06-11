@@ -61,22 +61,25 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="horizontal"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp">
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:padding="20dp"
-                android:layout_margin="20dp"
+                android:layout_margin="8dp"
                 android:background="@drawable/layout_stat"
-                android:orientation="vertical">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="체력"
-                    android:textColor="#000000"
-                    android:textStyle="bold"
-                    android:textSize="14dp"
-                    android:paddingBottom="8dp"/>
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_gravity="center">
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/red_heart_icon"
+                    android:layout_marginRight="8dp"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -86,20 +89,21 @@
                     android:text="120" />
             </LinearLayout>
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:padding="20dp"
-                android:layout_margin="20dp"
+                android:layout_margin="8dp"
                 android:background="@drawable/layout_stat"
-                android:orientation="vertical">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="공격력"
-                    android:textColor="#000000"
-                    android:textStyle="bold"
-                    android:textSize="14dp"
-                    android:paddingBottom="8dp"/>
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_gravity="center">
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/sword_icon"
+                    android:layout_marginRight="8dp"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -109,29 +113,34 @@
                     android:text="100" />
             </LinearLayout>
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:padding="20dp"
-                android:layout_margin="20dp"
+                android:layout_margin="8dp"
                 android:background="@drawable/layout_stat"
-                android:orientation="vertical">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="방어력"
-                    android:textColor="#000000"
-                    android:textStyle="bold"
-                    android:textSize="14dp"
-                    android:paddingBottom="8dp"/>
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_gravity="center">
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/shield_sedo_line_icon"
+                    android:layout_marginRight="8dp"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="#000000"
                     android:textStyle="bold"
                     android:textSize="20dp"
-                    android:text="80" />
+                    android:text="120" />
             </LinearLayout>
-
         </LinearLayout>
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/carousel_view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="12dp" />
     </LinearLayout>
 </FrameLayout>

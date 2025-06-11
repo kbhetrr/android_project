@@ -102,4 +102,9 @@ dependencies {
     // Navigation Component를 사용하려면 다음도 추가
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.7") // 최신 버전 확인
     implementation("androidx.navigation:navigation-ui-ktx:2.7.7")     // 최신 버전 확인
+    // Coil for image loading
+    implementation("io.coil-kt:coil:2.6.0") // 최신 버전 확인
+
+    // Coil's SVG Decoder (AndroidSVG를 내부적으로 사용하거나 유사한 기능 제공)
+    implementation("io.coil-kt:coil-svg:2.6.0") // coil과 동일한 버전 사용
 }
