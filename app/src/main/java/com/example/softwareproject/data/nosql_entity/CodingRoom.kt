@@ -4,7 +4,7 @@ package com.example.softwareproject.com.example.softwareproject.data.nosql_entit
 import com.example.softwareproject.util.BaekjoonTier
 
 data class CodingRoom(
-    var coding_room_id: String = "",
-    var room_id: String = "",
-    var difficulty_level: BaekjoonTier = BaekjoonTier.GOLD_1
+    var codingRoomId: String = "",
+    var roomId: String = "",
+    var difficultyLevel: BaekjoonTier = BaekjoonTier.GOLD_1
 )

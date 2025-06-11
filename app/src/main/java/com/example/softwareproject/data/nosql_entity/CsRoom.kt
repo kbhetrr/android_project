@@ -4,8 +4,8 @@ import com.example.softwareproject.util.Topic
 import com.example.softwareproject.util.DifficultyCs
 
 data class CsRoom(
-    var cs_room_id: String = "",
-    var room_id: String = "",
+    var csRoomId: String = "",
+    var roomId: String = "",
     var topic: Topic = Topic.NETWORK,
-    var difficulty_level: DifficultyCs = DifficultyCs.EASY
+    var difficultyLevel: DifficultyCs = DifficultyCs.EASY
 )
