@@ -32,13 +32,19 @@ class MainActivity : AppCompatActivity() {
 
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment_container) as NavHostFragment
-        navController = navHostFragment.navController
+        val navController = navHostFragment.navController
 
-        Handler(Looper.getMainLooper()).postDelayed({
-            // 로그인 액티비티로 화면 전환
-            startActivity(Intent(this, LoginActivity::class.java))
-            finish() // 현재 스플래시 액티비티 종료
-        }, 1500)
+        // BottomNavigationView 설정
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation_view)
+        bottomNavigationView.setupWithNavController(navController)
+//        Handler(Looper.getMainLooper()).postDelayed({
+//            // 로그인 액티비티로 화면 전환
+//            startActivity(Intent(this, LoginActivity::class.java))
+//            finish() // 현재 스플래시 액티비티 종료
+//        }, 1500)
+    }
+    override fun onSupportNavigateUp(): Boolean {
+        return super.onSupportNavigateUp() // 가장 기본적인 Up 동작
     }
 }
 

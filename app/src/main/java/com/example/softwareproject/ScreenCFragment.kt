@@ -1,18 +1,14 @@
 package com.example.softwareproject // 실제 패키지 이름으로 변경
-
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
-import androidx.compose.ui.semantics.text
 import com.example.softwareproject.util.UserPreferences
 
 @AndroidEntryPoint

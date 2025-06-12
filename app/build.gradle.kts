@@ -76,7 +76,7 @@ android {
     kapt {
         correctErrorTypes = true
     }
-    
+
 }
 
 dependencies {
@@ -131,28 +131,20 @@ dependencies {
 
     //JSON을 KOtlin데이터 객체로 변환
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation("androidx.fragment:fragment-ktx:1.6.2")
-    implementation("com.google.firebase:firebase-firestore-ktx:24.10.0")
     implementation("com.google.firebase:firebase-crashlytics-buildtools:2.9.9")
-    implementation("com.google.dagger:hilt-android:2.51")
-    kapt("com.google.dagger:hilt-compiler:2.51")
-    add("kotlinCompilerPluginClasspath", "androidx.compose.compiler:compiler:1.5.13")
-    
-    implementation("com.google.android.material:material:1.11.0") // 최신 버전 확인
+
+
+    //add("kotlinCompilerPluginClasspath", "androidx.compose.compiler:compiler:1.5.13")
+
     // Navigation Component를 사용하려면 다음도 추가
-    implementation("androidx.navigation:navigation-fragment-ktx:2.7.7") // 최신 버전 확인
-    implementation("androidx.navigation:navigation-ui-ktx:2.7.7")     // 최신 버전 확인
     // Coil for image loading
     implementation("io.coil-kt:coil:2.6.0") // 최신 버전 확인
 
     // Coil's SVG Decoder (AndroidSVG를 내부적으로 사용하거나 유사한 기능 제공)
     implementation("io.coil-kt:coil-svg:2.6.0") // coil과 동일한 버전 사용
     // Retrofit for networking
-    implementation("com.squareup.retrofit2:retrofit:2.9.0") // 최신 버전 확인
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0") // Gson converter
-
     // OkHttp (Retrofit이 내부적으로 사용, 로깅 인터셉터 등에 필요할 수 있음)
-    implementation("com.squareup.okhttp3:okhttp:4.10.0") // 최신 버전 확인
+    //implementation("com.squareup.okhttp3:okhttp:4.10.0") // 최신 버전 확인
     implementation("com.squareup.okhttp3:logging-interceptor:4.10.0") // (선택 사항: 디버깅용)
 
     // Coroutines for asynchronous operations
