@@ -18,7 +18,7 @@ class TabPsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_tab_ps, container, false) // fragment_tab_one.xml 사용
-        recyclerView = view.findViewById(R.id.recycler_view_tab_one)
+        recyclerView = view.findViewById(R.id.recycler_view_tab_two)
         return view
     }
 
@@ -35,6 +35,6 @@ class TabPsFragment : Fragment() {
     }
 
     companion object {
-        fun newInstance() = TabCsFragment()
+        fun newInstance() = TabPsFragment()
     }
 }

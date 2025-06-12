@@ -5,7 +5,7 @@
     android:layout_height="match_parent"> <!-- 실제 프래그먼트 경로로 변경 -->
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view_tab_one"
+        android:id="@+id/recycler_view_tab_two"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="8dp"
