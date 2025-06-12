@@ -83,7 +83,8 @@ class LoginViewModel @Inject constructor(
                     bio = githubUser.bio ?: "",
                     avatarUrl = githubUser.avatarUrl ?: "",
                     followers = githubUser.followers,
-                    followings = githubUser.following
+                    followings = githubUser.following,
+                    firebaseUid = firebaseUser.uid
                 )
             )
         }
