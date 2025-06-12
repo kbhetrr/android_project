@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.Matrix
 import androidx.fragment.app.Fragment
 import coil.decode.SvgDecoder
 import coil.load
+import com.example.softwareproject.util.UserPreferences
 import kotlin.math.roundToInt
 import kotlin.text.toFloat
 
@@ -19,7 +20,9 @@ import kotlin.text.toFloat
 class CarouselPageOneFragment : Fragment() {
 
     private lateinit var githubImageView: ImageView
-    private val githubChartUrl = "https://ghchart.rshah.org/kbhetrr" // 사용자 이름 변경 가능
+    private lateinit var githubIdView: TextView
+    //private val githubChartUrl = "https://ghchart.rshah.org/kbhetrr" // 사용자 이름 변경 가능
+    private lateinit var githubChartUrl: String
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,6 +44,13 @@ class CarouselPageOneFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         // 예: view.findViewById<TextView>(R.id.some_text_view).text = "내용"
+        var githubId: String? = ""
+        context?.let {
+            githubId = UserPreferences.getGithubId(it)
+            githubChartUrl = "https://ghchart.rshah.org/" + githubId
+        }
+        githubIdView = view.findViewById(R.id.github_id)
+        githubIdView.setText("@" + githubId)
         githubImageView = view.findViewById(R.id.github_svg)
 
         Log.d("CarouselPageOne", "githubImageView is null: ${githubImageView == null}") // 로그 추가

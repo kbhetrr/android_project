@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import androidx.core.view.doOnPreDraw // 뷰의 크기를 정확히 알기 위해 사용
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
+import com.example.softwareproject.util.UserPreferences
+
 // import com.google.android.material.imageview.ShapeableImageView
 
 class ScreenAFragment : Fragment() {
