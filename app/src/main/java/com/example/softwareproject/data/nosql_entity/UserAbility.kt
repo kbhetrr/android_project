@@ -2,7 +2,7 @@ package com.example.softwareproject.com.example.softwareproject.data.nosql_entit
 
 
 data class UserAbility(
-    var user_id : String = "",
+    var userId : String = "",
     var exp: Int = 0,
     var level: Int = 1,
     var hp: Int = 100,

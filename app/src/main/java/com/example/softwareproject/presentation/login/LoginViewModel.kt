@@ -1,37 +1,95 @@
 package com.example.softwareproject.presentation.login
 
+import android.app.Activity
+import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.softwareproject.com.example.softwareproject.data.remote.github.GitHubApi
+import com.example.softwareproject.com.example.softwareproject.data.remote.user.GitHubUser
+import com.example.softwareproject.com.example.softwareproject.data.remote.user.UserSaveInfo
+import com.example.softwareproject.domain.repository.UserRepository
+import com.google.firebase.auth.AuthResult
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.OAuthCredential
+import com.google.firebase.auth.OAuthProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.util.UUID
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Inject
-import com.example.softwareproject.domain.usecase.login.github.BuildAuthUrlUseCase
-import com.example.softwareproject.domain.usecase.login.github.ExchangeGithubCodeUseCase
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val buildAuthUrl: BuildAuthUrlUseCase,
-    private val exchangeCode: ExchangeGithubCodeUseCase.ExchangeCodeForTokenUseCase
-) : ViewModel() {
+    private val userRepository: UserRepository
+): ViewModel() {
+    private val auth = FirebaseAuth.getInstance()
+    private val _loginResult = MutableLiveData<FirebaseUser?>()
+    val loginResult: LiveData<FirebaseUser?> = _loginResult
+    private val _githubUser = MutableLiveData<GitHubUser>()
+    val githubUser: LiveData<GitHubUser> = _githubUser
 
-    private val _authUrl = MutableStateFlow("")//CustomTabs에서 열어줄 인증 URL
-    val authUrl: StateFlow<String> = _authUrl
+    fun loginWithGitHub(activity: Activity) {
+        val provider = OAuthProvider.newBuilder("github.com")
+        provider.setScopes(listOf("read:user", "user:email"))
 
-    private var currentState: String = "" //currentState: CSRF 방지용 state. URL에 담아 보낸 후, redirect 시 검증.
-
-    fun startLogin() {
-        currentState = UUID.randomUUID().toString()
-        _authUrl.value = buildAuthUrl(currentState) //로그인 URL 생성
+        val pending = auth.pendingAuthResult
+        if (pending != null) {
+            pending
+                .addOnSuccessListener { handleLoginSuccess(it) }
+                .addOnFailureListener { _loginResult.value = null }
+        } else {
+            auth.startActivityForSignInWithProvider(activity, provider.build())
+                .addOnSuccessListener { handleLoginSuccess(it) }
+                .addOnFailureListener { _loginResult.value = null }
+        }
     }
 
-    fun handleRedirect(code: String?, state: String?) {
-        if (code != null && state == currentState) {
+    private fun handleLoginSuccess(authResult: AuthResult) {
+        val credential = authResult.credential as? OAuthCredential
+        val accessToken = credential?.accessToken
+
+        Log.d("GitHub", "Access Token: $accessToken")
+
+        _loginResult.value = authResult.user
+
+        accessToken?.let { token ->
             viewModelScope.launch {
-                val token = exchangeCode(code, state)//엑세스 토큰을 획득한다.
+                try {
+                    val retrofit = Retrofit.Builder()
+                        .baseUrl("https://api.github.com/")
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+
+                    val api = retrofit.create(GitHubApi::class.java)
+                    val user = api.getUserInfo("Bearer $token")
+                    _githubUser.postValue(user)
+                    Log.d("GitHub", "유저 정보: $user")
+                } catch (e: Exception) {
+                    Log.e("GitHub", "API 호출 실패: ${e.message}")
+                }
             }
         }
     }
+    fun createUser(githubUser: GitHubUser, firebaseUser: FirebaseUser) {
+        viewModelScope.launch {
+            userRepository.createUserInfo(
+                userSaveInfo = UserSaveInfo(
+                    userId = githubUser.id.toString(),
+                    name = githubUser.name ?: githubUser.login,
+                    email = githubUser.email ?: firebaseUser.email ?: "",
+                    bio = githubUser.bio ?: "",
+                    avatarUrl = githubUser.avatarUrl ?: "",
+                    followers = githubUser.followers,
+                    followings = githubUser.following
+                )
+            )
+        }
+    }
+    suspend fun checkUserExist(userId: String): Boolean {
+        return userRepository.isUserExists(userId)
+    }
+
 }
