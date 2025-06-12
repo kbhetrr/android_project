@@ -8,4 +8,5 @@ class BuildAuthUrlUseCase @Inject constructor(
 ){
     operator fun invoke(state: String): String =
         authRepo.buildAuthUrl(state)
+
 }

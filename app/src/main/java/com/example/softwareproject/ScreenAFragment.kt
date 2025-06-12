@@ -1,16 +1,21 @@
 package com.example.softwareproject // 실제 패키지 이름으로 변경
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.core.view.doOnPreDraw // 뷰의 크기를 정확히 알기 위해 사용
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 
 import dagger.hilt.android.AndroidEntryPoint
 
 import androidx.viewpager2.widget.ViewPager2
+import com.example.softwareproject.com.example.softwareproject.presentation.fragmenta.ScreenAViewModel
 import com.example.softwareproject.util.UserPreferences
+import com.google.firebase.auth.FirebaseAuth
 
 // import com.google.android.material.imageview.ShapeableImageView
 
@@ -21,7 +26,7 @@ class ScreenAFragment : Fragment() {
     private lateinit var viewPager: ViewPager2
     private lateinit var carouselFragmentAdapter: CarouselAdapter
     // private lateinit var userProfileImageView: ShapeableImageView
-
+    private val viewModel: ScreenAViewModel by viewModels()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -29,12 +34,44 @@ class ScreenAFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_a, container, false)
     }
 
+    @SuppressLint("SetTextI18n")//임준식 추가
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         // view.findViewById<ShapeableImageView>(R.id.user_profile_image)?.let {
         //     userProfileImageView = it
         // }
+
+
+        //임준식 추가 부분
+
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+        viewModel.loadUserDataByUid(userId)
+
+        viewModel.userData.observe(viewLifecycleOwner) { userInfo ->
+            val githubName = userInfo.githubInfo.githubName ?: "알 수 없음"
+            val hp = userInfo.userAbility.hp
+            val attack = userInfo.userAbility.attack
+            val shield = userInfo.userAbility.shield
+            val level = userInfo.userAbility.level
+            val exp = userInfo.userAbility.exp
+            val wins = userInfo.userBattleLog.win
+            val losses = userInfo.userBattleLog.lose
+            val total = wins + losses
+            val rate = if (total > 0) (wins * 100 / total) else 0
+
+            view.findViewById<TextView>(R.id.nickname).text = githubName
+            view.findViewById<TextView>(R.id.level).text = "래벨 $level"
+            view.findViewById<TextView>(R.id.hp).text = hp.toString()
+            view.findViewById<TextView>(R.id.attack).text = attack.toString()
+            view.findViewById<TextView>(R.id.shield).text = shield.toString()
+            view.findViewById<TextView>(R.id.total).text = total.toString()
+            view.findViewById<TextView>(R.id.win).text = wins.toString()
+            view.findViewById<TextView>(R.id.lose).text = losses.toString()
+            view.findViewById<TextView>(R.id.rate).text = rate.toString()
+        }
+        //임준식 추가 부분
 
         viewPager = view.findViewById(R.id.carousel_view_pager)
         carouselFragmentAdapter = CarouselAdapter(this) // 어댑터는 무한 스크롤 없는 버전

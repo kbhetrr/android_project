@@ -9,7 +9,9 @@ import com.example.softwareproject.com.example.softwareproject.data.remote.user.
 import com.example.softwareproject.domain.repository.UserRepository
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class UserRepositoryImpl @Inject constructor(
@@ -64,7 +66,8 @@ class UserRepositoryImpl @Inject constructor(
             email = userSaveInfo.email,
             bio = userSaveInfo.bio,
             followers = userSaveInfo.followings,
-            following = userSaveInfo.followings
+            following = userSaveInfo.followings,
+            firebaseUid = userSaveInfo.firebaseUid
         )
         fireBaseStore.collection("user").document(userSaveInfo.userId).set(userData).await()
         fireBaseStore.collection("user_ability").document(userSaveInfo.userId).set(userAbility).await()
@@ -80,5 +83,60 @@ class UserRepositoryImpl @Inject constructor(
             .await()
         return doc.exists()
     }
+
+    override suspend fun getUserInfoByGithubId(githubId: String): UserFullInfo {
+        return withContext(Dispatchers.IO) {
+
+            val githubQuery = fireBaseStore.collection("github_info")
+                .whereEqualTo("userId", githubId)
+                .limit(1)
+                .get()
+                .await()
+
+            val githubDoc = githubQuery.documents.firstOrNull()
+                ?: throw Exception("해당 GitHub ID의 사용자 정보가 없습니다.")
+
+            val githubInfo = githubDoc.toObject(GithubInfo::class.java)
+                ?: throw Exception("GitHubInfo 변환 실패")
+
+            val userId = githubInfo.userId
+
+
+            val userSnap = fireBaseStore.collection("user")
+                .document(userId)
+                .get()
+                .await()
+
+            val user = userSnap.toObject(User::class.java)
+                ?: throw Exception("User 정보 없음")
+
+
+            val abilitySnap = fireBaseStore.collection("user_ability")
+                .document(userId)
+                .get()
+                .await()
+
+            val ability = abilitySnap.toObject(UserAbility::class.java)
+                ?: UserAbility(userId) // 기본값 설정
+
+
+            val battleSnap = fireBaseStore.collection("user_battle_log")
+                .document(userId)
+                .get()
+                .await()
+
+            val battleLog = battleSnap.toObject(UserBattleLog::class.java)
+                ?: UserBattleLog(userId)
+
+
+            UserFullInfo(
+                user = user,
+                githubInfo = githubInfo,
+                userAbility = ability,
+                userBattleLog = battleLog
+            )
+        }
+    }
+
 
 }

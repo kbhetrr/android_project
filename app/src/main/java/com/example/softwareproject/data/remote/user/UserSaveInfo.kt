@@ -7,5 +7,6 @@ data class UserSaveInfo (
     val bio: String,
     val avatarUrl : String,
     val followers: Int,
-    val followings: Int
+    val followings: Int,
+    val firebaseUid: String
 )

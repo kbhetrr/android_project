@@ -10,4 +10,5 @@ data class GithubInfo(
     var bio: String? = null,
     var followers: Int? = null,
     var following: Int? = null,
+    var firebaseUid: String? = null
 )
