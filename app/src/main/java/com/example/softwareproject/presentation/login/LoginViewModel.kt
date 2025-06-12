@@ -17,20 +17,20 @@ class LoginViewModel @Inject constructor(
     private val exchangeCode: ExchangeGithubCodeUseCase.ExchangeCodeForTokenUseCase
 ) : ViewModel() {
 
-    private val _authUrl = MutableStateFlow("")
+    private val _authUrl = MutableStateFlow("")//CustomTabs에서 열어줄 인증 URL
     val authUrl: StateFlow<String> = _authUrl
 
-    private var currentState: String = ""
+    private var currentState: String = "" //currentState: CSRF 방지용 state. URL에 담아 보낸 후, redirect 시 검증.
 
     fun startLogin() {
         currentState = UUID.randomUUID().toString()
-        _authUrl.value = buildAuthUrl(currentState)
+        _authUrl.value = buildAuthUrl(currentState) //로그인 URL 생성
     }
 
     fun handleRedirect(code: String?, state: String?) {
         if (code != null && state == currentState) {
             viewModelScope.launch {
-                val token = exchangeCode(code, state)
+                val token = exchangeCode(code, state)//엑세스 토큰을 획득한다.
             }
         }
     }

@@ -1,8 +1,7 @@
 package com.example.softwareproject.data.repository.login
 
 import com.example.softwareproject.domain.repository.AuthRepository
-import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.client.HttpClient
-import io.ktor.http.URLBuilder
+
 import com.example.softwareproject.data.remote.GitHubOAuthApi
 import okhttp3.HttpUrl
 import javax.inject.Inject
