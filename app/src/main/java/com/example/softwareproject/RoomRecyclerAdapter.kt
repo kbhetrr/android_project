@@ -32,3 +32,4 @@ class RoomRecyclerAdapter(private val items: List<MyItem>) :
         val descriptionTextView: TextView = itemView.findViewById(R.id.item_description)
     }
 }
+

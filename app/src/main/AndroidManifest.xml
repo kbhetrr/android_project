@@ -24,6 +24,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".presentation.login.LoginActivity" />
+        <activity
+            android:name=".BattleLoadingActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
