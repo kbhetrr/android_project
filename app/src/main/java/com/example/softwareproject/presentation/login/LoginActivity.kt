@@ -17,3 +17,4 @@ class LoginActivity : AppCompatActivity() {
             .commit()
     }
 }
+//수정된 로직
