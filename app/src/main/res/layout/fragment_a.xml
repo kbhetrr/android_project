@@ -56,6 +56,7 @@
                     app:lottie_loop="true" />
             </androidx.cardview.widget.CardView>
             <TextView
+                android:id="@+id/nickname"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="로더리"
@@ -64,6 +65,7 @@
                 android:textColor="#000000"
                 android:paddingTop="4dp"/>
             <TextView
+                android:id="@+id/level"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="레벨 5" />
@@ -106,6 +108,7 @@
                     android:src="@drawable/red_heart_icon"
                     android:layout_marginRight="8dp"/>
                 <TextView
+                    android:id="@+id/hp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="#000000"
@@ -130,6 +133,7 @@
                     android:src="@drawable/sword_icon"
                     android:layout_marginRight="8dp"/>
                 <TextView
+                    android:id="@+id/attack"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="#000000"
@@ -154,6 +158,7 @@
                     android:src="@drawable/shield_sedo_line_icon"
                     android:layout_marginRight="8dp"/>
                 <TextView
+                    android:id="@+id/shield"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="#000000"
@@ -179,6 +184,7 @@
                 android:gravity="center"
                 android:layout_gravity="center">
                 <TextView
+                    android:id="@+id/total"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="#000000"
@@ -203,6 +209,7 @@
                 android:gravity="center"
                 android:layout_gravity="center">
                 <TextView
+                    android:id="@+id/win"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="#000000"
@@ -227,6 +234,7 @@
                 android:gravity="center"
                 android:layout_gravity="center">
                 <TextView
+                    android:id="@+id/lose"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="#000000"
@@ -251,6 +259,7 @@
                 android:gravity="center"
                 android:layout_gravity="center">
                 <TextView
+                    android:id="@+id/rate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="#000000"
