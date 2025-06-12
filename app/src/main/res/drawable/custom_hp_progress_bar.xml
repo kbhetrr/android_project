@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- ProgressBar 배경 -->
+    <item android:id="@android:id/background">
+        <shape android:shape="rectangle">
+            <corners android:radius="10dp" /> <!-- 원하는 둥근 정도 (dp 단위) -->
+            <solid android:color="#E0E0E0" />  <!-- 배경색 -->
+        </shape>
+    </item>
+
+    <!-- ProgressBar 진행 상태 (progress) -->
+    <item android:id="@android:id/progress">
+        <clip> <!-- clip Drawable을 사용해야 progress에 따라 그려짐 -->
+            <shape android:shape="rectangle">
+                <corners android:radius="10dp" /> <!-- 배경과 동일한 radius 적용 -->
+                <gradient
+                    android:angle="45"
+                    android:endColor="#4C7FAF"
+                    android:startColor="#21189E"
+                    android:type="linear" />
+            </shape>
+        </clip>
+    </item>
+
+    <!-- (선택 사항) 보조 진행 상태 (secondaryProgress) -->
+    <item android:id="@android:id/secondaryProgress">
+        <clip>
+            <shape android:shape="rectangle">
+                <corners android:radius="10dp" />
+                <solid android:color="#BDBDBD" /> <!-- 보조 진행색 -->
+            </shape>
+        </clip>
+    </item>
+
+</layer-list>
