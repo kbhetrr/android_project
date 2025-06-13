@@ -20,6 +20,7 @@ val localProperties = Properties().apply {
 
 val githubClientId = localProperties["GITHUB_CLIENT_ID"] as String
 val githubClientSecret = localProperties["GITHUB_CLIENT_SECRET"] as String
+val geminiApiKey = localProperties["GEMINI_API_KEY"] as String
 
 android {
     namespace = "com.example.softwareproject"
@@ -34,6 +35,7 @@ android {
 
         buildConfigField("String", "GITHUB_CLIENT_ID", "\"$githubClientId\"")
         buildConfigField("String", "GITHUB_CLIENT_SECRET", "\"$githubClientSecret\"")
+        buildConfigField("String", "GEMINI_API_KEY", "\"$geminiApiKey\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
