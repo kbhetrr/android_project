@@ -11,6 +11,7 @@ data class Room(
     var roomType: RoomType = RoomType.CS,
     var roomState: RoomState = RoomState.WAITING,
     var description: String = "",
+    var createdBy: String = "",
     var createdAt: Timestamp? = null,
     var updatedAt: Timestamp? = null
 )
