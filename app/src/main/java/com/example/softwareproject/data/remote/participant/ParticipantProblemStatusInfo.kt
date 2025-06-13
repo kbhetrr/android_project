@@ -1,4 +1,4 @@
-package com.example.softwareproject.com.example.softwareproject.data.remote.participant
+package com.example.softwareproject.data.remote.participant
 
 import com.google.firebase.Timestamp
 

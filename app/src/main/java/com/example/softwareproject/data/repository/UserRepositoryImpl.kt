@@ -1,11 +1,11 @@
 package com.example.softwareproject.data.repository
 
-import com.example.softwareproject.com.example.softwareproject.data.nosql_entity.GithubInfo
-import com.example.softwareproject.com.example.softwareproject.data.nosql_entity.User
-import com.example.softwareproject.com.example.softwareproject.data.nosql_entity.UserAbility
-import com.example.softwareproject.com.example.softwareproject.data.nosql_entity.UserBattleLog
-import com.example.softwareproject.com.example.softwareproject.data.remote.user.UserFullInfo
-import com.example.softwareproject.com.example.softwareproject.data.remote.user.UserSaveInfo
+import com.example.softwareproject.data.nosql_entity.GithubInfo
+import com.example.softwareproject.data.nosql_entity.User
+import com.example.softwareproject.data.nosql_entity.UserAbility
+import com.example.softwareproject.data.nosql_entity.UserBattleLog
+import com.example.softwareproject.data.remote.user.UserFullInfo
+import com.example.softwareproject.data.remote.user.UserSaveInfo
 import com.example.softwareproject.domain.repository.UserRepository
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore

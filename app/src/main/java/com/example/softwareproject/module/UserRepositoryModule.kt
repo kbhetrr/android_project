@@ -1,4 +1,4 @@
-package com.example.softwareproject.com.example.softwareproject.module
+package com.example.softwareproject.module
 
 import com.example.softwareproject.data.repository.UserRepositoryImpl
 import com.example.softwareproject.domain.repository.UserRepository

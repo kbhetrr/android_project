@@ -1,7 +1,7 @@
 package com.example.softwareproject.domain.usecase.login.github
 
-import com.example.softwareproject.com.example.softwareproject.data.remote.github.GitHubApi
-import com.example.softwareproject.com.example.softwareproject.data.remote.user.GitHubUser
+import com.example.softwareproject.data.remote.github.GitHubApi
+import com.example.softwareproject.data.remote.user.GitHubUser
 import javax.inject.Inject
 
 class GetGitHubUserInfoUseCase @Inject constructor(

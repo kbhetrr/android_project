@@ -1,4 +1,4 @@
-package com.example.softwareproject.com.example.softwareproject.domain.repository
+package com.example.softwareproject.domain.repository
 
 import com.google.android.gms.common.api.internal.ApiKey
 import retrofit2.http.Body

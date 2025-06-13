@@ -1,4 +1,4 @@
-package com.example.softwareproject.com.example.softwareproject.data.remote.problem
+package com.example.softwareproject.data.remote.problem
 
 data class CsProblemInfo (
     val choice1: String,

@@ -1,25 +1,26 @@
-package com.example.softwareproject.com.example.softwareproject.data.repository
+package com.example.softwareproject.data.repository
 
+import android.util.Log
 import com.example.softwareproject.BuildConfig
-import com.example.softwareproject.com.example.softwareproject.data.nosql_entity.CodingProblem
-import com.example.softwareproject.com.example.softwareproject.data.nosql_entity.CodingRoom
-import com.example.softwareproject.com.example.softwareproject.data.nosql_entity.CsProblem
-import com.example.softwareproject.com.example.softwareproject.data.nosql_entity.CsRoom
-import com.example.softwareproject.com.example.softwareproject.data.nosql_entity.GithubInfo
-import com.example.softwareproject.com.example.softwareproject.data.nosql_entity.ParticipantProblemStatus
-import com.example.softwareproject.com.example.softwareproject.data.nosql_entity.Room
-import com.example.softwareproject.com.example.softwareproject.data.remote.room.CsRoomSaveInfo
-import com.example.softwareproject.com.example.softwareproject.domain.repository.RoomRepository
-import com.example.softwareproject.com.example.softwareproject.data.nosql_entity.RoomParticipant
-import com.example.softwareproject.com.example.softwareproject.data.remote.room.CodingRoomSaveInfo
-import com.example.softwareproject.com.example.softwareproject.data.remote.room.UiCodingRoomItem
-import com.example.softwareproject.com.example.softwareproject.data.remote.room.UiCsRoomItem
-import com.example.softwareproject.com.example.softwareproject.data.remote.user.UserFullInfo
-import com.example.softwareproject.com.example.softwareproject.domain.repository.Content
-import com.example.softwareproject.com.example.softwareproject.domain.repository.GeminiApi
-import com.example.softwareproject.com.example.softwareproject.domain.repository.GeminiRequest
-import com.example.softwareproject.com.example.softwareproject.domain.repository.Part
-import com.example.softwareproject.com.example.softwareproject.domain.repository.solvedac.RetrofitInstance
+import com.example.softwareproject.data.nosql_entity.CodingProblem
+import com.example.softwareproject.data.nosql_entity.CodingRoom
+import com.example.softwareproject.data.nosql_entity.CsProblem
+import com.example.softwareproject.data.nosql_entity.CsRoom
+import com.example.softwareproject.data.nosql_entity.GithubInfo
+import com.example.softwareproject.data.nosql_entity.ParticipantProblemStatus
+import com.example.softwareproject.data.nosql_entity.Room
+import com.example.softwareproject.data.remote.room.CsRoomSaveInfo
+import com.example.softwareproject.domain.repository.RoomRepository
+import com.example.softwareproject.data.nosql_entity.RoomParticipant
+import com.example.softwareproject.data.remote.room.CodingRoomSaveInfo
+import com.example.softwareproject.data.remote.room.UiCodingRoomItem
+import com.example.softwareproject.data.remote.room.UiCsRoomItem
+import com.example.softwareproject.data.remote.user.UserFullInfo
+import com.example.softwareproject.domain.repository.Content
+import com.example.softwareproject.domain.repository.GeminiApi
+import com.example.softwareproject.domain.repository.GeminiRequest
+import com.example.softwareproject.domain.repository.Part
+import com.example.softwareproject.domain.repository.solvedac.RetrofitInstance
 import com.example.softwareproject.domain.repository.UserRepository
 import com.example.softwareproject.util.UserRole
 import com.google.firebase.Timestamp
@@ -221,31 +222,37 @@ class RoomRepositoryImpl @Inject constructor(
             .await()
 
         for (roomDoc in roomSnapshots.documents) {
-            val room = roomDoc.toObject(Room::class.java) ?: continue
+            try {
+                val room = roomDoc.toObject(Room::class.java) ?: continue
 
-            val csRoomSnapshot = firebaseStore.collection("cs_room")
-                .whereEqualTo("roomId", room.roomId)
-                .get()
-                .await()
+                val csRoomSnapshot = firebaseStore.collection("cs_room")
+                    .whereEqualTo("roomId", room.roomId)
+                    .get()
+                    .await()
 
-            val csRoom = csRoomSnapshot.documents.firstOrNull()?.toObject(CsRoom::class.java) ?: continue
+                val csRoom = csRoomSnapshot.documents.firstOrNull()?.toObject(CsRoom::class.java) ?: continue
 
-            val githubInfoSnapshot = firebaseStore.collection("github_info")
-                .whereEqualTo("userId", roomDoc.getString("createdBy") ?: continue)
-                .get()
-                .await()
+                val createdBy = room.createdBy
+                val githubInfoSnapshot = firebaseStore.collection("github_info")
+                    .whereEqualTo("userId", createdBy)
+                    .get()
+                    .await()
 
-            val githubInfo = githubInfoSnapshot.documents.firstOrNull()?.toObject(GithubInfo::class.java)
+                val githubInfo = githubInfoSnapshot.documents.firstOrNull()?.toObject(GithubInfo::class.java)
 
-            result.add(
-                UiCsRoomItem(
-                    roomId = room.roomId,
-                    roomTitle = room.roomTitle,
-                    topic = csRoom.topic,
-                    difficulty = csRoom.difficultyLevel,
-                    githubName = githubInfo?.githubName
+                result.add(
+                    UiCsRoomItem(
+                        roomId = room.roomId,
+                        roomTitle = room.roomTitle,
+                        topic = csRoom.topic,
+                        difficulty = csRoom.difficultyLevel,
+                        githubName = githubInfo?.githubName,
+                        description = room.description
+                    )
                 )
-            )
+            } catch (e: Exception) {
+                Log.e("Repo", "listCsRoom 내부 예외 발생: ${e.message}")
+            }
         }
 
         return result
@@ -286,7 +293,8 @@ class RoomRepositoryImpl @Inject constructor(
                     roomId = room.roomId,
                     roomTitle = room.roomTitle,
                     difficulty = codingRoom.difficultyLevel,
-                    githubName = githubInfo?.githubName
+                    githubName = githubInfo?.githubName,
+                    description = room.description
                 )
             )
         }

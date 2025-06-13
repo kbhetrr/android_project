@@ -1,4 +1,4 @@
-package com.example.softwareproject.com.example.softwareproject.data.remote.room
+package com.example.softwareproject.data.remote.room
 
 import com.example.softwareproject.util.BaekjoonTier
 import com.example.softwareproject.util.DifficultyCs

@@ -1,4 +1,4 @@
-package com.example.softwareproject.com.example.softwareproject.domain.repository.solvedac
+package com.example.softwareproject.domain.repository.solvedac
 
 import com.google.gson.annotations.SerializedName
 import dagger.Module

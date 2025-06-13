@@ -1,9 +1,9 @@
-package com.example.softwareproject.com.example.softwareproject.domain.repository
+package com.example.softwareproject.domain.repository
 
-import com.example.softwareproject.com.example.softwareproject.data.remote.room.CodingRoomSaveInfo
-import com.example.softwareproject.com.example.softwareproject.data.remote.room.CsRoomSaveInfo
-import com.example.softwareproject.com.example.softwareproject.data.remote.room.UiCodingRoomItem
-import com.example.softwareproject.com.example.softwareproject.data.remote.room.UiCsRoomItem
+import com.example.softwareproject.data.remote.room.CodingRoomSaveInfo
+import com.example.softwareproject.data.remote.room.CsRoomSaveInfo
+import com.example.softwareproject.data.remote.room.UiCodingRoomItem
+import com.example.softwareproject.data.remote.room.UiCsRoomItem
 
 interface RoomRepository {
     suspend fun getRoomInfo(roomId: String)
