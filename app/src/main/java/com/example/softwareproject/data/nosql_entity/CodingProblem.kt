@@ -1,4 +1,4 @@
-package com.example.softwareproject.com.example.softwareproject.data.nosql_entity
+package com.example.softwareproject.data.nosql_entity
 
 data class CodingProblem(
     var codingRoomId: String = "",

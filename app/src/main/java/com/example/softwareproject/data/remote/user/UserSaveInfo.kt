@@ -1,4 +1,4 @@
-package com.example.softwareproject.com.example.softwareproject.data.remote.user
+package com.example.softwareproject.data.remote.user
 
 data class UserSaveInfo (
     val userId: String,

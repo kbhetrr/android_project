@@ -1,4 +1,4 @@
-package com.example.softwareproject.com.example.softwareproject.data.nosql_entity
+package com.example.softwareproject.data.nosql_entity
 
 import com.example.softwareproject.util.RoomState
 import com.example.softwareproject.util.RoomType
@@ -11,6 +11,7 @@ data class Room(
     var roomType: RoomType = RoomType.CS,
     var roomState: RoomState = RoomState.WAITING,
     var description: String = "",
+    var createdBy: String = "",
     var createdAt: Timestamp? = null,
     var updatedAt: Timestamp? = null
 )

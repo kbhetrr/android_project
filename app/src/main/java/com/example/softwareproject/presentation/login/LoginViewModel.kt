@@ -6,9 +6,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.softwareproject.com.example.softwareproject.data.remote.github.GitHubApi
-import com.example.softwareproject.com.example.softwareproject.data.remote.user.GitHubUser
-import com.example.softwareproject.com.example.softwareproject.data.remote.user.UserSaveInfo
+import com.example.softwareproject.data.remote.github.GitHubApi
+import com.example.softwareproject.data.remote.user.GitHubUser
+import com.example.softwareproject.data.remote.user.UserSaveInfo
 import com.example.softwareproject.domain.repository.UserRepository
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth

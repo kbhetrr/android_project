@@ -3,6 +3,7 @@ package com.example.softwareproject // 실제 패키지 이름으로 변경
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity // FragmentActivity 사용
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.example.softwareproject.com.example.softwareproject.TabCsFragment
 
 class RoomViewPagerAdapter(fragmentActivity: FragmentActivity) : FragmentStateAdapter(fragmentActivity) {
 

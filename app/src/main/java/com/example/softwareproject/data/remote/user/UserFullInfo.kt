@@ -1,9 +1,9 @@
-package com.example.softwareproject.com.example.softwareproject.data.remote.user
+package com.example.softwareproject.data.remote.user
 
-import com.example.softwareproject.com.example.softwareproject.data.nosql_entity.GithubInfo
-import com.example.softwareproject.com.example.softwareproject.data.nosql_entity.User
-import com.example.softwareproject.com.example.softwareproject.data.nosql_entity.UserAbility
-import com.example.softwareproject.com.example.softwareproject.data.nosql_entity.UserBattleLog
+import com.example.softwareproject.data.nosql_entity.GithubInfo
+import com.example.softwareproject.data.nosql_entity.User
+import com.example.softwareproject.data.nosql_entity.UserAbility
+import com.example.softwareproject.data.nosql_entity.UserBattleLog
 
 data class UserFullInfo(
     val user: User,

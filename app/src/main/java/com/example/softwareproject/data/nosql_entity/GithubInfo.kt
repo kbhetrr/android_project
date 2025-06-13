@@ -1,4 +1,4 @@
-package com.example.softwareproject.com.example.softwareproject.data.nosql_entity
+package com.example.softwareproject.data.nosql_entity
 
 import com.google.firebase.Timestamp
 
