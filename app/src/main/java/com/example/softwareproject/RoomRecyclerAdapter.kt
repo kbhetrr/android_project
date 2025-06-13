@@ -1,35 +1,48 @@
 package com.example.softwareproject // 실제 패키지 이름으로 변경
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.compose.ui.semantics.text
 import androidx.recyclerview.widget.RecyclerView
 
-// RecyclerView에 표시할 데이터 클래스 (예시)
-data class MyItem(val title: String, val description: String)
+import com.example.softwareproject.data.remote.room.UiCsRoomItem
 
-class RoomRecyclerAdapter(private val items: List<MyItem>) :
-    RecyclerView.Adapter<RoomRecyclerAdapter.MyViewHolder>() {
+class RoomRecyclerAdapter(
+    private var roomList: List<UiCsRoomItem>
+) : RecyclerView.Adapter<RoomRecyclerAdapter.RoomViewHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
+    inner class RoomViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val roomTitleTextView: TextView = itemView.findViewById(R.id.item_title)
+        val topicTextView: TextView = itemView.findViewById(R.id.room_topic)
+        val difficultyTextView: TextView = itemView.findViewById(R.id.room_difficulty)
+        val githubNameTextView: TextView = itemView.findViewById(R.id.host_name)
+        val descriptionTextView: TextView = itemView.findViewById(R.id.item_description) // ✅ 추가
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RoomViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.battle_item_layout, parent, false) // item_layout.xml 사용
-        return MyViewHolder(view)
+            .inflate(R.layout.battle_item_layout, parent, false)
+        return RoomViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        val item = items[position]
-        holder.titleTextView.text = item.title
-        holder.descriptionTextView.text = item.description
+    override fun getItemCount(): Int = roomList.size
+
+    override fun onBindViewHolder(holder: RoomViewHolder, position: Int) {
+        val room = roomList[position]
+        holder.roomTitleTextView.text = room.roomTitle
+        holder.topicTextView.text = "주제: ${room.topic}"
+        holder.difficultyTextView.text = "난이도: ${room.difficulty}" // ✅ 이미 있음
+        holder.githubNameTextView.text = room.githubName ?: "익명 호스트"
+        holder.descriptionTextView.text = room.description ?: "설명 없음" // ✅ 추가
     }
 
-    override fun getItemCount(): Int = items.size
-
-    class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val titleTextView: TextView = itemView.findViewById(R.id.item_title)
-        val descriptionTextView: TextView = itemView.findViewById(R.id.item_description)
+    @SuppressLint("NotifyDataSetChanged")
+    fun submitList(newList: List<UiCsRoomItem>) {
+        roomList = newList
+        notifyDataSetChanged()
     }
 }
+
 
