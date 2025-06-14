@@ -28,7 +28,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.softwareproject"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -79,6 +79,13 @@ android {
         correctErrorTypes = true
     }
 
+    // ❗️이 블록이 있는지 확인하고 없다면 추가해주세요.
+    packaging {
+        resources {
+            // 중복되는 파일을 빌드에서 제외합니다.
+            excludes += "META-INF/DEPENDENCIES"
+        }
+    }
 }
 
 dependencies {
@@ -153,6 +160,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3") // 최신 버전 확인
 
     implementation("com.airbnb.android:lottie:5.0.2")
+
+    implementation("org.tensorflow:tensorflow-lite-support:0.4.4") // ByteBuffer 등 헬퍼 클래스 포함
+    implementation("org.tensorflow:tensorflow-lite:2.15.0")        // Interpreter 등 핵심 기능 포함
 
 
 }
