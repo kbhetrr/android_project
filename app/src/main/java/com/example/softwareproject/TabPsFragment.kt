@@ -50,7 +50,7 @@ class TabPsFragment : Fragment() {
         }
 
         // 방 리스트 로드
-        viewModel.loadCsRooms()
+        viewModel.loadCodingRooms()
 
     }
 
