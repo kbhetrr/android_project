@@ -10,6 +10,7 @@
         android:fillViewport="true">
 
     <LinearLayout
+        android:id="@+id/capture_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -280,6 +281,7 @@
             android:layout_height="200dp" />
 
         <Button
+            android:id="@+id/saveImageButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/share_button"
@@ -292,19 +294,19 @@
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"/>
 
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/share_button"
-            android:stateListAnimator="@null"
-            android:text="공유 (인스타그램)"
-            android:textStyle="bold"
-            android:textSize="14dp"
-            android:padding="4dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="16dp"/>
+<!--        <Button-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:background="@drawable/share_button"-->
+<!--            android:stateListAnimator="@null"-->
+<!--            android:text="공유 (인스타그램)"-->
+<!--            android:textStyle="bold"-->
+<!--            android:textSize="14dp"-->
+<!--            android:padding="4dp"-->
+<!--            android:layout_marginTop="8dp"-->
+<!--            android:layout_marginLeft="16dp"-->
+<!--            android:layout_marginRight="16dp"-->
+<!--            android:layout_marginBottom="16dp"/>-->
     </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </FrameLayout>
