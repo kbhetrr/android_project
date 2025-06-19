@@ -42,6 +42,24 @@ class ScreenAFragment : Fragment() {
         //     userProfileImageView = it
         // }
 
+        viewPager = view.findViewById(R.id.carousel_view_pager)
+        carouselFragmentAdapter = CarouselAdapter(this) // 어댑터는 무한 스크롤 없는 버전
+        viewPager.adapter = carouselFragmentAdapter
+
+        // ViewPager2가 그려지기 직전에 크기를 얻어와서 PageTransformer와 Padding을 설정합니다.
+        // 이렇게 하면 ViewPager2의 실제 너비를 기준으로 계산할 수 있어 더 정확합니다.
+        viewPager.doOnPreDraw {
+            setupCarouselPeekEffect()
+        }
+
+        // 초기 페이지 설정 (0번 인덱스, 즉 첫 번째 페이지로 시작)
+        // setCurrentItem은 PageTransformer와 Padding이 설정된 후 호출되는 것이 좋습니다.
+        // doOnPreDraw 콜백 내에서 호출하거나, 그 이후에 호출합니다.
+        // 여기서는 setupCarouselPeekEffect 내부에서 처리하지 않으므로 onViewCreated 마지막에 호출.
+        if (carouselFragmentAdapter.itemCount > 0) {
+            viewPager.setCurrentItem(0, false)
+        }
+
 
         //임준식 추가 부분
 
@@ -73,23 +91,6 @@ class ScreenAFragment : Fragment() {
         }
         //임준식 추가 부분
 
-        viewPager = view.findViewById(R.id.carousel_view_pager)
-        carouselFragmentAdapter = CarouselAdapter(this) // 어댑터는 무한 스크롤 없는 버전
-        viewPager.adapter = carouselFragmentAdapter
-
-        // ViewPager2가 그려지기 직전에 크기를 얻어와서 PageTransformer와 Padding을 설정합니다.
-        // 이렇게 하면 ViewPager2의 실제 너비를 기준으로 계산할 수 있어 더 정확합니다.
-        viewPager.doOnPreDraw {
-            setupCarouselPeekEffect()
-        }
-
-        // 초기 페이지 설정 (0번 인덱스, 즉 첫 번째 페이지로 시작)
-        // setCurrentItem은 PageTransformer와 Padding이 설정된 후 호출되는 것이 좋습니다.
-        // doOnPreDraw 콜백 내에서 호출하거나, 그 이후에 호출합니다.
-        // 여기서는 setupCarouselPeekEffect 내부에서 처리하지 않으므로 onViewCreated 마지막에 호출.
-        if (carouselFragmentAdapter.itemCount > 0) {
-            viewPager.setCurrentItem(0, false)
-        }
     }
 
     private fun setupCarouselPeekEffect() {
