@@ -27,6 +27,7 @@
         <activity
             android:name=".BattleLoadingActivity"
             android:exported="false" />
+        <activity android:name=".MakeRoomActivity" android:exported="false" />
     </application>
 
 </manifest>
