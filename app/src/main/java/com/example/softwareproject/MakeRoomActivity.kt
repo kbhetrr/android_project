@@ -1,14 +1,71 @@
 package com.example.softwareproject // 실제 패키지 이름으로 변경
 
+import android.content.Intent
 import android.os.Bundle
+import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.Spinner
 import androidx.appcompat.app.AppCompatActivity // AppCompatActivity 상속
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class MakeRoomActivity : AppCompatActivity() {
+    private lateinit var makeButton: Button
+    private lateinit var backButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_make_room) // activity_battle_loading.xml 설정
+
+        makeButton = findViewById(R.id.make_button)
+        backButton = findViewById(R.id.back_button)
+        val spinner_types: Spinner = findViewById(R.id.spinner_types)
+        ArrayAdapter.createFromResource(
+            this,
+            R.array.types,
+            android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            // Specify the layout to use when the list of choices appears.
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            // Apply the adapter to the spinner.
+            spinner_types.adapter = adapter
+        }
+
+        val spinner_tiers: Spinner = findViewById(R.id.spinner_tiers)
+        ArrayAdapter.createFromResource(
+            this,
+            R.array.tier,
+            android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            // Specify the layout to use when the list of choices appears.
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            // Apply the adapter to the spinner.
+            spinner_tiers.adapter = adapter
+        }
+
+        val spinner_counts: Spinner = findViewById(R.id.spinner_counts)
+        ArrayAdapter.createFromResource(
+            this,
+            R.array.count,
+            android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            // Specify the layout to use when the list of choices appears.
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            // Apply the adapter to the spinner.
+            spinner_counts.adapter = adapter
+        }
+
+        makeButton.setOnClickListener{
+            // BattleLoadingActivity 시작
+            val intent = Intent(this, BattleLoadingActivity::class.java)
+            // 필요하다면 intent에 데이터 추가 가능
+            // intent.putExtra("KEY_BATTLE_ID", battleId)
+            startActivity(intent)
+        }
+
+        backButton.setOnClickListener{
+            // 현재 액티비티 종료하여 이전 화면으로 돌아가기
+            finish()
+        }
 
 //        val btnGoBack: Button = findViewById(R.id.btn_go_back)
 //        btnGoBack.setOnClickListener {
