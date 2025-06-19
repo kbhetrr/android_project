@@ -11,6 +11,7 @@ import android.content.Intent // Intent import
 import android.util.Log
 import androidx.fragment.app.viewModels
 import com.example.softwareproject.BattleLoadingActivity
+import com.example.softwareproject.MakeRoomActivity
 import com.example.softwareproject.R
 import com.example.softwareproject.RoomRecyclerAdapter
 import com.example.softwareproject.presentation.room.RoomViewModel
@@ -64,7 +65,7 @@ class TabCsFragment : Fragment() {
 
         fabPs.setOnClickListener {
             // BattleLoadingActivity 시작
-            val intent = Intent(activity, BattleLoadingActivity::class.java)
+            val intent = Intent(activity, MakeRoomActivity::class.java)
             // 필요하다면 intent에 데이터 추가 가능
             // intent.putExtra("KEY_BATTLE_ID", battleId)
             startActivity(intent)
