@@ -6,20 +6,32 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.compose.ui.semantics.text
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.example.softwareproject.com.example.softwareproject.SelectableItem
+import com.example.softwareproject.R // R 클래스 import 확인
+
+// 데이터 클래스는 동일하게 사용
+// data class SelectableItem(val id: String, val name: String)
 
 class RadioSelectionAdapter(
     private val items: List<SelectableItem>,
-    private val onItemSelected: (SelectableItem) -> Unit // 선택된 아이템을 전달하는 콜백
+    initialSelectedItemId: String? = null, // 초기에 선택될 아이템의 ID (선택 사항)
+    private val onItemSelected: (SelectableItem) -> Unit
 ) : RecyclerView.Adapter<RadioSelectionAdapter.ViewHolder>() {
 
-    // 현재 선택된 아이템의 position을 저장. 초기값은 선택되지 않음을 의미하는 -1.
     private var selectedPosition = RecyclerView.NO_POSITION
+
+    init {
+        // 생성자에서 초기 선택된 아이템의 position을 찾아서 설정
+        if (initialSelectedItemId != null) {
+            selectedPosition = items.indexOfFirst { it.id == initialSelectedItemId }
+            // 만약 ID에 해당하는 아이템이 없으면 selectedPosition은 -1 (NO_POSITION)이 됨
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_selectable_radio, parent, false) // 아이템 레이아웃
+            .inflate(R.layout.item_selectable_radio, parent, false) // 아이템 레이아웃 XML
         return ViewHolder(view)
     }
 
@@ -27,42 +39,44 @@ class RadioSelectionAdapter(
         val item = items[position]
         holder.itemName.text = item.name
 
-        // 현재 아이템이 선택된 아이템인지 확인
         if (position == selectedPosition) {
-            holder.selectionIndicator.setImageResource(R.drawable.check_mark_svgrepo_com) // 선택된 상태 아이콘
-            // 필요하다면 배경색 등 다른 UI 변경
-            // holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, R.color.selected_background))
+            holder.selectionIndicator.setImageResource(R.drawable.check_mark_svgrepo_com) // 실제 드로어블 리소스 사용
+            // 예시: 선택된 아이템 배경색 변경
+            // holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, R.color.selected_item_background))
         } else {
-            holder.selectionIndicator.setImageResource(R.drawable.dot_single_svgrepo_com) // 선택 안 된 상태 아이콘
+            holder.selectionIndicator.setImageResource(R.drawable.dot_single_svgrepo_com) // 실제 드로어블 리소스 사용
+            // 예시: 선택되지 않은 아이템 배경색 원래대로
             // holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, android.R.color.transparent))
         }
 
-        // 아이템 클릭 리스너
         holder.itemView.setOnClickListener {
-            if (selectedPosition != holder.adapterPosition) { // 현재 선택된 아이템이 아닌 경우에만 업데이트
+            if (selectedPosition != holder.adapterPosition) {
                 val previouslySelectedPosition = selectedPosition
-                selectedPosition = holder.adapterPosition // 새로운 아이템 선택
+                selectedPosition = holder.adapterPosition
 
-                // 이전에 선택된 아이템이 있었다면 해당 아이템 UI 갱신
                 if (previouslySelectedPosition != RecyclerView.NO_POSITION) {
                     notifyItemChanged(previouslySelectedPosition)
                 }
-                // 새로 선택된 아이템 UI 갱신
                 notifyItemChanged(selectedPosition)
 
-                onItemSelected(items[selectedPosition]) // 콜백 호출
+                onItemSelected(items[selectedPosition])
             }
         }
     }
 
     override fun getItemCount(): Int = items.size
 
-    // 선택된 아이템을 외부에서 설정하거나 가져올 수 있는 메소드 (선택 사항)
-    fun setSelectedItem(item: SelectableItem?) {
-        val newPosition = items.indexOf(item)
+    // 외부에서 선택된 아이템을 변경하는 함수 (ID 기반)
+    fun setSelectedItemId(itemId: String?) {
+        val newPosition = if (itemId != null) {
+            items.indexOfFirst { it.id == itemId }
+        } else {
+            RecyclerView.NO_POSITION
+        }
+
         if (newPosition != selectedPosition) {
             val previouslySelectedPosition = selectedPosition
-            selectedPosition = if (newPosition >= 0) newPosition else RecyclerView.NO_POSITION
+            selectedPosition = newPosition
 
             if (previouslySelectedPosition != RecyclerView.NO_POSITION) {
                 notifyItemChanged(previouslySelectedPosition)
@@ -81,9 +95,8 @@ class RadioSelectionAdapter(
         }
     }
 
-
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val selectionIndicator: ImageView = itemView.findViewById(R.id.iv_selection_indicator)
-        val itemName: TextView = itemView.findViewById(R.id.tv_item_name)
+        val selectionIndicator: ImageView = itemView.findViewById(R.id.iv_selection_indicator) // XML ID와 일치해야 함
+        val itemName: TextView = itemView.findViewById(R.id.tv_item_name) // XML ID와 일치해야 함
     }
 }

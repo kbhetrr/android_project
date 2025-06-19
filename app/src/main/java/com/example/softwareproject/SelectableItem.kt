@@ -1,4 +1,4 @@
-package com.example.softwareproject.com.example.softwareproject
+package com.example.softwareproject
 
 data class SelectableItem(
     val id: String, // 고유 ID
