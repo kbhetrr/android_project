@@ -56,10 +56,11 @@ class MakeRoomActivity : AppCompatActivity() {
 
         makeButton.setOnClickListener{
             // BattleLoadingActivity 시작
-            val intent = Intent(this, CsBattleActivity::class.java)
+            val intent = Intent(this, PsBattleActivity::class.java)
             // 필요하다면 intent에 데이터 추가 가능
             // intent.putExtra("KEY_BATTLE_ID", battleId)
             startActivity(intent)
+            finish()
         }
 
         backButton.setOnClickListener{
