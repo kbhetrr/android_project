@@ -56,7 +56,7 @@ class ScreenBFragment : Fragment() { // 클래스 이름을 FragmentB로 (기존
         // Damage Calculator Test
         val TAG = "DamageTest"
         // 테스트할 샘플 입력값 정의
-        val testTier = 25f
+        val testTier = 3f
         val testSolvers = 800f
         val testAverageTries = 3.5f
 

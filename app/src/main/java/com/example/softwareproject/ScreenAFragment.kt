@@ -2,10 +2,14 @@ package com.example.softwareproject // 실제 패키지 이름으로 변경
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.doOnPreDraw // 뷰의 크기를 정확히 알기 위해 사용
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -23,14 +27,34 @@ import com.google.firebase.auth.FirebaseAuth
 @AndroidEntryPoint
 class ScreenAFragment : Fragment() {
 
+    // 뷰 바인딩을 사용한다면 해당 방식으로 뷰 참조
+    private lateinit var buttonSaveImage: Button
+    private lateinit var viewToCapture: View // 캡처할 뷰 (예: fragment의 루트 뷰 또는 특정 ViewGroup)
+
     private lateinit var viewPager: ViewPager2
     private lateinit var carouselFragmentAdapter: CarouselAdapter
+
+    // 권한 요청을 위한 ActivityResultLauncher
+//    private val requestPermissionLauncher =
+//        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+//            if (isGranted) {
+//                Log.d("Permission", "Storage permission granted")
+//                captureAndSaveView(viewToCapture) // 권한이 부여되면 이미지 저장 실행
+//            } else {
+//                Log.d("Permission", "Storage permission denied")
+//                Toast.makeText(requireContext(), "저장 권한이 거부되었습니다.", Toast.LENGTH_SHORT).show()
+//            }
+//        }
+
     // private lateinit var userProfileImageView: ShapeableImageView
     private val viewModel: ScreenAViewModel by viewModels()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
+//        buttonSaveImage = view.findViewById(R.id.saveImageButton) // 버튼 ID를 실제 ID로 변경
+//        viewToCapture = view.findViewById(R.id.capture_view) // 캡처할 뷰의 ID로 변경
         return inflater.inflate(R.layout.fragment_a, container, false)
     }
 
