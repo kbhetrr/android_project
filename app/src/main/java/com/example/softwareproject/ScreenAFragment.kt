@@ -1,7 +1,13 @@
 package com.example.softwareproject // 실제 패키지 이름으로 변경
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -10,7 +16,14 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.text2.input.delete
+import androidx.compose.foundation.text2.input.insert
+
+import androidx.core.content.ContextCompat
 import androidx.core.view.doOnPreDraw // 뷰의 크기를 정확히 알기 위해 사용
+
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 
@@ -20,6 +33,24 @@ import androidx.viewpager2.widget.ViewPager2
 import com.example.softwareproject.com.example.softwareproject.presentation.fragmenta.ScreenAViewModel
 import com.example.softwareproject.util.UserPreferences
 import com.google.firebase.auth.FirebaseAuth
+
+import kotlin.text.clear
+import kotlin.text.format
+import java.util.Locale
+import android.graphics.Canvas
+import android.Manifest
+
+import android.content.ContentValues
+import android.content.Intent
+// import android.media.MediaScannerConnection // API 29 미만에서 사용, 여기서는 불필요
+
+import android.os.Environment
+import androidx.compose.ui.input.key.type
+// import androidx.fragment.app.Fragment // Fragment 클래스 내에 있다면 필요
+import java.io.File // File.separator 사용을 위해
+import java.io.OutputStream
+import java.text.SimpleDateFormat
+import java.util.Date
 
 // import com.google.android.material.imageview.ShapeableImageView
 
@@ -35,16 +66,17 @@ class ScreenAFragment : Fragment() {
     private lateinit var carouselFragmentAdapter: CarouselAdapter
 
     // 권한 요청을 위한 ActivityResultLauncher
-//    private val requestPermissionLauncher =
-//        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
-//            if (isGranted) {
-//                Log.d("Permission", "Storage permission granted")
-//                captureAndSaveView(viewToCapture) // 권한이 부여되면 이미지 저장 실행
-//            } else {
-//                Log.d("Permission", "Storage permission denied")
-//                Toast.makeText(requireContext(), "저장 권한이 거부되었습니다.", Toast.LENGTH_SHORT).show()
-//            }
-//        }
+    @RequiresApi(Build.VERSION_CODES.R)
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+            if (isGranted) {
+                Log.d("Permission", "Storage permission granted")
+                captureAndSaveView(viewToCapture) // 권한이 부여되면 이미지 저장 실행
+            } else {
+                Log.d("Permission", "Storage permission denied")
+                Toast.makeText(requireContext(), "저장 권한이 거부되었습니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
 
     // private lateinit var userProfileImageView: ShapeableImageView
     private val viewModel: ScreenAViewModel by viewModels()
@@ -52,12 +84,13 @@ class ScreenAFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
-//        buttonSaveImage = view.findViewById(R.id.saveImageButton) // 버튼 ID를 실제 ID로 변경
-//        viewToCapture = view.findViewById(R.id.capture_view) // 캡처할 뷰의 ID로 변경
-        return inflater.inflate(R.layout.fragment_a, container, false)
+        val view = inflater.inflate(R.layout.fragment_a, container, false)
+        buttonSaveImage = view.findViewById(R.id.saveImageButton) // 버튼 ID를 실제 ID로 변경
+        viewToCapture = view.findViewById(R.id.capture_view) // 캡처할 뷰의 ID로 변경
+        return view
     }
 
+    @RequiresApi(Build.VERSION_CODES.R)
     @SuppressLint("SetTextI18n")//임준식 추가
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -66,6 +99,9 @@ class ScreenAFragment : Fragment() {
         //     userProfileImageView = it
         // }
 
+        buttonSaveImage.setOnClickListener {
+            checkPermissionAndSaveImage(viewToCapture)
+        }
         viewPager = view.findViewById(R.id.carousel_view_pager)
         carouselFragmentAdapter = CarouselAdapter(this) // 어댑터는 무한 스크롤 없는 버전
         viewPager.adapter = carouselFragmentAdapter
@@ -116,6 +152,166 @@ class ScreenAFragment : Fragment() {
         //임준식 추가 부분
 
     }
+
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    private fun checkPermissionAndSaveImage(view: View) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            // Android 10 (API 29) 이상에서는 일반적으로 특별한 권한 없이 MediaStore를 통해 저장 가능
+            // (앱별 저장소에 저장 후 MediaStore에 등록하는 방식)
+            captureAndSaveView(view)
+        } else {
+            // Android 9 (API 28) 이하에서는 WRITE_EXTERNAL_STORAGE 권한 필요
+            when {
+                ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ) == PackageManager.PERMISSION_GRANTED -> {
+                    captureAndSaveView(view)
+                }
+                shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE) -> {
+                    // 사용자에게 권한이 필요한 이유를 설명 (예: 다이얼로그 표시)
+                    Toast.makeText(requireContext(), "이미지를 저장하려면 저장 권한이 필요합니다.", Toast.LENGTH_LONG).show()
+                    requestPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                }
+                else -> {
+                    requestPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                }
+            }
+        }
+    }
+
+    private fun captureViewToBitmap(view: View): Bitmap {
+        // 뷰의 크기만큼 Bitmap 생성
+        val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+        // Canvas를 사용하여 Bitmap에 뷰를 그립니다.
+        val canvas = Canvas(bitmap)
+        // 뷰의 배경이 있다면 그려줍니다. (선택 사항)
+        val bgDrawable = view.background
+        if (bgDrawable != null) {
+            bgDrawable.draw(canvas)
+        } else {
+            canvas.drawColor(android.graphics.Color.WHITE) // 배경이 없으면 흰색으로 채움
+        }
+        view.draw(canvas)
+        return bitmap
+    }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    private fun captureAndSaveView(view: View) {
+        try {
+            buttonSaveImage.visibility = View.GONE
+            val bitmap = captureViewToBitmap(view)
+            saveBitmapToGalleryApi30Plus(requireContext(), bitmap, "ScreenA_Capture")
+            openGallery()
+        }
+        catch (e: Exception) {
+            Log.e("CaptureAndSave", "Error during capture or save: ${e.message}", e)
+            Toast.makeText(requireContext(), "캡처 또는 저장 중 오류 발생", Toast.LENGTH_SHORT).show()
+        } finally {
+            // 캡처 후 버튼 원래 상태로 복원 (성공/실패 여부와 관계없이)
+            buttonSaveImage.visibility = View.VISIBLE
+        }
+    }
+    private fun openGallery() {
+        // ACTION_VIEW Intent를 사용하여 이미지 뷰어를 실행합니다.
+        val intent = Intent(Intent.ACTION_VIEW)
+        // 데이터 타입을 "image/*"로 설정하여 모든 이미지 파일을 대상으로 합니다.
+        // 이렇게 하면 시스템은 이미지 파일을 보여줄 수 있는 적절한 앱(보통 갤러리 앱)을 선택합니다.
+        intent.type = "image/*"
+
+        // setDataAndType을 사용하여 특정 디렉토리의 이미지를 보여주도록 시도할 수도 있습니다.
+        // 예: MediaStore.Images.Media.EXTERNAL_CONTENT_URI 는 모든 외부 저장소 이미지를 나타냅니다.
+        // val galleryUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+        // intent.setDataAndType(galleryUri, "image/*")
+
+        // FLAG_ACTIVITY_NEW_TASK는 Fragment에서 Activity를 시작할 때 필요할 수 있습니다.
+        // (일반적으로 Fragment의 context에서 startActivity를 호출하면 자동으로 처리되지만 명시하는 것이 안전할 수 있음)
+        // intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) // 필요에 따라 추가
+
+        // Intent를 처리할 수 있는 앱이 있는지 확인 (권장)
+        if (intent.resolveActivity(requireActivity().packageManager) != null) {
+            startActivity(intent)
+        } else {
+            Toast.makeText(requireContext(), "갤러리 앱을 열 수 없습니다.", Toast.LENGTH_SHORT).show()
+            Log.e("OpenGallery", "No Activity found to handle Intent.ACTION_VIEW with type image/*")
+        }
+    }
+
+
+    /**
+     * Bitmap 이미지를 기기의 갤러리 (Pictures 폴더)에 저장합니다.
+     * 이 함수는 Android 11 (API 30) 이상에서만 동작하도록 작성되었습니다.
+     *
+     * @param context 컨텍스트
+     * @param bitmap 저장할 Bitmap 객체
+     * @param displayName 파일 이름으로 사용될 기본 문자열 (타임스탬프가 추가됨)
+     */
+    @RequiresApi(Build.VERSION_CODES.R) // 또는 Q (API 29)도 MediaStore 사용 가능, R은 더 명확한 범위
+    private fun saveBitmapToGalleryApi30Plus(context: Context, bitmap: Bitmap, displayName: String) {
+        // 파일 이름에 타임스탬프를 추가하여 고유하게 만듭니다.
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val fileName = "${displayName}_${timeStamp}.jpg" // 확장자는 .png 등으로 변경 가능
+
+        var fos: OutputStream? = null
+        var imageUri: Uri? = null
+
+        // MediaStore에 접근하기 위한 컬렉션 Uri
+        // API 29 (Q)부터 getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY) 사용 가능
+        val imageCollection: Uri = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+
+        try {
+            val contentValues = ContentValues().apply {
+                put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
+                put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg") // 또는 "image/png"
+                // RELATIVE_PATH를 사용하여 Pictures 폴더 아래에 앱 이름으로 된 하위 폴더를 지정합니다.
+                // Environment.DIRECTORY_PICTURES 는 "Pictures" 문자열을 반환합니다.
+                put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + File.separator + "YourAppName") // "YourAppName"을 실제 앱 이름이나 원하는 폴더명으로 변경
+                put(MediaStore.Images.Media.IS_PENDING, 1) // 파일을 쓰는 동안 다른 앱에서 접근하지 못하도록 설정
+            }
+
+            imageUri = context.contentResolver.insert(imageCollection, contentValues)
+            imageUri?.let { uri ->
+                fos = context.contentResolver.openOutputStream(uri)
+                fos?.use { outputStream ->
+                    // Bitmap.compress의 quality는 0-100 사이 값. JPEG 포맷에만 유효.
+                    if (!bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream)) { // JPEG, 품질 90
+                        throw Exception("Bitmap compress failed")
+                    }
+                }
+
+                // IS_PENDING 상태를 0으로 업데이트하여 파일 쓰기 완료를 알림
+                contentValues.clear() // 이전 값들을 지우고 IS_PENDING만 업데이트
+                contentValues.put(MediaStore.Images.Media.IS_PENDING, 0)
+                context.contentResolver.update(uri, contentValues, null, null)
+
+                Toast.makeText(context, "이미지가 갤러리에 저장되었습니다: $fileName", Toast.LENGTH_LONG).show()
+                Log.d("SaveImageApi30Plus", "Image saved to MediaStore: $uri")
+            } ?: throw Exception("MediaStore insert failed. ImageUri is null.")
+
+        } catch (e: Exception) {
+            Log.e("SaveImageApi30Plus", "Error saving image: ${e.message}", e)
+            Toast.makeText(context, "이미지 저장에 실패했습니다: ${e.message}", Toast.LENGTH_LONG).show()
+
+            // 실패 시, 생성된 MediaStore 항목을 삭제 (선택 사항이지만 권장)
+            // imageUri가 null이 아니고, 예외가 발생했을 때만 실행
+            if (imageUri != null) {
+                try {
+                    context.contentResolver.delete(imageUri, null, null)
+                    Log.d("SaveImageApi30Plus", "Pending MediaStore entry deleted due to error: $imageUri")
+                } catch (deleteEx: Exception) {
+                    Log.e("SaveImageApi30Plus", "Error deleting pending MediaStore entry: ${deleteEx.message}", deleteEx)
+                }
+            }
+        } finally {
+            try {
+                fos?.close()
+            } catch (e: Exception) {
+                Log.e("SaveImageApi30Plus", "Error closing FileOutputStream: ${e.message}", e)
+            }
+        }
+    }
+
 
     private fun setupCarouselPeekEffect() {
         if (!isAdded || viewPager.width == 0) { // 프래그먼트가 추가되지 않았거나, 너비가 아직 0이면 실행하지 않음
