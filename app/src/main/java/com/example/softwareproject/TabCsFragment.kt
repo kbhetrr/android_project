@@ -15,6 +15,7 @@ import com.example.softwareproject.MakeRoomActivity
 import com.example.softwareproject.R
 import com.example.softwareproject.RoomRecyclerAdapter
 import com.example.softwareproject.presentation.room.RoomViewModel
+import com.example.softwareproject.presentation.room.adapter.CsRoomAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -22,7 +23,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class TabCsFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
-    private lateinit var myAdapter: RoomRecyclerAdapter // 어댑터 타입
+    private lateinit var myAdapter: CsRoomAdapter // 어댑터 타입
     private lateinit var fabPs: FloatingActionButton
 
     private val viewModel: RoomViewModel by viewModels()//임준식 추가
@@ -43,7 +44,7 @@ class TabCsFragment : Fragment() {
 
         // RecyclerView 설정
         recyclerView.layoutManager = LinearLayoutManager(context)
-        myAdapter = RoomRecyclerAdapter(emptyList()) // 🔥 어댑터 초기화
+        myAdapter = CsRoomAdapter(emptyList()) // 🔥 어댑터 초기화
         recyclerView.adapter = myAdapter
 
 //        // 더미 데이터 생성 (실제로는 ViewModel 등에서 가져옴)

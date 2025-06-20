@@ -2,6 +2,7 @@ package com.example.softwareproject // 실제 패키지 이름으로 변경
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +11,7 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.softwareproject.presentation.room.RoomViewModel
+import com.example.softwareproject.presentation.room.adapter.PsRoomAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -17,7 +19,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class TabPsFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
-    private lateinit var myAdapter: RoomRecyclerAdapter // 어댑터 타입
+    private lateinit var myAdapter:  PsRoomAdapter // 어댑터 타입
 
     private val viewModel: RoomViewModel by viewModels()//임준식 추가
 
@@ -35,7 +37,7 @@ class TabPsFragment : Fragment() {
 
         // RecyclerView 설정
         recyclerView.layoutManager = LinearLayoutManager(context)
-        myAdapter = RoomRecyclerAdapter(emptyList()) // 🔥 어댑터 초기화
+        myAdapter = PsRoomAdapter(emptyList())
         recyclerView.adapter = myAdapter
 
         // 더미 데이터 생성 (실제로는 ViewModel 등에서 가져옴)
@@ -45,12 +47,13 @@ class TabPsFragment : Fragment() {
 
         //임준식 추가
         // 🔥 LiveData 관찰
-        viewModel.csRooms.observe(viewLifecycleOwner) { rooms ->
+        viewModel.psRooms.observe(viewLifecycleOwner) { rooms ->
+            Log.d("TabPsFragment", "받은 방 개수: ${rooms.size}")
             myAdapter.submitList(rooms)
         }
 
         // 방 리스트 로드
-        viewModel.loadCodingRooms()
+        viewModel.loadPsRooms()
 
     }
 
