@@ -10,5 +10,4 @@ data class UiCsRoomItem(
     val difficulty: DifficultyCs,
     val githubName: String?,
     val description: String?
-
 )
