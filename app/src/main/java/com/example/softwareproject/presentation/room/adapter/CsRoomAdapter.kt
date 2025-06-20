@@ -8,11 +8,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.softwareproject.R
 import com.example.softwareproject.data.remote.room.UiCsRoomItem
 import android.view.LayoutInflater
+import android.widget.Button
+import com.example.softwareproject.data.remote.room.UiPsRoomItem
 
-class PsRoomAdapter(
-    private var roomList: List<UiCsRoomItem>
+class CsRoomAdapter(
+    private var roomList: List<UiCsRoomItem>,
+    private val onEnterClick: (UiCsRoomItem) -> Unit
 
-) : RecyclerView.Adapter<PsRoomAdapter.RoomViewHolder>() {
+) : RecyclerView.Adapter<CsRoomAdapter.RoomViewHolder>() {
 
     inner class RoomViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val roomTitle: TextView = itemView.findViewById(R.id.item_title)
@@ -20,6 +23,8 @@ class PsRoomAdapter(
         val difficulty: TextView = itemView.findViewById(R.id.room_difficulty)
         val githubName: TextView = itemView.findViewById(R.id.host_name)
         val description: TextView = itemView.findViewById(R.id.item_description)
+
+        val button: Button = itemView.findViewById(R.id.battle_join)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RoomViewHolder {
@@ -27,7 +32,7 @@ class PsRoomAdapter(
             .inflate(R.layout.battle_item_layout, parent, false)
         return RoomViewHolder(view)
     }
-    
+
 
     override fun getItemCount(): Int = roomList.size
 
@@ -38,6 +43,10 @@ class PsRoomAdapter(
         holder.difficulty.text = "난이도: ${room.difficulty}"
         holder.githubName.text = room.githubName ?: "익명 호스트"
         holder.description.text = room.description ?: "설명 없음"
+
+        holder.button.setOnClickListener {
+            onEnterClick(room)
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")

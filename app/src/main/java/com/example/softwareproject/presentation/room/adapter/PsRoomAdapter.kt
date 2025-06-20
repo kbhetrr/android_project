@@ -10,11 +10,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.softwareproject.R
 import com.example.softwareproject.data.remote.room.UiPsRoomItem
 
-class CsRoomAdapter(
+class PsRoomAdapter(
     private var roomList: List<UiPsRoomItem>,
     private val onEnterClick: (UiPsRoomItem) -> Unit
 
-) : RecyclerView.Adapter<CsRoomAdapter.RoomViewHolder>() {
+) : RecyclerView.Adapter<PsRoomAdapter.RoomViewHolder>() {
 
     inner class RoomViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val roomTitle: TextView = itemView.findViewById(R.id.item_title)
