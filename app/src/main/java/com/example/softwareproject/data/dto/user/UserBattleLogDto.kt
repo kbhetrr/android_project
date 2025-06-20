@@ -1,4 +1,4 @@
-package com.example.softwareproject.com.example.softwareproject.data.dto.user
+package com.example.softwareproject.data.dto.user
 
 data class UserBattleLogDto (
     val lose: Int,
