@@ -1,4 +1,6 @@
-package com.example.softwareproject.com.example.softwareproject.domain.usecase.room
+package com.example.softwareproject.domain.usecase.room
 
 class ProblemUseCase {
+
+
 }
