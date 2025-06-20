@@ -30,6 +30,11 @@ interface RoomRepository {
     suspend fun createWaitingCsRoom(csWaitingRoomInfo: CsWaitingRoomInfo)
     suspend fun createWaitingPsRoom(psWaitingRoomInfo: PsWaitingRoomInfo)
 
+    suspend fun deleteRoom(roomId: String) : String?
+    suspend fun deleteCsRoom(roomId: String) : String?
+    suspend fun deletePsRoom(roomId: String) : String?
+    suspend fun deleteRoomParticipant(roomId: String) : String?
+
     fun observeRoomList(roomType: RoomType, onChanged: (List<RoomDto>) -> Unit): ListenerRegistration
 
 }

@@ -196,6 +196,59 @@ class RoomRepositoryImpl @Inject constructor(
             emptyList()
         }
     }
+    override suspend fun deleteRoom(roomId: String): String? {
+        return try {
+            firebaseStore.collection("room")
+                .document(roomId)
+                .delete()
+                .await()
+            roomId
+        } catch (e: Exception) {
+            Log.e("Repository", "deleteRoom failed: ${e.message}")
+            null
+        }
+    }
+
+    override suspend fun deleteCsRoom(roomId: String): String? {
+        return try {
+            firebaseStore.collection("cs_room")
+                .document(roomId)
+                .delete()
+                .await()
+            roomId
+        } catch (e: Exception) {
+            Log.e("Repository", "deleteCsRoom failed: ${e.message}")
+            null
+        }
+    }
+
+    override suspend fun deletePsRoom(roomId: String): String? {
+        return try {
+            firebaseStore.collection("coding_room")
+                .document(roomId)
+                .delete()
+                .await()
+            roomId
+        } catch (e: Exception) {
+            Log.e("Repository", "deletePsRoom failed: ${e.message}")
+            null
+        }
+    }
+
+    override suspend fun deleteRoomParticipant(roomId: String): String? {
+        return try {
+            firebaseStore.collection("room_participant")
+                .document(roomId)
+                .delete()
+                .await()
+            roomId
+        } catch (e: Exception) {
+            Log.e("Repository", "deleteRoomParticipant failed: ${e.message}")
+            null
+        }
+    }
+
+
 
     override suspend fun createWaitingCsRoom(csWaitingRoomInfo: CsWaitingRoomInfo) {
 
