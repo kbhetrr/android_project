@@ -17,6 +17,7 @@ import com.example.softwareproject.RoomRecyclerAdapter
 import com.example.softwareproject.presentation.room.RoomViewModel
 import com.example.softwareproject.presentation.room.adapter.CsRoomAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.firebase.firestore.ListenerRegistration
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -25,6 +26,8 @@ class TabCsFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var myAdapter: CsRoomAdapter // 어댑터 타입
     private lateinit var fabPs: FloatingActionButton
+
+    private var isFirstLoaded = false
 
     private val viewModel: RoomViewModel by viewModels()//임준식 추가
 
@@ -60,9 +63,11 @@ class TabCsFragment : Fragment() {
         }
 
         // 방 리스트 로드
-        viewModel.loadCsRooms()
-
-
+        if (!isFirstLoaded) {
+            viewModel.loadCsRooms() // 수동 1회 로딩
+            viewModel.observeCsRooms() // 실시간 리스너 등록
+            isFirstLoaded = true
+        }
 
         fabPs.setOnClickListener {
             // BattleLoadingActivity 시작
@@ -73,6 +78,11 @@ class TabCsFragment : Fragment() {
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewModel.removeCsRoomListener()
+        isFirstLoaded = false
+    }
     companion object {
         fun newInstance() = TabCsFragment()
     }

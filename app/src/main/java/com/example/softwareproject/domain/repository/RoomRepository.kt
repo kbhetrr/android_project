@@ -6,13 +6,15 @@ import com.example.softwareproject.data.dto.room.CsRoomDto
 import com.example.softwareproject.data.dto.room.PsRoomDto
 import com.example.softwareproject.data.remote.room.CsWaitingRoomInfo
 import com.example.softwareproject.data.remote.room.PsWaitingRoomInfo
+import com.example.softwareproject.util.RoomType
+import com.google.firebase.firestore.ListenerRegistration
 
 
 interface RoomRepository {
-    suspend fun createRoom(room : RoomDto)
-    suspend fun createCsRoom(csRoom : CsRoomDto)
-    suspend fun createPsRoom(psRoom : PsRoomDto)
-    suspend fun createRoomParticipant(roomParticipant: RoomParticipantDto)
+    suspend fun createRoom(room : RoomDto) : RoomDto
+    suspend fun createCsRoom(csRoom : CsRoomDto) : CsRoomDto
+    suspend fun createPsRoom(psRoom : PsRoomDto) : PsRoomDto
+    suspend fun createRoomParticipant(roomParticipant: RoomParticipantDto) : RoomParticipantDto
 
     suspend fun getRoomInfo(roomId: String) : RoomDto?
     suspend fun getCsRoomInfo(csRoomId: String) : CsRoomDto?
@@ -27,4 +29,7 @@ interface RoomRepository {
 
     suspend fun createWaitingCsRoom(csWaitingRoomInfo: CsWaitingRoomInfo)
     suspend fun createWaitingPsRoom(psWaitingRoomInfo: PsWaitingRoomInfo)
+
+    fun observeRoomList(roomType: RoomType, onChanged: (List<RoomDto>) -> Unit): ListenerRegistration
+
 }

@@ -14,6 +14,7 @@ import com.example.softwareproject.domain.usecase.room.RoomUseCase
 
 import com.example.softwareproject.util.DifficultyCs
 import com.example.softwareproject.util.RoomType
+import com.google.firebase.firestore.ListenerRegistration
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -27,6 +28,10 @@ class RoomViewModel @Inject constructor(
     private val _psRooms = MutableLiveData<List<UiPsRoomItem>>()
     val csRooms: LiveData<List<UiCsRoomItem>> = _csRooms
     val psRooms: LiveData<List<UiPsRoomItem>> = _psRooms
+
+    private var csRoomListener: ListenerRegistration? = null
+    private var psRoomListener: ListenerRegistration? = null
+
 
     fun loadCsRooms() {
         viewModelScope.launch {
@@ -44,61 +49,62 @@ class RoomViewModel @Inject constructor(
         }
     }
 
-//    fun createRoomPs(
-//        userId : String,
-//        title: String,
-//        difficulty: String,
-//        problemCount: String
-//    ) {
-//        viewModelScope.launch {
-//            val roomType = RoomType.PS
-//            var level: DifficultyPs? = null
-//            if (difficulty == "브론즈") {
-//                level = DifficultyPs.BRONZE
-//            } else if (difficulty == "실버") {
-//                level = DifficultyPs.SILVER
-//            } else if (difficulty == "골드") {
-//                level = DifficultyPs.GOLD
-//            } else {
-//                level = DifficultyPs.PLATINUM
-//            }
-//            roomRepository.createWaitingPsRoom(
-//                PsWaitingRoomInfo(
-//                    userId = userId,
-//                    title = title,
-//                    type = roomType,
-//                    difficultyPs = level,
-//                    problemCount = problemCount.toInt()
-//                )
-//            )
-//        }
-//    }
-//
-//    fun createRoomCs(
-//        userId: String,
-//        title: String,
-//        difficulty: String,
-//        problemCount: String
-//    ) {
-//        viewModelScope.launch {
-//            val roomType = RoomType.CS
-//            var level: DifficultyCs? = null
-//            if (difficulty == "쉬움") {
-//                level = DifficultyCs.EASY
-//            } else if (difficulty == "중간") {
-//                level = DifficultyCs.MIDDLE
-//            } else {
-//                level = DifficultyCs.HARD
-//            }
-//            roomRepository.createWaitingCsRoom(
-//                CsWaitingRoomInfo(
-//                    userId = userId,
-//                    title = title,
-//                    type = roomType,
-//                    difficultyCs = level,
-//                    problemCount = problemCount.toInt()
-//                )
-//            )
-//        }
-//    }
+    fun makeRoom(title: String,
+                 type: String,
+                 difficulty: String,
+                 problemCount: String){
+
+        val roomType = extractRoomTypeFromLabel(type)
+
+        if (roomType == null) {
+            Log.e("RoomViewModel", "방 종류를 파악할 수 없습니다: $type")
+            return
+        }
+        viewModelScope.launch {
+            when (roomType) {
+                RoomType.PS -> {
+                    roomUseCase.createPsRoom(title, difficulty, problemCount)
+                    loadPsRooms()
+                }
+                RoomType.CS -> {
+                    roomUseCase.createCsRoom(title, difficulty, problemCount)
+                    loadCsRooms()
+                }
+            }
+        }
+    }
+
+    private fun extractRoomTypeFromLabel(label: String): RoomType? {
+        return when {
+            label.contains("(PS)") -> RoomType.PS
+            label.contains("(CS)") -> RoomType.CS
+            else -> null
+        }
+    }
+    fun observeCsRooms() {
+        if (csRoomListener != null) return
+
+        csRoomListener = roomUseCase.observeUiCsRooms { roomList ->
+            _csRooms.value = roomList
+        }
+    }
+
+    fun observePsRooms() {
+        if (psRoomListener != null) return
+
+        psRoomListener = roomUseCase.observeUiPsRooms { psRooms ->
+            _psRooms.value = psRooms
+        }
+    }
+
+
+    fun removeCsRoomListener() {
+        csRoomListener?.remove()
+        csRoomListener = null
+    }
+    fun removePsRoomListener() {
+        psRoomListener?.remove()
+        psRoomListener = null
+    }
+
 }

@@ -21,6 +21,7 @@ class TabPsFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var myAdapter:  PsRoomAdapter // 어댑터 타입
 
+    private var isFirstLoaded = false
     private val viewModel: RoomViewModel by viewModels()//임준식 추가
 
     override fun onCreateView(
@@ -40,21 +41,28 @@ class TabPsFragment : Fragment() {
         myAdapter = PsRoomAdapter(emptyList())
         recyclerView.adapter = myAdapter
 
-        // 더미 데이터 생성 (실제로는 ViewModel 등에서 가져옴)
-//        val dummyItems = List(20) { MyItem("탭 1 아이템 ${it + 1}", "설명 ${it + 1}") }
-//        myAdapter = RoomRecyclerAdapter(dummyItems)
-//        recyclerView.adapter = myAdapter
+
 
         //임준식 추가
-        // 🔥 LiveData 관찰
         viewModel.psRooms.observe(viewLifecycleOwner) { rooms ->
             Log.d("TabPsFragment", "받은 방 개수: ${rooms.size}")
             myAdapter.submitList(rooms)
         }
 
         // 방 리스트 로드
-        viewModel.loadPsRooms()
 
+        if (!isFirstLoaded) {
+            viewModel.loadPsRooms()
+            viewModel.observePsRooms()
+            isFirstLoaded = true
+        }
+
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewModel.removeCsRoomListener()
+        isFirstLoaded = false
     }
 
     companion object {

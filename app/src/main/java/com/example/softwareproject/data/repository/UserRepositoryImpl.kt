@@ -70,16 +70,17 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun getUserInfo(userId: String): UserDto? {
         return try {
             val snapshot = fireBaseStore.collection("user")
-                .document(userId)
+                .whereEqualTo("userId", userId)
                 .get()
                 .await()
 
-            snapshot.toObject(UserDto::class.java)
+            snapshot.documents.firstOrNull()?.toObject(UserDto::class.java)
         } catch (e: Exception) {
             Log.e("Repository", "getUserInfo failed: ${e.message}")
             null
         }
     }
+
 
     override suspend fun getUserAbilityInfo(userId: String): UserAbilityDto? {
         return try {
@@ -98,29 +99,47 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun getUserBattleLogInfo(userId: String): UserBattleLogDto? {
         return try {
             val snapshot = fireBaseStore.collection("user_battle_Log")
-                .document(userId)
+                .whereEqualTo("userId", userId)
                 .get()
                 .await()
-            snapshot.toObject(UserBattleLogDto::class.java)
+
+            snapshot.documents.firstOrNull()?.toObject(UserBattleLogDto::class.java)
         } catch (e: Exception) {
-            Log.e("Repository", "getUserGithubInfo failed: ${e.message}")
+            Log.e("Repository", "getUserBattleLogInfo failed: ${e.message}")
             null
         }
     }
+
+
 
     override suspend fun getUSerGithubInfo(userId: String): GitHubInfoDto? {
         return try {
             val snapshot = fireBaseStore.collection("github_info")
-                .document(userId)
+                .whereEqualTo("userId", userId)
                 .get()
                 .await()
 
-            snapshot.toObject(GitHubInfoDto::class.java)
+            snapshot.documents.firstOrNull()?.toObject(GitHubInfoDto::class.java)
         } catch (e: Exception) {
             Log.e("Repository", "getUserGithubInfo failed: ${e.message}")
             null
         }
     }
+
+    override suspend fun getUserGithubInfoByFirebaseUid(firebaseUid: String): GitHubInfoDto? {
+        return try {
+            val snapshot = fireBaseStore.collection("github_info")
+                .whereEqualTo("firebaseUid", firebaseUid)
+                .get()
+                .await()
+
+            snapshot.documents.firstOrNull()?.toObject(GitHubInfoDto::class.java)
+        } catch (e: Exception) {
+            Log.e("Repository", "getUserGithubInfo failed: ${e.message}")
+            null
+        }
+    }
+
 
 
     override suspend fun getUserFullInfo(userId: String) : UserFullInfo{
@@ -242,6 +261,8 @@ class UserRepositoryImpl @Inject constructor(
             )
         }
     }
+
+
 
 
 
