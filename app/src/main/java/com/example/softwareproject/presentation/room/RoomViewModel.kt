@@ -49,28 +49,42 @@ class RoomViewModel @Inject constructor(
         }
     }
 
-    fun makeRoom(title: String,
-                 type: String,
-                 difficulty: String,
-                 problemCount: String){
-
+    fun makeRoom(
+        title: String,
+        type: String,
+        difficulty: String,
+        problemCount: String
+    ): LiveData<String> {
+        val result = MutableLiveData<String>()
         val roomType = extractRoomTypeFromLabel(type)
 
         if (roomType == null) {
             Log.e("RoomViewModel", "방 종류를 파악할 수 없습니다: $type")
-            return
+            return result
         }
+
         viewModelScope.launch {
-            when (roomType) {
+            val roomId = when (roomType) {
                 RoomType.PS -> {
-                    roomUseCase.createPsRoom(title, difficulty, problemCount)
+                    val id = roomUseCase.createPsRoom(title, difficulty, problemCount)
                     loadPsRooms()
+                    id
                 }
                 RoomType.CS -> {
-                    roomUseCase.createCsRoom(title, difficulty, problemCount)
+                    val id = roomUseCase.createCsRoom(title, difficulty, problemCount)
                     loadCsRooms()
+                    id
                 }
             }
+            result.value = roomId
+        }
+
+        return result
+    }
+
+    fun deleteRoom(roomId: String) {
+        viewModelScope.launch {
+            roomUseCase.deleteRoom(roomId)
         }
     }
 

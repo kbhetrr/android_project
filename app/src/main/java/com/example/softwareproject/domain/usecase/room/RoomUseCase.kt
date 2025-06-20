@@ -32,8 +32,8 @@ class RoomUseCase @Inject constructor(
     private var csRoomListener: ListenerRegistration? = null
 
     suspend fun listCsRoom(): List<UiCsRoomItem> {
-        val rooms = roomRepository.roomList()
 
+        val rooms = roomRepository.roomList()
         val roomList = roomRepository.roomList().filter { it.roomType == RoomType.CS }
         Log.d("TabCsFragment", "불러온 총 방의수: ${rooms.size}")
         Log.d("TabCsFragment", "불러온 총 방의수: ${rooms.get(0)}")
@@ -69,7 +69,16 @@ class RoomUseCase @Inject constructor(
     }
 
     suspend fun listPsRoom(): List<UiPsRoomItem> {
+        val rooms = roomRepository.roomList()
         val roomList = roomRepository.roomList().filter { it.roomType == RoomType.PS }
+
+        Log.d("TabCsFragment", "불러온 총 방의수: ${rooms.size}")
+        Log.d("TabCsFragment", "불러온 총 방의수: ${rooms.get(0)}")
+        Log.d("DEBUG", "roomType: ${rooms.get(0).roomType}, isEnum: ${rooms.get(0).roomType::class}")
+        val roomFirst = roomRepository.roomList().first()
+        Log.d("DEBUG", "roomType class = ${roomFirst.roomType::class}")
+        Log.d("DEBUG", "roomType value = ${roomFirst.roomType}")
+        Log.d("DEBUG", "equals RoomType.CS? ${roomFirst.roomType == RoomType.PS}")
         val result = mutableListOf<UiPsRoomItem>()
 
         for (room in roomList) {
@@ -94,8 +103,8 @@ class RoomUseCase @Inject constructor(
 
     suspend fun createPsRoom(roomTitle:String,
                              difficulty: String,
-                             problemCount:String) {
-        val firebaseUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+                             problemCount:String) :String {
+        val firebaseUid = FirebaseAuth.getInstance().currentUser?.uid ?: return "실패입니다."
 
         val githubInfo = userRepository.getUserGithubInfoByFirebaseUid(firebaseUid)
             ?: throw IllegalStateException("GitHub info not found for current user.")
@@ -134,14 +143,15 @@ class RoomUseCase @Inject constructor(
                 roomId = createdRoom.roomId,
             )
         )
+        return roomId
     }
 
     suspend fun createCsRoom(
         roomTitle: String,
         difficulty: String,
         problemCount: String
-    ) {
-        val firebaseUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+    ) : String {
+        val firebaseUid = FirebaseAuth.getInstance().currentUser?.uid ?: return "실패입니다."
 
         val githubInfo = userRepository.getUserGithubInfoByFirebaseUid(firebaseUid)
             ?: throw IllegalStateException("GitHub info not found for current user.")
@@ -181,6 +191,13 @@ class RoomUseCase @Inject constructor(
                 topic = topic
             )
         )
+        return roomId
+    }
+
+    suspend fun deleteRoom(roomId: String){
+        roomRepository.deleteRoom(roomId)
+        roomRepository.deleteCsRoom(roomId)
+        roomRepository.deletePsRoom(roomId)
     }
 
     fun observeUiCsRooms(onChanged: (List<UiCsRoomItem>) -> Unit): ListenerRegistration {
