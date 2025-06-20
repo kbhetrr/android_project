@@ -95,6 +95,13 @@ class RoomViewModel @Inject constructor(
             else -> null
         }
     }
+
+    fun battleStart(roomId: String){
+        viewModelScope.launch {
+            roomUseCase.battleStart(roomId)
+        }
+    }
+
     fun observeCsRooms() {
         if (csRoomListener != null) return
 

@@ -202,6 +202,13 @@ class RoomUseCase @Inject constructor(
         roomRepository.deletePsRoom(roomId)
     }
 
+    suspend fun battleStart(roomId: String){
+        roomRepository.roomStateChange(roomId,RoomState.PROGRESS)
+    }
+
+    suspend fun battleFinish(roomId: String){
+        roomRepository.roomStateChange(roomId, RoomState.FINISHED)
+    }
     fun observeUiCsRooms(onChanged: (List<UiCsRoomItem>) -> Unit): ListenerRegistration {
         return roomRepository.observeRoomList(RoomType.CS) { rooms ->
             CoroutineScope(Dispatchers.IO).launch {
