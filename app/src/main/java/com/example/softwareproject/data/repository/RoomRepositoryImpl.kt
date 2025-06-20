@@ -1,35 +1,18 @@
 package com.example.softwareproject.data.repository
 
 import android.util.Log
-import com.example.softwareproject.BuildConfig
+import com.example.softwareproject.data.dto.room.RoomDto
+import com.example.softwareproject.data.dto.room.RoomParticipantDto
+import com.example.softwareproject.data.dto.room.CsRoomDto
+import com.example.softwareproject.data.dto.room.PsRoomDto
 import com.example.softwareproject.data.nosql_entity.CodingProblem
-import com.example.softwareproject.data.nosql_entity.CodingRoom
-import com.example.softwareproject.data.nosql_entity.CsProblem
-import com.example.softwareproject.data.nosql_entity.CsRoom
-import com.example.softwareproject.data.nosql_entity.GithubInfo
-import com.example.softwareproject.data.nosql_entity.ParticipantProblemStatus
-import com.example.softwareproject.data.nosql_entity.Room
-import com.example.softwareproject.data.remote.room.CsRoomSaveInfo
+import com.example.softwareproject.data.remote.room.CsWaitingRoomInfo
+import com.example.softwareproject.data.remote.room.PsWaitingRoomInfo
 import com.example.softwareproject.domain.repository.RoomRepository
-import com.example.softwareproject.data.nosql_entity.RoomParticipant
-import com.example.softwareproject.data.remote.room.CodingRoomSaveInfo
-import com.example.softwareproject.data.remote.room.UiCodingRoomItem
-import com.example.softwareproject.data.remote.room.UiCsRoomItem
-import com.example.softwareproject.data.remote.user.UserFullInfo
-import com.example.softwareproject.domain.repository.Content
-import com.example.softwareproject.domain.repository.GeminiApi
-import com.example.softwareproject.domain.repository.GeminiRequest
-import com.example.softwareproject.domain.repository.Part
-import com.example.softwareproject.domain.repository.solvedac.RetrofitInstance
 import com.example.softwareproject.domain.repository.UserRepository
-import com.example.softwareproject.util.UserRole
-import com.google.firebase.Timestamp
-import com.google.firebase.crashlytics.buildtools.reloc.com.google.common.reflect.TypeToken
+import com.example.softwareproject.domain.repository.solvedac.RetrofitInstance
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.gson.Gson
 import kotlinx.coroutines.tasks.await
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Inject
 
 class RoomRepositoryImpl @Inject constructor(
@@ -37,160 +20,329 @@ class RoomRepositoryImpl @Inject constructor(
     private val userRepository: UserRepository
 ) : RoomRepository{
 
-
-
-
-    override suspend fun getRoomInfo(roomId: String) {
-
+    override suspend fun createRoom(room : RoomDto) {
+        firebaseStore.collection("room")
+            .document(room.roomId)
+            .set(room)
+            .addOnSuccessListener {
+                Log.d("Firestore", "room 저장 성공: ${room.roomId}")
+            }
+            .addOnFailureListener { e ->
+                Log.e("Firestore", "room 저장 실패: ${e.message}")
+            }
     }
 
-    override suspend fun createCsRoom(csRoomSaveInfo: CsRoomSaveInfo) {
-        val user: UserFullInfo = userRepository.getUserInfo(csRoomSaveInfo.userId)
+    override suspend fun createCsRoom(csRoom : CsRoomDto) {
 
-        val roomParticipant = RoomParticipant(
-            userId = csRoomSaveInfo.userId,
-            solvedProblem = 0,
-            hp = user.userAbility.hp,
-            attack = user.userAbility.attack,
-            shield = user.userAbility.shield,
-            role = UserRole.HOST,
-            createdAt = Timestamp.now(),
-            updatedAt = Timestamp.now()
-        )
-
-        val roomRef = FirebaseFirestore.getInstance()
-            .collection("room")
-            .document()
-        val csRoomRef = FirebaseFirestore.getInstance()
-            .collection("cs_room")
-            .document()
-
-        val room = Room(
-            roomId = roomRef.id,
-            roomTitle = csRoomSaveInfo.roomTitle,
-            problemCount = csRoomSaveInfo.problemCount,
-            roomType = csRoomSaveInfo.roomType,
-            roomState = csRoomSaveInfo.roomState,
-            description = csRoomSaveInfo.description,
-            createdBy = csRoomSaveInfo.userId,
-            createdAt = Timestamp.now(),
-            updatedAt = Timestamp.now()
-        )
-
-
-        val csRoom = CsRoom(
-            csRoomId = csRoomRef.id,
-            roomId = roomRef.id,
-            topic = csRoomSaveInfo.topic,
-            difficultyLevel = csRoomSaveInfo.difficultyLevel
-        )
-
-
-        val prompt = """
-        ${{csRoomSaveInfo.problemCount}}개의 ${csRoomSaveInfo.difficultyLevel} 수준 CS 문제를 만들어줘.
-        형식: JSON 배열로 출력하고, 각 문제는 다음 키를 포함해야 해:
-        question, choice1, choice2, choice3, choice4, correctChoice (1~4 중 정답 번호)
-        """.trimIndent()
-
-        val request = GeminiRequest(
-            contents = listOf(
-                Content(parts = listOf(Part(text = prompt)))
-            )
-        )
-
-        val geminiApi = Retrofit.Builder()
-            .baseUrl("https://generativelanguage.googleapis.com/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(GeminiApi::class.java)
-
-        val geminiResponse = geminiApi.generateCSQuestions(
-            request= request,
-            apiKey = BuildConfig.GEMINI_API_KEY)
-        val generatedText = geminiResponse.candidates.firstOrNull()?.content?.parts?.firstOrNull()?.text
-            ?: throw Exception("Gemini 응답 없음")
-
-        val gson = Gson()
-        val csProblems: List<CsProblem> = gson.fromJson(generatedText, object : TypeToken<List<CsProblem>>() {}.type)
-
-        csProblems.forEachIndexed { index, problem ->
-            val csProblem = problem.copy(csRoomId = csRoom.csRoomId, problemIndex = index)
-            firebaseStore.collection("cs_problem").document().set(csProblem).await()
-
-            val problemStatus = ParticipantProblemStatus(
-                roomParticipantId = roomParticipant.userId,
-                userId = roomParticipant.userId,
-                problemId = index + 1,
-                problemType = room.roomType,
-                isSolved = false,
-                createdAt = Timestamp.now(),
-                updatedAt = Timestamp.now()
-            )
-            firebaseStore.collection("participant_problem_status").document().set(problemStatus).await()
-        }
-
-
-
-        firebaseStore.collection("room_participant").document().set(roomParticipant).await()
-        firebaseStore.collection("room").document(roomRef.id).set(room).await()
-        firebaseStore.collection("cs_room").document(csRoomRef.id).set(csRoom).await()
+        firebaseStore.collection("cs_room")
+            .document(csRoom.csRoomId)
+            .set(csRoom)
+            .addOnSuccessListener {
+                Log.d("Firestore", "cs_room 저장 성공: ${csRoom.csRoomId}")
+            }
+            .addOnFailureListener { e ->
+                Log.e("Firestore", "cs_room 저장 실패: ${e.message}")
+            }
     }
 
-    override suspend fun createCodingRoom(codingRoomSaveInfo: CodingRoomSaveInfo) {
-        val user: UserFullInfo = userRepository.getUserInfo(codingRoomSaveInfo.userId)
+    override suspend fun createPsRoom(psRoom : PsRoomDto) {
 
-        val roomParticipant = RoomParticipant(
-            userId = codingRoomSaveInfo.userId,
-            solvedProblem = 0,
-            hp = user.userAbility.hp,
-            attack = user.userAbility.attack,
-            shield = user.userAbility.shield,
-            role = UserRole.HOST,
-            createdAt = Timestamp.now(),
-            updatedAt = Timestamp.now()
-        )
+        firebaseStore.collection("coding_room")
+            .document(psRoom.codingRoomId)
+            .set(psRoom)
+            .addOnSuccessListener {
+                Log.d("Firestore", "coding_room 저장 성공: ${psRoom.codingRoomId}")
+            }
+            .addOnFailureListener { e ->
+                Log.e("Firestore", "coding_room 저장 실패: ${e.message}")
+            }
+    }
 
-        val roomRef = FirebaseFirestore.getInstance()
-            .collection("room")
-            .document()
-        val codingRoomRef = FirebaseFirestore.getInstance()
-            .collection("coding_room")
-            .document()
+    override suspend fun createRoomParticipant(roomParticipant: RoomParticipantDto) {
 
-        val room = Room(
-            roomId = roomRef.id,
-            roomTitle = codingRoomSaveInfo.roomTitle,
-            problemCount = codingRoomSaveInfo.problemCount,
-            roomType = codingRoomSaveInfo.roomType,
-            roomState = codingRoomSaveInfo.roomState,
-            description = codingRoomSaveInfo.description,
-            createdBy = codingRoomSaveInfo.userId,
-            createdAt = Timestamp.now(),
-            updatedAt = Timestamp.now()
-        )
+        firebaseStore.collection("room_participant")
+            .document("${roomParticipant.roomId}_${roomParticipant.userId}")
+            .set(roomParticipant)
+            .addOnSuccessListener {
+                Log.d("Firestore", "room_participant 저장 성공")
+            }
+            .addOnFailureListener { e ->
+                Log.e("Firestore", "room_participant 저장 실패: ${e.message}")
+            }
+    }
 
+    override suspend fun getRoomInfo(roomId: String) : RoomDto? {
+        return try {
+            val snapshot = firebaseStore.collection("room")
+                .document(roomId)
+                .get()
+                .await()
 
-        val csRoom = CodingRoom(
-            codingRoomId = codingRoomRef.id,
-            roomId = roomRef.id,
-            difficultyLevel = codingRoomSaveInfo.difficultyLevel
-        )
-
-        val tier = codingRoomSaveInfo.difficultyLevel.tierValue
-
-        val selectedProblems = fetchProblemsByTierFromApi(
-            tier = tier,
-            count = codingRoomSaveInfo.problemCount,
-            codingRoomId = codingRoomRef.id)
-
-        firebaseStore.collection("room_participant").document().set(roomParticipant).await()
-        firebaseStore.collection("room").document(roomRef.id).set(room).await()
-        firebaseStore.collection("coding_room").document(codingRoomRef.id).set(csRoom).await()
-
-        for (problem in selectedProblems) {
-            firebaseStore.collection("coding_problem").document().set(problem).await()
+            snapshot.toObject(RoomDto::class.java)
+        } catch (e: Exception) {
+            Log.e("Repository", "getRoomInfo failed: ${e.message}")
+            null
         }
     }
+
+    override suspend fun getCsRoomInfo(csRoomId: String): CsRoomDto? {
+        return try {
+            val snapshot = firebaseStore.collection("cs_room")
+                .document(csRoomId)
+                .get()
+                .await()
+
+            snapshot.toObject(CsRoomDto::class.java)
+        } catch (e: Exception) {
+            Log.e("Repository", "getCsRoomInfo failed: ${e.message}")
+            null
+        }
+    }
+
+    override suspend fun getPsRoomInfo(psRoomId: String): PsRoomDto? {
+        return try {
+            val snapshot = firebaseStore.collection("coding_room")
+                .document(psRoomId)
+                .get()
+                .await()
+
+            snapshot.toObject(PsRoomDto::class.java)
+        } catch (e: Exception) {
+            Log.e("Repository", "getPsRoomInfo failed: ${e.message}")
+            null
+        }
+    }
+
+    override suspend fun getRoomParticipantInfo(userId: String, roomId: String): RoomParticipantDto? {
+        return try {
+            val snapshot = firebaseStore.collection("room_participant")
+                .whereEqualTo("userId", userId)
+                .whereEqualTo("roomId", roomId)
+                .get()
+                .await()
+
+            if (!snapshot.isEmpty)
+                snapshot.documents[0].toObject(RoomParticipantDto::class.java)
+            else
+                null
+        } catch (e: Exception) {
+            Log.e("Repository", "getRoomParticipantInfo failed: ${e.message}")
+            null
+        }
+    }
+
+
+    override suspend fun getRoomParticipantList(roomId: String): List<RoomParticipantDto> {
+        return try {
+            val snapshot = firebaseStore.collection("room_participant")
+                .whereEqualTo("roomId", roomId)
+                .get()
+                .await()
+
+            snapshot.documents.mapNotNull { it.toObject(RoomParticipantDto::class.java) }
+        } catch (e: Exception) {
+            Log.e("Repository", "getRoomParticipantList failed: ${e.message}")
+            emptyList()
+        }
+    }
+
+    override suspend fun roomList(): List<RoomDto> {
+        return try {
+            val snapshot = firebaseStore.collection("room")
+                .get()
+                .await()
+
+            snapshot.documents.mapNotNull { it.toObject(RoomDto::class.java) }
+        } catch (e: Exception) {
+            Log.e("Repository", "roomList failed: ${e.message}")
+            emptyList()
+        }
+    }
+
+    override suspend fun csRoomList(): List<CsRoomDto> {
+        return try {
+            val snapshot = firebaseStore.collection("cs_room")
+                .get()
+                .await()
+
+            snapshot.documents.mapNotNull { it.toObject(CsRoomDto::class.java) }
+        } catch (e: Exception) {
+            Log.e("Repository", "csRoomList failed: ${e.message}")
+            emptyList()
+        }
+    }
+
+    override suspend fun psRoomList(): List<PsRoomDto> {
+        return try {
+            val snapshot = firebaseStore.collection("ps_room")
+                .get()
+                .await()
+
+            snapshot.documents.mapNotNull { it.toObject(PsRoomDto::class.java) }
+        } catch (e: Exception) {
+            Log.e("Repository", "psRoomList failed: ${e.message}")
+            emptyList()
+        }
+    }
+
+    override suspend fun createWaitingCsRoom(csWaitingRoomInfo: CsWaitingRoomInfo) {
+
+    }
+
+    override suspend fun createWaitingPsRoom(psWaitingRoomInfo: PsWaitingRoomInfo) {
+
+    }
+
+
+//    override suspend fun createCsRoom(csRoomSaveInfo: CsRoomSaveInfo) {
+//        val user: UserFullInfo = userRepository.getUserInfo(csRoomSaveInfo.userId)
+//
+//        val roomParticipant = RoomParticipant(
+//            userId = csRoomSaveInfo.userId,
+//            solvedProblem = 0,
+//            hp = user.userAbility.hp,
+//            attack = user.userAbility.attack,
+//            shield = user.userAbility.shield,
+//            role = UserRole.HOST,
+//            createdAt = Timestamp.now(),
+//            updatedAt = Timestamp.now()
+//        )
+//
+//        val roomRef = FirebaseFirestore.getInstance()
+//            .collection("room")
+//            .document()
+//        val csRoomRef = FirebaseFirestore.getInstance()
+//            .collection("cs_room")
+//            .document()
+//
+//        val room = Room(
+//            roomId = roomRef.id,
+//            roomTitle = csRoomSaveInfo.roomTitle,
+//            problemCount = csRoomSaveInfo.problemCount,
+//            roomType = csRoomSaveInfo.roomType,
+//            roomState = csRoomSaveInfo.roomState,
+//            description = csRoomSaveInfo.description,
+//            createdBy = csRoomSaveInfo.userId,
+//            createdAt = Timestamp.now(),
+//            updatedAt = Timestamp.now()
+//        )
+//
+//
+//        val csRoom = CsRoom(
+//            csRoomId = csRoomRef.id,
+//            roomId = roomRef.id,
+//            topic = csRoomSaveInfo.topic,
+//            difficultyLevel = csRoomSaveInfo.difficultyLevel
+//        )
+//
+//
+//        val prompt = """
+//        ${{csRoomSaveInfo.problemCount}}개의 ${csRoomSaveInfo.difficultyLevel} 수준 CS 문제를 만들어줘.
+//        형식: JSON 배열로 출력하고, 각 문제는 다음 키를 포함해야 해:
+//        question, choice1, choice2, choice3, choice4, correctChoice (1~4 중 정답 번호)
+//        """.trimIndent()
+//
+//        val request = GeminiRequest(
+//            contents = listOf(
+//                Content(parts = listOf(Part(text = prompt)))
+//            )
+//        )
+//
+//        val geminiApi = Retrofit.Builder()
+//            .baseUrl("https://generativelanguage.googleapis.com/")
+//            .addConverterFactory(GsonConverterFactory.create())
+//            .build()
+//            .create(GeminiApi::class.java)
+//
+//        val geminiResponse = geminiApi.generateCSQuestions(
+//            request= request,
+//            apiKey = BuildConfig.GEMINI_API_KEY)
+//        val generatedText = geminiResponse.candidates.firstOrNull()?.content?.parts?.firstOrNull()?.text
+//            ?: throw Exception("Gemini 응답 없음")
+//
+//        val gson = Gson()
+//        val csProblems: List<CsProblem> = gson.fromJson(generatedText, object : TypeToken<List<CsProblem>>() {}.type)
+//
+//        csProblems.forEachIndexed { index, problem ->
+//            val csProblem = problem.copy(csRoomId = csRoom.csRoomId, problemIndex = index)
+//            firebaseStore.collection("cs_problem").document().set(csProblem).await()
+//
+//            val problemStatus = ParticipantProblemStatus(
+//                roomParticipantId = roomParticipant.userId,
+//                userId = roomParticipant.userId,
+//                problemId = index + 1,
+//                problemType = room.roomType,
+//                isSolved = false,
+//                createdAt = Timestamp.now(),
+//                updatedAt = Timestamp.now()
+//            )
+//            firebaseStore.collection("participant_problem_status").document().set(problemStatus).await()
+//        }
+//
+//
+//
+//        firebaseStore.collection("room_participant").document().set(roomParticipant).await()
+//        firebaseStore.collection("room").document(roomRef.id).set(room).await()
+//        firebaseStore.collection("cs_room").document(csRoomRef.id).set(csRoom).await()
+//    }
+//
+//
+//
+//    override suspend fun createCodingRoom(codingRoomSaveInfo: CodingRoomSaveInfo) {
+//        val user: UserFullInfo = userRepository.getUserInfo(codingRoomSaveInfo.userId)
+//
+//        val roomParticipant = RoomParticipant(
+//            userId = codingRoomSaveInfo.userId,
+//            solvedProblem = 0,
+//            hp = user.userAbility.hp,
+//            attack = user.userAbility.attack,
+//            shield = user.userAbility.shield,
+//            role = UserRole.HOST,
+//            createdAt = Timestamp.now(),
+//            updatedAt = Timestamp.now()
+//        )
+//
+//        val roomRef = FirebaseFirestore.getInstance()
+//            .collection("room")
+//            .document()
+//        val codingRoomRef = FirebaseFirestore.getInstance()
+//            .collection("coding_room")
+//            .document()
+//
+//        val room = Room(
+//            roomId = roomRef.id,
+//            roomTitle = codingRoomSaveInfo.roomTitle,
+//            problemCount = codingRoomSaveInfo.problemCount,
+//            roomType = codingRoomSaveInfo.roomType,
+//            roomState = codingRoomSaveInfo.roomState,
+//            description = codingRoomSaveInfo.description,
+//            createdBy = codingRoomSaveInfo.userId,
+//            createdAt = Timestamp.now(),
+//            updatedAt = Timestamp.now()
+//        )
+//
+//
+//        val csRoom = CodingRoom(
+//            codingRoomId = codingRoomRef.id,
+//            roomId = roomRef.id,
+//            difficultyLevel = codingRoomSaveInfo.difficultyLevel
+//        )
+//
+//        val tier = codingRoomSaveInfo.difficultyLevel.tierValue
+//
+//        val selectedProblems = fetchProblemsByTierFromApi(
+//            tier = tier,
+//            count = codingRoomSaveInfo.problemCount,
+//            codingRoomId = codingRoomRef.id)
+//
+//        firebaseStore.collection("room_participant").document().set(roomParticipant).await()
+//        firebaseStore.collection("room").document(roomRef.id).set(room).await()
+//        firebaseStore.collection("coding_room").document(codingRoomRef.id).set(csRoom).await()
+//
+//        for (problem in selectedProblems) {
+//            firebaseStore.collection("coding_problem").document().set(problem).await()
+//        }
+//    }
 
     suspend fun fetchProblemsByTierFromApi(
         tier: Int,
@@ -213,93 +365,7 @@ class RoomRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun listCsRoom(): List<UiCsRoomItem> {
-        val result = mutableListOf<UiCsRoomItem>()
 
-        val roomSnapshots = firebaseStore.collection("room")
-            .whereEqualTo("roomType", "CS")
-            .get()
-            .await()
 
-        for (roomDoc in roomSnapshots.documents) {
-            try {
-                val room = roomDoc.toObject(Room::class.java) ?: continue
-
-                val csRoomSnapshot = firebaseStore.collection("cs_room")
-                    .whereEqualTo("roomId", room.roomId)
-                    .get()
-                    .await()
-
-                val csRoom = csRoomSnapshot.documents.firstOrNull()?.toObject(CsRoom::class.java) ?: continue
-
-                val createdBy = room.createdBy
-                val githubInfoSnapshot = firebaseStore.collection("github_info")
-                    .whereEqualTo("userId", createdBy)
-                    .get()
-                    .await()
-
-                val githubInfo = githubInfoSnapshot.documents.firstOrNull()?.toObject(GithubInfo::class.java)
-
-                result.add(
-                    UiCsRoomItem(
-                        roomId = room.roomId,
-                        roomTitle = room.roomTitle,
-                        topic = csRoom.topic,
-                        difficulty = csRoom.difficultyLevel,
-                        githubName = githubInfo?.githubName,
-                        description = room.description
-                    )
-                )
-            } catch (e: Exception) {
-                Log.e("Repo", "listCsRoom 내부 예외 발생: ${e.message}")
-            }
-        }
-
-        return result
-    }
-
-    override suspend fun listCodingRoom(): List<UiCodingRoomItem> {
-        val result = mutableListOf<UiCodingRoomItem>()
-
-        val roomSnapshots = firebaseStore.collection("room")
-            .whereEqualTo("roomType", "CODING")
-            .get()
-            .await()
-
-        for (roomDoc in roomSnapshots.documents) {
-            val room = roomDoc.toObject(Room::class.java) ?: continue
-
-            val codingRoomSnapshot = firebaseStore.collection("coding_room")
-                .whereEqualTo("roomId", room.roomId)
-                .get()
-                .await()
-
-            val codingRoom = codingRoomSnapshot.documents.firstOrNull()
-                ?.toObject(CodingRoom::class.java) ?: continue
-
-            // GitHub 프로필 가져오기
-            val createdBy = roomDoc.getString("createdBy") ?: continue
-
-            val githubInfoSnapshot = firebaseStore.collection("github_info")
-                .whereEqualTo("userId", createdBy)
-                .get()
-                .await()
-
-            val githubInfo = githubInfoSnapshot.documents.firstOrNull()
-                ?.toObject(GithubInfo::class.java)
-
-            result.add(
-                UiCodingRoomItem(
-                    roomId = room.roomId,
-                    roomTitle = room.roomTitle,
-                    difficulty = codingRoom.difficultyLevel,
-                    githubName = githubInfo?.githubName,
-                    description = room.description
-                )
-            )
-        }
-
-        return result
-    }
 
 }
