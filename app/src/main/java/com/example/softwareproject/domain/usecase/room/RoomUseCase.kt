@@ -46,7 +46,7 @@ class RoomUseCase @Inject constructor(
         val result = mutableListOf<UiCsRoomItem>()
 
         for (room in roomList) {
-            val csRoom = roomRepository.getCsRoomInfo(room.roomId)
+            val csRoom = roomRepository.getCsRoomInfoByRoomId(room.roomId)
             val user = userRepository.getUSerGithubInfo(room.userId)
 
             Log.d("DEBUG", "roomId: ${room.roomId}, csRoom: $csRoom, user: $user")
@@ -82,8 +82,10 @@ class RoomUseCase @Inject constructor(
         val result = mutableListOf<UiPsRoomItem>()
 
         for (room in roomList) {
-            val psRoom = roomRepository.getPsRoomInfo(room.roomId)
+            val psRoom = roomRepository.getPsRoomInfoByRoomId(room.roomId)
             val user = userRepository.getUSerGithubInfo(room.userId)
+
+            Log.d("DEBUG", "roomId: ${room.roomId}, csRoom: $psRoom, user: $user")
 
             if (psRoom != null && user != null) {
                 result.add(
@@ -204,7 +206,7 @@ class RoomUseCase @Inject constructor(
         return roomRepository.observeRoomList(RoomType.CS) { rooms ->
             CoroutineScope(Dispatchers.IO).launch {
                 val result = rooms.mapNotNull { room ->
-                    val csRoom = roomRepository.getCsRoomInfo(room.roomId)
+                    val csRoom = roomRepository.getCsRoomInfoByRoomId(room.roomId)
                     val user = userRepository.getUSerGithubInfo(room.userId)
 
                     if (csRoom != null && user != null) {
@@ -229,7 +231,7 @@ class RoomUseCase @Inject constructor(
         return roomRepository.observeRoomList(RoomType.PS) { rooms ->
             CoroutineScope(Dispatchers.IO).launch {
                 val result = rooms.mapNotNull { room ->
-                    val psRoom = roomRepository.getPsRoomInfo(room.roomId)
+                    val psRoom = roomRepository.getPsRoomInfoByRoomId(room.roomId)
                     val user = userRepository.getUSerGithubInfo(room.userId)
 
                     if (psRoom != null && user != null) {
@@ -251,7 +253,7 @@ class RoomUseCase @Inject constructor(
 
 
     suspend fun getCsRoomInfo(csRoomId: String): CsRoomDto? {
-        return roomRepository.getCsRoomInfo(csRoomId)
+        return roomRepository.getCsRoomInfoByRoomId(csRoomId)
     }
 
 }

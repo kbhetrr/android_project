@@ -17,11 +17,10 @@ interface RoomRepository {
     suspend fun createRoomParticipant(roomParticipant: RoomParticipantDto) : RoomParticipantDto
 
     suspend fun getRoomInfo(roomId: String) : RoomDto?
-    suspend fun getCsRoomInfo(csRoomId: String) : CsRoomDto?
-    suspend fun getPsRoomInfo(psRoomId: String) : PsRoomDto?
+    suspend fun getCsRoomInfoByRoomId(csRoomId: String) : CsRoomDto?
+    suspend fun getPsRoomInfoByRoomId(psRoomId: String) : PsRoomDto?
     suspend fun getRoomParticipantInfo(userId: String, roomId:String) : RoomParticipantDto?
     suspend fun getRoomParticipantList(roomId: String) : List<RoomParticipantDto>
-
 
     suspend fun roomList() : List<RoomDto>
     suspend fun csRoomList() : List<CsRoomDto>

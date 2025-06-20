@@ -96,10 +96,10 @@ class RoomRepositoryImpl @Inject constructor(
     }
 
 
-    override suspend fun getCsRoomInfo(csRoomId: String): CsRoomDto? {
+    override suspend fun getCsRoomInfoByRoomId(csRoomId: String): CsRoomDto? {
         return try {
             val snapshot = firebaseStore.collection("cs_room")
-                .whereEqualTo("csRoomId", csRoomId)
+                .whereEqualTo("roomId", csRoomId)
                 .get()
                 .await()
 
@@ -110,10 +110,10 @@ class RoomRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getPsRoomInfo(psRoomId: String): PsRoomDto? {
+    override suspend fun getPsRoomInfoByRoomId(psRoomId: String): PsRoomDto? {
         return try {
             val snapshot = firebaseStore.collection("coding_room")
-                .whereEqualTo("psRoomId", psRoomId)
+                .whereEqualTo("roomId", psRoomId)
                 .get()
                 .await()
 
