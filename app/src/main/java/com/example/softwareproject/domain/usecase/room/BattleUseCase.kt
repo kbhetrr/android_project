@@ -26,7 +26,7 @@ class BattleUseCase@Inject constructor(
         val problemCount = roomInfo?.problemCount ?: 1
         val difficultyLevel = csRoomInfo?.difficultyLevel
         val topic = csRoomInfo?.topic ?: "컴퓨터공학"
-
+        val csRoomId = csRoomInfo?.csRoomId ?:"0"
         val prompt = buildPrompt(
             count = problemCount,
             topic = topic.toString(),
@@ -42,7 +42,7 @@ class BattleUseCase@Inject constructor(
         val responseText = response.candidates.firstOrNull()?.content?.parts?.firstOrNull()?.text
             ?: throw Exception("Gemini 응답에 텍스트 없음")
 
-        val problems = parseGeminiToCsProblemList(responseText, roomId)
+        val problems = parseGeminiToCsProblemList(responseText, csRoomId)
         problems.forEach { problem ->
             problemRepository.createCsProblem(problem)
         }
@@ -63,7 +63,7 @@ class BattleUseCase@Inject constructor(
     """.trimIndent()
     }
 
-    private fun parseGeminiToCsProblemList(response: String, roomId: String): List<CsProblemDto> {
+    private fun parseGeminiToCsProblemList(response: String, csRoomId: String): List<CsProblemDto> {
         val blocks = response.trim().split("\n\n")
 
         return blocks.mapIndexed { index, block ->
@@ -84,7 +84,7 @@ class BattleUseCase@Inject constructor(
                 choice3 = choice3,
                 choice4 = choice4,
                 correctChoice = correct,
-                csRoomId = roomId,
+                csRoomId = csRoomId,
                 problemIndex = (index + 1).toString()
             )
         }
