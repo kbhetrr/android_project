@@ -9,12 +9,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.softwareproject.com.example.softwareproject.presentation.BattleWaitingActivity
 import com.example.softwareproject.presentation.room.RoomViewModel
+import com.example.softwareproject.presentation.room.adapter.CsRoomAdapter
 import com.example.softwareproject.presentation.room.adapter.PsRoomAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class TabPsFragment : Fragment() {
@@ -43,7 +47,13 @@ class TabPsFragment : Fragment() {
 
         // RecyclerView 설정
         recyclerView.layoutManager = LinearLayoutManager(context)
-        myAdapter = PsRoomAdapter(emptyList())
+        myAdapter = PsRoomAdapter(emptyList()) { room ->
+            lifecycleScope.launch {
+                val intent = Intent(requireContext(), BattleWaitingActivity::class.java)
+                intent.putExtra("roomId", room.roomId)
+                startActivity(intent)
+            }
+        }
         recyclerView.adapter = myAdapter
 
 
