@@ -8,9 +8,11 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 import com.example.softwareproject.data.remote.room.UiCsRoomItem
+import com.example.softwareproject.data.remote.room.UiPsRoomItem
 
 class RoomRecyclerAdapter(
-    private var roomList: List<UiCsRoomItem>
+    private var csRoomList: List<UiCsRoomItem>,
+    private var psRoomList: List<UiPsRoomItem>
 ) : RecyclerView.Adapter<RoomRecyclerAdapter.RoomViewHolder>() {
 
     inner class RoomViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -18,7 +20,7 @@ class RoomRecyclerAdapter(
         val topicTextView: TextView = itemView.findViewById(R.id.room_topic)
         val difficultyTextView: TextView = itemView.findViewById(R.id.room_difficulty)
         val githubNameTextView: TextView = itemView.findViewById(R.id.host_name)
-        val descriptionTextView: TextView = itemView.findViewById(R.id.item_description) // ✅ 추가
+        val descriptionTextView: TextView = itemView.findViewById(R.id.item_description)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RoomViewHolder {
@@ -27,10 +29,10 @@ class RoomRecyclerAdapter(
         return RoomViewHolder(view)
     }
 
-    override fun getItemCount(): Int = roomList.size
+    override fun getItemCount(): Int = csRoomList.size
 
     override fun onBindViewHolder(holder: RoomViewHolder, position: Int) {
-        val room = roomList[position]
+        val room = csRoomList[position]
         holder.roomTitleTextView.text = room.roomTitle
         holder.topicTextView.text = "주제: ${room.topic}"
         holder.difficultyTextView.text = "난이도: ${room.difficulty}" // ✅ 이미 있음
@@ -40,7 +42,7 @@ class RoomRecyclerAdapter(
 
     @SuppressLint("NotifyDataSetChanged")
     fun submitList(newList: List<UiCsRoomItem>) {
-        roomList = newList
+        csRoomList = newList
         notifyDataSetChanged()
     }
 }

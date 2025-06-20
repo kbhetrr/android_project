@@ -4,20 +4,26 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.EditText
 import android.widget.Spinner
-import androidx.appcompat.app.AppCompatActivity // AppCompatActivity 상속
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import com.example.softwareproject.presentation.room.RoomViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MakeRoomActivity : AppCompatActivity() {
     private lateinit var makeButton: Button
     private lateinit var backButton: Button
 
+    private val viewModel: RoomViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_make_room) // activity_battle_loading.xml 설정
 
         makeButton = findViewById(R.id.make_button)
         backButton = findViewById(R.id.back_button)
+        val roomTitle : EditText = findViewById(R.id.edit_room_title)
         val spinner_types: Spinner = findViewById(R.id.spinner_types)
         ArrayAdapter.createFromResource(
             this,
@@ -56,11 +62,30 @@ class MakeRoomActivity : AppCompatActivity() {
 
         makeButton.setOnClickListener{
             // BattleLoadingActivity 시작
-            val intent = Intent(this, PsBattleActivity::class.java)
-            // 필요하다면 intent에 데이터 추가 가능
-            // intent.putExtra("KEY_BATTLE_ID", battleId)
-            startActivity(intent)
-            finish()
+
+            val title = roomTitle.text.toString()
+            val type = spinner_types.selectedItem.toString()     // 문제 유형
+            val difficulty = spinner_tiers.selectedItem.toString()     // 난이도
+            val problemCount = spinner_counts.selectedItem.toString()   // 문제 개수
+
+            viewModel.makeRoom(
+                title = title,
+                type = type,
+                difficulty =difficulty,
+                problemCount =problemCount
+            ).observe(this) { roomId ->
+                val intent = Intent(this, BattleLoadingActivity::class.java)
+                intent.putExtra("roomId", roomId)
+                startActivity(intent)
+            }
+
+            //이부분 Main에 있던데 일단 주석처리 했습니다 나중에 상세기능에 따라서 수정하면 될 거 같아요!
+//             val intent = Intent(this, PsBattleActivity::class.java)
+//             // 필요하다면 intent에 데이터 추가 가능
+//             // intent.putExtra("KEY_BATTLE_ID", battleId)
+//             startActivity(intent)
+//             finish()
+
         }
 
         backButton.setOnClickListener{

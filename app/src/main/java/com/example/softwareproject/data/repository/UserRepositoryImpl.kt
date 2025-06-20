@@ -1,5 +1,10 @@
 package com.example.softwareproject.data.repository
 
+import android.util.Log
+import com.example.softwareproject.data.dto.user.GitHubInfoDto
+import com.example.softwareproject.data.dto.user.UserAbilityDto
+import com.example.softwareproject.data.dto.user.UserBattleLogDto
+import com.example.softwareproject.data.dto.user.UserDto
 import com.example.softwareproject.data.nosql_entity.GithubInfo
 import com.example.softwareproject.data.nosql_entity.User
 import com.example.softwareproject.data.nosql_entity.UserAbility
@@ -18,7 +23,126 @@ class UserRepositoryImpl @Inject constructor(
     private val fireBaseStore : FirebaseFirestore
 ) : UserRepository{
 
-    override suspend fun getUserInfo(userId: String) : UserFullInfo{
+    override suspend fun createUser(user: UserDto) {
+        try {
+            fireBaseStore.collection("user")
+                .document(user.userId)
+                .set(user)
+                .await()
+        } catch (e: Exception) {
+            Log.e("Repository", "createUser failed: ${e.message}")
+        }
+    }
+
+    override suspend fun createUserAbility(userAbility: UserAbilityDto) {
+        try {
+            fireBaseStore.collection("user_ability")
+                .document(userAbility.userId)
+                .set(userAbility)
+                .await()
+        } catch (e: Exception) {
+            Log.e("Repository", "createUserAbility failed: ${e.message}")
+        }
+    }
+
+    override suspend fun createUserBattleLog(userBattleLogDto: UserBattleLogDto) {
+        try {
+            fireBaseStore.collection("user_battle_log")
+                .document(userBattleLogDto.userId)
+                .set(userBattleLogDto)
+                .await()
+        } catch (e: Exception) {
+            Log.e("Repository", "createUserBattleLogDto failed: ${e.message}")
+        }
+    }
+
+    override suspend fun createUserGithubInfo(githubInfo: GitHubInfoDto) {
+        try {
+            fireBaseStore.collection("github_info")
+                .document(githubInfo.userId)
+                .set(githubInfo)
+                .await()
+        } catch (e: Exception) {
+            Log.e("Repository", "createUserGithubInfo failed: ${e.message}")
+        }
+    }
+
+    override suspend fun getUserInfo(userId: String): UserDto? {
+        return try {
+            val snapshot = fireBaseStore.collection("user")
+                .whereEqualTo("userId", userId)
+                .get()
+                .await()
+
+            snapshot.documents.firstOrNull()?.toObject(UserDto::class.java)
+        } catch (e: Exception) {
+            Log.e("Repository", "getUserInfo failed: ${e.message}")
+            null
+        }
+    }
+
+
+    override suspend fun getUserAbilityInfo(userId: String): UserAbilityDto? {
+        return try {
+            val snapshot = fireBaseStore.collection("user_ability")
+                .document(userId)
+                .get()
+                .await()
+
+            snapshot.toObject(UserAbilityDto::class.java)
+        } catch (e: Exception) {
+            Log.e("Repository", "getUserAbilityInfo failed: ${e.message}")
+            null
+        }
+    }
+
+    override suspend fun getUserBattleLogInfo(userId: String): UserBattleLogDto? {
+        return try {
+            val snapshot = fireBaseStore.collection("user_battle_Log")
+                .whereEqualTo("userId", userId)
+                .get()
+                .await()
+
+            snapshot.documents.firstOrNull()?.toObject(UserBattleLogDto::class.java)
+        } catch (e: Exception) {
+            Log.e("Repository", "getUserBattleLogInfo failed: ${e.message}")
+            null
+        }
+    }
+
+
+
+    override suspend fun getUSerGithubInfo(userId: String): GitHubInfoDto? {
+        return try {
+            val snapshot = fireBaseStore.collection("github_info")
+                .whereEqualTo("userId", userId)
+                .get()
+                .await()
+
+            snapshot.documents.firstOrNull()?.toObject(GitHubInfoDto::class.java)
+        } catch (e: Exception) {
+            Log.e("Repository", "getUserGithubInfo failed: ${e.message}")
+            null
+        }
+    }
+
+    override suspend fun getUserGithubInfoByFirebaseUid(firebaseUid: String): GitHubInfoDto? {
+        return try {
+            val snapshot = fireBaseStore.collection("github_info")
+                .whereEqualTo("firebaseUid", firebaseUid)
+                .get()
+                .await()
+
+            snapshot.documents.firstOrNull()?.toObject(GitHubInfoDto::class.java)
+        } catch (e: Exception) {
+            Log.e("Repository", "getUserGithubInfo failed: ${e.message}")
+            null
+        }
+    }
+
+
+
+    override suspend fun getUserFullInfo(userId: String) : UserFullInfo{
         val userDoc = fireBaseStore.collection("user").document(userId).get().await()
         val githubDoc = fireBaseStore.collection("github_info").document(userId).get().await()
         val abilityDoc = fireBaseStore.collection("user_ability").document(userId).get().await()
@@ -137,6 +261,9 @@ class UserRepositoryImpl @Inject constructor(
             )
         }
     }
+
+
+
 
 
 }
