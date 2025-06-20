@@ -56,11 +56,14 @@ class MakeRoomActivity : AppCompatActivity() {
 
         makeButton.setOnClickListener{
             // BattleLoadingActivity 시작
-            val intent = Intent(this, PsBattleActivity::class.java)
+            val type = spinner_types.selectedItem.toString()     // 문제 유형
+            val difficulty = spinner_tiers.selectedItem.toString()     // 난이도
+            val problemCount = spinner_counts.selectedItem.toString()   // 문제 개수
+            val title = roomTitleEditText.text.toString()
+            val intent = Intent(this, BattleLoadingActivity::class.java)
             // 필요하다면 intent에 데이터 추가 가능
             // intent.putExtra("KEY_BATTLE_ID", battleId)
             startActivity(intent)
-            finish()
         }
 
         backButton.setOnClickListener{

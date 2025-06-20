@@ -22,5 +22,6 @@ interface UserRepository {
     suspend fun getUserAbilityInfo(userId: String) : UserAbilityDto?
     suspend fun getUserBattleLogInfo(userId: String) : UserBattleLogDto?
     suspend fun getUSerGithubInfo(userId: String) : GitHubInfoDto?
+    suspend fun getUserGithubInfoByFirebaseUid(firebaseUid: String) : GitHubInfoDto?
 
 }

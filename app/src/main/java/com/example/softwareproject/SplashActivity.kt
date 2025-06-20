@@ -13,7 +13,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        FirebaseAuth.getInstance().signOut()
+//        FirebaseAuth.getInstance().signOut()
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser != null) {
             startActivity(Intent(this, MainActivity::class.java))

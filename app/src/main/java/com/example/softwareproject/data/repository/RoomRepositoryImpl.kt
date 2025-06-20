@@ -11,7 +11,9 @@ import com.example.softwareproject.data.remote.room.PsWaitingRoomInfo
 import com.example.softwareproject.domain.repository.RoomRepository
 import com.example.softwareproject.domain.repository.UserRepository
 import com.example.softwareproject.domain.repository.solvedac.RetrofitInstance
+import com.example.softwareproject.util.RoomType
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -20,79 +22,88 @@ class RoomRepositoryImpl @Inject constructor(
     private val userRepository: UserRepository
 ) : RoomRepository{
 
-    override suspend fun createRoom(room : RoomDto) {
-        firebaseStore.collection("room")
-            .document(room.roomId)
-            .set(room)
-            .addOnSuccessListener {
-                Log.d("Firestore", "room 저장 성공: ${room.roomId}")
-            }
-            .addOnFailureListener { e ->
-                Log.e("Firestore", "room 저장 실패: ${e.message}")
-            }
+    override suspend fun createRoom(room : RoomDto) : RoomDto {
+        return try {
+            firebaseStore.collection("room")
+                .document(room.roomId)
+                .set(room)
+                .await()
+            Log.d("Firestore", "room 저장 성공: ${room.roomId}")
+            room
+        } catch (e: Exception) {
+            Log.e("Firestore", "room 저장 실패: ${e.message}")
+            throw e
+        }
     }
 
-    override suspend fun createCsRoom(csRoom : CsRoomDto) {
-
-        firebaseStore.collection("cs_room")
-            .document(csRoom.csRoomId)
-            .set(csRoom)
-            .addOnSuccessListener {
-                Log.d("Firestore", "cs_room 저장 성공: ${csRoom.csRoomId}")
-            }
-            .addOnFailureListener { e ->
-                Log.e("Firestore", "cs_room 저장 실패: ${e.message}")
-            }
+    override suspend fun createCsRoom(csRoom: CsRoomDto): CsRoomDto {
+        return try {
+            firebaseStore.collection("cs_room")
+                .document(csRoom.csRoomId)
+                .set(csRoom)
+                .await()
+            Log.d("Firestore", "cs_room 저장 성공: ${csRoom.csRoomId}")
+            csRoom
+        } catch (e: Exception) {
+            Log.e("Firestore", "cs_room 저장 실패: ${e.message}")
+            throw e
+        }
     }
 
-    override suspend fun createPsRoom(psRoom : PsRoomDto) {
 
-        firebaseStore.collection("coding_room")
-            .document(psRoom.codingRoomId)
-            .set(psRoom)
-            .addOnSuccessListener {
-                Log.d("Firestore", "coding_room 저장 성공: ${psRoom.codingRoomId}")
-            }
-            .addOnFailureListener { e ->
-                Log.e("Firestore", "coding_room 저장 실패: ${e.message}")
-            }
+    override suspend fun createPsRoom(psRoom: PsRoomDto): PsRoomDto {
+        return try {
+            firebaseStore.collection("coding_room")
+                .document(psRoom.codingRoomId)
+                .set(psRoom)
+                .await()
+
+            Log.d("Firestore", "coding_room 저장 성공: ${psRoom.codingRoomId}")
+            return psRoom
+        } catch (e: Exception) {
+            Log.e("Firestore", "coding_room 저장 실패: ${e.message}")
+            throw e  // 필요 시 예외를 던지거나 Result로 감싸도 됨
+        }
     }
 
-    override suspend fun createRoomParticipant(roomParticipant: RoomParticipantDto) {
+    override suspend fun createRoomParticipant(roomParticipant: RoomParticipantDto): RoomParticipantDto {
+        try {
+            firebaseStore.collection("room_participant")
+                .document("${roomParticipant.roomId}_${roomParticipant.userId}")
+                .set(roomParticipant)
+                .await()
 
-        firebaseStore.collection("room_participant")
-            .document("${roomParticipant.roomId}_${roomParticipant.userId}")
-            .set(roomParticipant)
-            .addOnSuccessListener {
-                Log.d("Firestore", "room_participant 저장 성공")
-            }
-            .addOnFailureListener { e ->
-                Log.e("Firestore", "room_participant 저장 실패: ${e.message}")
-            }
+            Log.d("Firestore", "room_participant 저장 성공")
+            return roomParticipant
+        } catch (e: Exception) {
+            Log.e("Firestore", "room_participant 저장 실패: ${e.message}")
+            throw e
+        }
     }
 
-    override suspend fun getRoomInfo(roomId: String) : RoomDto? {
+    override suspend fun getRoomInfo(roomId: String): RoomDto? {
         return try {
             val snapshot = firebaseStore.collection("room")
-                .document(roomId)
+                .whereEqualTo("roomId", roomId)
                 .get()
                 .await()
 
-            snapshot.toObject(RoomDto::class.java)
+            snapshot.documents.firstOrNull()?.toObject(RoomDto::class.java)
         } catch (e: Exception) {
             Log.e("Repository", "getRoomInfo failed: ${e.message}")
             null
         }
     }
 
+
     override suspend fun getCsRoomInfo(csRoomId: String): CsRoomDto? {
         return try {
             val snapshot = firebaseStore.collection("cs_room")
-                .document(csRoomId)
+                .whereEqualTo("csRoomId", csRoomId)
                 .get()
                 .await()
 
-            snapshot.toObject(CsRoomDto::class.java)
+            snapshot.documents.firstOrNull()?.toObject(CsRoomDto::class.java)
         } catch (e: Exception) {
             Log.e("Repository", "getCsRoomInfo failed: ${e.message}")
             null
@@ -102,16 +113,17 @@ class RoomRepositoryImpl @Inject constructor(
     override suspend fun getPsRoomInfo(psRoomId: String): PsRoomDto? {
         return try {
             val snapshot = firebaseStore.collection("coding_room")
-                .document(psRoomId)
+                .whereEqualTo("psRoomId", psRoomId)
                 .get()
                 .await()
 
-            snapshot.toObject(PsRoomDto::class.java)
+            snapshot.documents.firstOrNull()?.toObject(PsRoomDto::class.java)
         } catch (e: Exception) {
             Log.e("Repository", "getPsRoomInfo failed: ${e.message}")
             null
         }
     }
+
 
     override suspend fun getRoomParticipantInfo(userId: String, roomId: String): RoomParticipantDto? {
         return try {
@@ -191,6 +203,20 @@ class RoomRepositoryImpl @Inject constructor(
 
     override suspend fun createWaitingPsRoom(psWaitingRoomInfo: PsWaitingRoomInfo) {
 
+    }
+
+    override fun observeRoomList(
+        roomType: RoomType,
+        onChanged: (List<RoomDto>) -> Unit
+    ): ListenerRegistration {
+        return firebaseStore.collection("room")
+            .whereEqualTo("roomType", roomType.name)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null || snapshot == null) return@addSnapshotListener
+
+                val rooms = snapshot.documents.mapNotNull { it.toObject(RoomDto::class.java) }
+                onChanged(rooms)
+            }
     }
 
 
