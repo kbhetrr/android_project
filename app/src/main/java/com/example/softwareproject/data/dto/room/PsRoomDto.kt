@@ -1,7 +1,6 @@
-package com.example.softwareproject.com.example.softwareproject.data.dto
+package com.example.softwareproject.data.dto.room
 
-import com.example.softwareproject.com.example.softwareproject.util.DifficultyPs
-import com.example.softwareproject.util.Topic
+import com.example.softwareproject.util.DifficultyPs
 
 data class PsRoomDto (
     val codingRoomId : String,

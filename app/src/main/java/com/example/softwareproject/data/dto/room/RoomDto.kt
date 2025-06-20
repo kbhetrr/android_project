@@ -1,4 +1,4 @@
-package com.example.softwareproject.com.example.softwareproject.data.dto
+package com.example.softwareproject.data.dto.room
 
 import com.example.softwareproject.util.RoomState
 import com.example.softwareproject.util.RoomType
