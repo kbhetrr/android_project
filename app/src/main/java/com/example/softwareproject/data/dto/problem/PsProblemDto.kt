@@ -1,4 +1,11 @@
-package com.example.softwareproject.com.example.softwareproject.data.dto.problem
+package com.example.softwareproject.data.dto.problem
 
-class PsProblemDto {
-}
+data class PsProblemDto (
+    val acceptedUserCount: Int,
+    val averageTries: Int,
+    val codingRoomId: String,
+    val problemId: String,
+    val problemIndex : String,
+    val tag : String,
+    val title: String
+    )
