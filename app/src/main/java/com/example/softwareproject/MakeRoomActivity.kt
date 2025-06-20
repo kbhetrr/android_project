@@ -9,7 +9,9 @@ import android.widget.Spinner
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.example.softwareproject.presentation.room.RoomViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MakeRoomActivity : AppCompatActivity() {
     private lateinit var makeButton: Button
     private lateinit var backButton: Button
@@ -70,11 +72,11 @@ class MakeRoomActivity : AppCompatActivity() {
                 type = type,
                 difficulty =difficulty,
                 problemCount =problemCount
-            )
-
-            val intent = Intent(this, BattleLoadingActivity::class.java)
-
-            startActivity(intent)
+            ).observe(this) { roomId ->
+                val intent = Intent(this, BattleLoadingActivity::class.java)
+                intent.putExtra("roomId", roomId)
+                startActivity(intent)
+            }
         }
 
         backButton.setOnClickListener{

@@ -1,19 +1,33 @@
 package com.example.softwareproject // 실제 패키지 이름으로 변경
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity // AppCompatActivity 상속
+import androidx.lifecycle.lifecycleScope
+import com.example.softwareproject.presentation.room.RoomViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class BattleLoadingActivity : AppCompatActivity() {
+
+    private val viewModel: RoomViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_battle_loading) // activity_battle_loading.xml 설정
 
         val btnGoBack: Button = findViewById(R.id.btn_go_back)
+        val roomId = intent.getStringExtra("roomId") ?: return
+
         btnGoBack.setOnClickListener {
-            // 현재 액티비티 종료하여 이전 화면으로 돌아가기
-            finish()
+            lifecycleScope.launch {
+                viewModel.deleteRoom(roomId)
+                Log.d("RoomViewModel", "방 삭제 완료: $roomId")
+                finish()
+            }
         }
 
         // 여기에 실제 상대방을 기다리는 로직을 시작하거나,
