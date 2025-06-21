@@ -6,6 +6,7 @@ import com.example.softwareproject.com.example.softwareproject.module.BaekjoonAp
 import com.example.softwareproject.data.dto.problem.BaekjoonProblemDto
 import com.example.softwareproject.data.dto.problem.CsProblemDto
 import com.example.softwareproject.data.dto.problem.PsProblemDto
+import com.example.softwareproject.data.dto.room.RoomParticipantDto
 import com.example.softwareproject.domain.repository.Content
 import com.example.softwareproject.domain.repository.GeminiApi
 import com.example.softwareproject.domain.repository.GeminiRequest
@@ -14,6 +15,9 @@ import com.example.softwareproject.domain.repository.ProblemRepository
 import com.example.softwareproject.domain.repository.RoomRepository
 import com.example.softwareproject.domain.repository.UserRepository
 import com.example.softwareproject.util.RoomType
+import com.example.softwareproject.util.UserRole
+import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuth
 import javax.inject.Inject
 
 class BattleUseCase@Inject constructor(
@@ -174,5 +178,51 @@ class BattleUseCase@Inject constructor(
         }
 
         return result.shuffled().take(count)
+    }
+
+    suspend fun createRoomParticipant(roomId: String){
+        val roomInfo =roomRepository.getRoomInfo(roomId)
+        val hostUserId = roomInfo?.userId ?: "0"
+
+        val uid = FirebaseAuth.getInstance().currentUser?.uid.toString()
+        val participantUserId = userRepository.getUserGithubInfoByFirebaseUid(uid)
+
+        val hostUser = userRepository.getUserInfo(hostUserId) // 방장
+        val participantUser = participantUserId?.let { userRepository.getUserInfo(it.userId) } // 참가자
+
+        val hostUserAbility = userRepository.getUserAbilityInfo(hostUserId)
+        val participantUserAbility = participantUser?.let { userRepository.getUserAbilityInfo(it.userId) }
+
+
+        if(hostUserAbility != null && hostUser != null)
+        {
+            roomRepository.createRoomParticipant(RoomParticipantDto(
+                userId = hostUserId,
+                attack = hostUserAbility.attack,
+                hp = hostUserAbility.hp,
+                shield = hostUserAbility.shield,
+                role = UserRole.HOST,
+                roomId = roomId,
+                solvedProblem = 0,
+                createdAt = Timestamp.now(),
+                updatedAt = Timestamp.now()
+                ))
+        }
+        if(participantUserAbility != null && participantUser != null)
+        {
+            roomRepository.createRoomParticipant(RoomParticipantDto(
+                userId = participantUser.userId,
+                attack = participantUserAbility.attack,
+                hp = participantUserAbility.hp,
+                shield = participantUserAbility.shield,
+                role = UserRole.HOST,
+                roomId = roomId,
+                solvedProblem = 0,
+                createdAt = Timestamp.now(),
+                updatedAt = Timestamp.now()
+            ))
+        }
+
+
     }
 }

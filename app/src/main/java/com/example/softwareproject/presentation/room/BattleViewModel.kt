@@ -32,4 +32,7 @@ class BattleViewModel @Inject constructor(
     suspend fun getRoomType(roomId: String) : RoomType{
         return roomUseCase.getRoomType(roomId)
     }
+    suspend fun createRoomParticipant(roomId: String) {
+        battleUseCase.createRoomParticipant(roomId)
+    }
 }
