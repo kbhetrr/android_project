@@ -36,7 +36,7 @@ class CsBattleActivity : AppCompatActivity() {
         val roomId = intent.getStringExtra("roomId") ?: return
 
         csBattleViewModels.loadAbility(roomId)
-
+        csBattleViewModels.observeParticipants(roomId)
 
         val yourHpText = findViewById<TextView>(R.id.your_hp_text)
         val yourHpBar = findViewById<ProgressBar>(R.id.xp_progress_bar)
@@ -93,6 +93,18 @@ class CsBattleActivity : AppCompatActivity() {
                 ).forEachIndexed { i, btn ->
                     btn.text = options[i]
                 }
+                val radioButtons = listOf(
+                    findViewById<RadioButton>(R.id.radio_button_option1),
+                    findViewById<RadioButton>(R.id.radio_button_option2),
+                    findViewById<RadioButton>(R.id.radio_button_option3),
+                    findViewById<RadioButton>(R.id.radio_button_option4)
+                )
+
+                radioButtons.forEachIndexed { index, btn ->
+                    btn.setOnClickListener {
+                        csBattleViewModels.selectAnswer(index + 1) // 1~4번 보기 선택
+                    }
+                }
             }
 
             val homeBtn: Button = findViewById(R.id.home_btn)
@@ -100,6 +112,12 @@ class CsBattleActivity : AppCompatActivity() {
                 lifecycleScope.launch {
                     csBattleViewModels.giveUp(roomId)
                     finish()
+                }
+            }
+            val attackBtn: Button = findViewById(R.id.attack_btn)
+            attackBtn.setOnClickListener {
+                lifecycleScope.launch {
+                    csBattleViewModels.attackOpponent(roomId)
                 }
             }
 

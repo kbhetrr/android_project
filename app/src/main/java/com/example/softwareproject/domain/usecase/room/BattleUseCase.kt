@@ -2,7 +2,8 @@ package com.example.softwareproject.com.example.softwareproject.domain.usecase.r
 
 import android.util.Log
 import com.example.softwareproject.BuildConfig
-import com.example.softwareproject.com.example.softwareproject.data.dto.room.ParticipantProblemState
+import com.example.softwareproject.data.dto.room.ParticipantProblemState
+import com.example.softwareproject.domain.repository.BattleRepository
 import com.example.softwareproject.com.example.softwareproject.module.BaekjoonApi
 import com.example.softwareproject.data.dto.problem.BaekjoonProblemDto
 import com.example.softwareproject.data.dto.problem.CsProblemDto
@@ -19,6 +20,7 @@ import com.example.softwareproject.util.RoomType
 import com.example.softwareproject.util.UserRole
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class BattleUseCase@Inject constructor(
@@ -26,6 +28,7 @@ class BattleUseCase@Inject constructor(
     private val userRepository: UserRepository,
     private val problemRepository: ProblemRepository,
     private val geminiApiService: GeminiApi,
+    private val battleRepository: BattleRepository,
     private val baekjoonApi: BaekjoonApi
 
 ) {
@@ -209,6 +212,7 @@ class BattleUseCase@Inject constructor(
                 userId = hostUserId,
                 attack = hostUserAbility.attack,
                 hp = hostUserAbility.hp,
+                maxHp = hostUserAbility.hp,
                 shield = hostUserAbility.shield,
                 role = UserRole.HOST,
                 roomId = roomId,
@@ -224,6 +228,7 @@ class BattleUseCase@Inject constructor(
                 userId = participantUser.userId,
                 attack = participantUserAbility.attack,
                 hp = participantUserAbility.hp,
+                maxHp = participantUserAbility.hp,
                 shield = participantUserAbility.shield,
                 role = UserRole.GUEST,
                 roomId = roomId,
@@ -297,5 +302,17 @@ class BattleUseCase@Inject constructor(
             null
         }
     }
+    suspend fun updateParticipantHp(userId :String, roomId: String, newHp:Int){
+        battleRepository.updateParticipantHp(
+            userId = userId,
+            roomId = roomId,
+            newHp = newHp
+            )
+    }
+
+    fun observeRoomParticipants(roomId: String): Flow<List<RoomParticipantDto>> {
+        return battleRepository.observeRoomParticipants(roomId)
+    }
+
 
 }

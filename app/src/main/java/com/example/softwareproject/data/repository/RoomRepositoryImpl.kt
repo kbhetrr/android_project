@@ -1,17 +1,15 @@
 package com.example.softwareproject.data.repository
 
 import android.util.Log
-import com.example.softwareproject.com.example.softwareproject.data.dto.room.ParticipantProblemState
+import com.example.softwareproject.data.dto.room.ParticipantProblemState
 import com.example.softwareproject.data.dto.room.RoomDto
 import com.example.softwareproject.data.dto.room.RoomParticipantDto
 import com.example.softwareproject.data.dto.room.CsRoomDto
 import com.example.softwareproject.data.dto.room.PsRoomDto
-import com.example.softwareproject.data.nosql_entity.CodingProblem
 import com.example.softwareproject.data.remote.room.CsWaitingRoomInfo
 import com.example.softwareproject.data.remote.room.PsWaitingRoomInfo
 import com.example.softwareproject.domain.repository.RoomRepository
 import com.example.softwareproject.domain.repository.UserRepository
-import com.example.softwareproject.domain.repository.solvedac.RetrofitInstance
 import com.example.softwareproject.util.RoomState
 import com.example.softwareproject.util.RoomType
 import com.google.firebase.firestore.FirebaseFirestore

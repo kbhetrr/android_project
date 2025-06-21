@@ -1,6 +1,6 @@
 package com.example.softwareproject.domain.repository
 
-import com.example.softwareproject.com.example.softwareproject.data.dto.room.ParticipantProblemState
+import com.example.softwareproject.data.dto.room.ParticipantProblemState
 import com.example.softwareproject.data.dto.problem.CsProblemDto
 import com.example.softwareproject.data.dto.room.RoomDto
 import com.example.softwareproject.data.dto.room.RoomParticipantDto
