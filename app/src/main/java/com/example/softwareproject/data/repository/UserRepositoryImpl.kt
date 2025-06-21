@@ -329,7 +329,53 @@ class UserRepositoryImpl @Inject constructor(
             .set(baekjoonInfoDto) // 덮어쓰기
             .await()
     }
+    override suspend fun updateBattleLogInfo(userBattleLogDto: UserBattleLogDto) {
+        try {
+            val snapshot = fireBaseStore.collection("user_battle_Log")
+                .whereEqualTo("userId", userBattleLogDto.userId)
+                .get()
+                .await()
 
+            val doc = snapshot.documents.firstOrNull()
+            if (doc != null) {
+                fireBaseStore.collection("user_battle_Log")
+                    .document(doc.id)
+                    .set(userBattleLogDto)
+                    .await()
+            } else {
+                // 문서가 없으면 새로 생성 (선택 사항)
+                fireBaseStore.collection("user_battle_Log")
+                    .add(userBattleLogDto)
+                    .await()
+            }
+        } catch (e: Exception) {
+            Log.e("UserRepository", "updateBattleLogInfo 실패: ${e.message}")
+        }
+    }
+
+    override suspend fun updateUserAbilityInfo(userAbility: UserAbilityDto) {
+        try {
+            val snapshot = fireBaseStore.collection("user_ability")
+                .whereEqualTo("userId", userAbility.userId)
+                .get()
+                .await()
+
+            val doc = snapshot.documents.firstOrNull()
+            if (doc != null) {
+                fireBaseStore.collection("user_ability")
+                    .document(doc.id)
+                    .set(userAbility)
+                    .await()
+            } else {
+                // 문서가 없으면 새로 생성 (선택 사항)
+                fireBaseStore.collection("user_ability")
+                    .add(userAbility)
+                    .await()
+            }
+        } catch (e: Exception) {
+            Log.e("UserRepository", "updateUserAbilityInfo 실패: ${e.message}")
+        }
+    }
 
 
 }

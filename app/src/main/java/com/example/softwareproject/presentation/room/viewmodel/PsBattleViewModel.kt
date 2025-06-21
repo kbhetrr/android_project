@@ -26,6 +26,10 @@ class PsBattleViewModel @Inject constructor(
     private val roomUseCase: RoomUseCase
 ) : ViewModel()
 {
+
+    private val _battleResult = MutableLiveData<String?>()
+    val battleResult: LiveData<String?> = _battleResult
+
     private val _problemCount = MutableLiveData<Int>()
     val problemCount: LiveData<Int> = _problemCount
 
@@ -133,9 +137,18 @@ class PsBattleViewModel @Inject constructor(
             if (hasSolved) {
                 val newOpponentHp = (opponentUser.hp - 1).coerceAtLeast(0)
                 battleUseCase.updateParticipantHp(opponentUser.userId, roomId, newOpponentHp)
+                if(newOpponentHp == 0)
+                {
+                    battleUseCase.finishGame(roomId, winnerUserId = currentUser.userId, losserUserId = opponentUser.userId)
+                    _battleResult.value = "WIN"
+                }
             } else {
                 val newYourHp = (currentUser.hp - 1).coerceAtLeast(0)
                 battleUseCase.updateParticipantHp(currentUser.userId, roomId, newYourHp)
+                if(newYourHp == 0){
+                    battleUseCase.finishGame(roomId, winnerUserId = opponentUser.userId, losserUserId = currentUser.userId)
+                    _battleResult.value = "LOSE"
+                }
             }
         }
     }

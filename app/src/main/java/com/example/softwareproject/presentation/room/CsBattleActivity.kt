@@ -1,6 +1,7 @@
 package com.example.softwareproject.com.example.softwareproject.presentation.room // 실제 패키지 이름으로 변경
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.softwareproject.R
 import com.example.softwareproject.RadioSelectionAdapter
+import com.example.softwareproject.ResultActivity
 import com.example.softwareproject.SelectableItem
 import com.example.softwareproject.presentation.room.viewmodel.CsBattleViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -66,6 +68,15 @@ class CsBattleActivity : AppCompatActivity() {
                 SelectableItem("id_${index + 1}", "문제 ${index + 1}")
             }
 
+            csBattleViewModels.battleResult.observe(this) { result ->
+                result?.let {
+                    val intent = Intent(this, ResultActivity::class.java).apply {
+                        putExtra("result", result) // "WIN" 또는 "LOSE"
+                    }
+                    startActivity(intent)
+                    finish()
+                }
+            }
             radioAdapter = RadioSelectionAdapter(itemList) { selectedItem ->
                 val selectedIndex = selectedItem.id.removePrefix("id_").toInt()
                 csBattleViewModels.loadProblem(roomId, selectedIndex)

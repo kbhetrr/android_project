@@ -16,6 +16,8 @@ import com.example.softwareproject.domain.repository.Part
 import com.example.softwareproject.domain.repository.ProblemRepository
 import com.example.softwareproject.domain.repository.RoomRepository
 import com.example.softwareproject.domain.repository.UserRepository
+import com.example.softwareproject.domain.usecase.room.ProblemUseCase
+import com.example.softwareproject.domain.usecase.room.RoomUseCase
 import com.example.softwareproject.util.RoomType
 import com.example.softwareproject.util.UserRole
 import com.google.firebase.Timestamp
@@ -29,6 +31,8 @@ class BattleUseCase@Inject constructor(
     private val problemRepository: ProblemRepository,
     private val geminiApiService: GeminiApi,
     private val battleRepository: BattleRepository,
+    private val roomUseCase: RoomUseCase,
+    private val problemUseCase: ProblemUseCase,
     private val baekjoonApi: BaekjoonApi
 
 ) {
@@ -240,7 +244,105 @@ class BattleUseCase@Inject constructor(
 
 
     }
+    suspend fun finishGame(roomId: String, winnerUserId: String, losserUserId: String) {
+        try {
+            val winnerLog = userRepository.getUserBattleLogInfo(winnerUserId)
+            val loserLog = userRepository.getUserBattleLogInfo(losserUserId)
 
+            val winnerAbility = userRepository.getUserAbilityInfo(winnerUserId)
+            val loserAbility = userRepository.getUserAbilityInfo(losserUserId)
+
+            // 1. 전적 처리
+            winnerLog?.let {
+                val updatedWin = it.win + 1
+                val updatedMatch = it.match + 1
+                val updatedRate = if (updatedMatch > 0) updatedWin * 100 / updatedMatch else 0
+
+                userRepository.updateBattleLogInfo(
+                    it.copy(
+                        win = updatedWin,
+                        match = updatedMatch,
+                        rate = updatedRate
+                    )
+                )
+            }
+
+            loserLog?.let {
+                val updatedLose = it.lose + 1
+                val updatedMatch = it.match + 1
+                val updatedRate = if (it.win > 0) it.win * 100 / updatedMatch else 0
+
+                userRepository.updateBattleLogInfo(
+                    it.copy(
+                        lose = updatedLose,
+                        match = updatedMatch,
+                        rate = updatedRate
+                    )
+                )
+            }
+
+            // 2. 능력치 처리
+            winnerAbility?.let {
+                var newExp = it.exp + 10
+                var newLevel = it.level
+                var newTargetExp = it.targetExp
+
+                if (newExp >= newTargetExp) {
+                    newLevel += 1
+                    newExp = 0
+                    newTargetExp += 20 // 레벨업마다 경험치 요구 증가 가능
+                }
+
+                userRepository.updateUserAbilityInfo(
+                    it.copy(
+                        exp = newExp,
+                        level = newLevel,
+                        targetExp = newTargetExp
+                    )
+                )
+            }
+
+            loserAbility?.let {
+                var newExp = it.exp + 2
+                var newLevel = it.level
+                var newTargetExp = it.targetExp
+
+                if (newExp >= newTargetExp) {
+                    newLevel += 1
+                    newExp = 0
+                    newTargetExp += 20
+                }
+
+                userRepository.updateUserAbilityInfo(
+                    it.copy(
+                        exp = newExp,
+                        level = newLevel,
+                        targetExp = newTargetExp
+                    )
+                )
+            }
+
+            // 3. 게임 종료 정리
+            val room = roomRepository.getRoomInfo(roomId)
+            roomUseCase.deleteRoomParticipant(roomId)
+            roomUseCase.deleteParticipantProblemStatus(roomId)
+            if (room != null) {
+                if(room.roomType == RoomType.PS)
+                {
+//                    roomUseCase.deletePsRoom(roomId)
+                    problemUseCase.deletePsProblem(roomId)
+                }
+                else{
+//                    roomUseCase.deleteCsRoom(roomId)
+                    problemUseCase.deleteCsProblem(roomId)
+                }
+            }
+//            roomUseCase.deleteRoom(roomId)
+
+        } catch (e: Exception) {
+            Log.e("finishGame", "게임 종료 처리 실패: ${e.message}")
+        }
+    }
     suspend fun createParticipantProblemState(roomId: String) {
         val roomInfo = roomRepository.getRoomInfo(roomId)
         val hostUserId = roomInfo?.userId ?: "0"

@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.softwareproject.R
 import com.example.softwareproject.RadioSelectionAdapter
+import com.example.softwareproject.ResultActivity
 import com.example.softwareproject.SelectableItem
 import com.example.softwareproject.com.example.softwareproject.presentation.room.viewmodel.PsBattleViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -71,6 +72,16 @@ class PsBattleActivity : AppCompatActivity() {
         psBattleViewModel.problemCount.observe(this) { count ->
             val itemList = List(count) { index ->
                 SelectableItem("id_${index + 1}", "문제 ${index + 1}")
+            }
+
+            psBattleViewModel.battleResult.observe(this) { result ->
+                result?.let {
+                    val intent = Intent(this, ResultActivity::class.java).apply {
+                        putExtra("result", result) // "WIN" 또는 "LOSE"
+                    }
+                    startActivity(intent)
+                    finish()
+                }
             }
 
             radioAdapter = RadioSelectionAdapter(itemList) { selectedItem ->

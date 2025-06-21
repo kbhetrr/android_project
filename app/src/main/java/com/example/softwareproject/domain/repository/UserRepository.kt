@@ -29,5 +29,6 @@ interface UserRepository {
     suspend fun getUserBaekjoonInfoByUserId(userId: String) : BaekjoonInfoDto?
 
     suspend fun updateBaekjoonInfo(baekjoonInfoDto: BaekjoonInfoDto)
-
+    suspend fun updateBattleLogInfo(userBattleLogDto: UserBattleLogDto)
+    suspend fun updateUserAbilityInfo(userAbility: UserAbilityDto)
 }

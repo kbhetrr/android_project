@@ -27,6 +27,8 @@ class CsBattleViewModel @Inject constructor(
     private val userUseCase: UserUseCase,
     private val roomUseCase: RoomUseCase
 ) : ViewModel() {
+    private val _battleResult = MutableLiveData<String?>()
+    val battleResult: LiveData<String?> = _battleResult
 
     private val _selectedAnswerIndex = MutableLiveData<Int>() // 1~4
     val selectedAnswerIndex: LiveData<Int> = _selectedAnswerIndex
@@ -129,12 +131,27 @@ class CsBattleViewModel @Inject constructor(
             if (isCorrect) {
 
                 val opponent = battleUseCase.getOpponentRoomParticipant(roomId)
+                val me = battleUseCase.getCurrentRoomParticipant(roomId)
                 val newHp = (opponent?.hp ?: 0) - 1
                 battleUseCase.updateParticipantHp(opponent?.userId ?: return@launch, roomId, newHp.coerceAtLeast(0))
+
+                if (newHp == 0) {
+                    me?.let { battleUseCase.finishGame(roomId, winnerUserId = it.userId,losserUserId = opponent.userId) }
+                    _battleResult.value = "WIN"
+                }
             } else {
                 val me = battleUseCase.getCurrentRoomParticipant(roomId)
+                val opponent = battleUseCase.getOpponentRoomParticipant(roomId)
                 val newHp = (me?.hp ?: 0) - 1
                 battleUseCase.updateParticipantHp(me?.userId ?: return@launch, roomId, newHp.coerceAtLeast(0))
+
+                if (newHp == 0) {
+                    if (opponent != null) {
+                        battleUseCase.finishGame(roomId, winnerUserId = opponent.userId, losserUserId = me.userId)
+                        _battleResult.value = "LOSE"
+                    }
+                    // ➕ 여기서 UI에 알림 보내는 LiveData도 emit 가능
+                }
             }
         }
     }
