@@ -1,5 +1,6 @@
 package com.example.softwareproject.domain.repository
 
+import com.example.softwareproject.com.example.softwareproject.data.dto.room.ParticipantProblemState
 import com.example.softwareproject.data.dto.room.RoomDto
 import com.example.softwareproject.data.dto.room.RoomParticipantDto
 import com.example.softwareproject.data.dto.room.CsRoomDto
@@ -16,6 +17,7 @@ interface RoomRepository {
     suspend fun createCsRoom(csRoom : CsRoomDto) : CsRoomDto
     suspend fun createPsRoom(psRoom : PsRoomDto) : PsRoomDto
     suspend fun createRoomParticipant(roomParticipant: RoomParticipantDto) : RoomParticipantDto
+    suspend fun createParticipantProblemState(participantProblemState: ParticipantProblemState) : ParticipantProblemState
 
     suspend fun getRoomInfo(roomId: String) : RoomDto?
     suspend fun getCsRoomInfoByRoomId(csRoomId: String) : CsRoomDto?

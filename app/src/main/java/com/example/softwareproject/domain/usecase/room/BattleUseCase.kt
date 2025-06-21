@@ -2,6 +2,7 @@ package com.example.softwareproject.com.example.softwareproject.domain.usecase.r
 
 import android.util.Log
 import com.example.softwareproject.BuildConfig
+import com.example.softwareproject.com.example.softwareproject.data.dto.room.ParticipantProblemState
 import com.example.softwareproject.com.example.softwareproject.module.BaekjoonApi
 import com.example.softwareproject.data.dto.problem.BaekjoonProblemDto
 import com.example.softwareproject.data.dto.problem.CsProblemDto
@@ -224,5 +225,41 @@ class BattleUseCase@Inject constructor(
         }
 
 
+    }
+
+    suspend fun createParticipantProblemState(roomId: String) {
+        val roomInfo = roomRepository.getRoomInfo(roomId)
+        val hostUserId = roomInfo?.userId ?: "0"
+        val problemCount = roomInfo?.problemCount ?: 1  // 기본값 1
+
+        val uid = FirebaseAuth.getInstance().currentUser?.uid.toString()
+        val participantUserId = userRepository.getUserGithubInfoByFirebaseUid(uid)
+        val participantId = participantUserId?.userId ?: "0"
+
+        for (index in 1..problemCount) {
+            // 방장용 저장
+            roomRepository.createParticipantProblemState(
+                ParticipantProblemState(
+                    createdAt = Timestamp.now(),
+                    updatedAt = Timestamp.now(),
+                    isSolved = false,
+                    problemIndex = index,
+                    roomId = roomId,
+                    userId = hostUserId
+                )
+            )
+
+            // 참가자용 저장
+            roomRepository.createParticipantProblemState(
+                ParticipantProblemState(
+                    createdAt = Timestamp.now(),
+                    updatedAt = Timestamp.now(),
+                    isSolved = false,
+                    problemIndex = index,
+                    roomId = roomId,
+                    userId = participantId
+                )
+            )
+        }
     }
 }

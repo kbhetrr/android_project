@@ -1,6 +1,7 @@
 package com.example.softwareproject.data.repository
 
 import android.util.Log
+import com.example.softwareproject.com.example.softwareproject.data.dto.room.ParticipantProblemState
 import com.example.softwareproject.data.dto.room.RoomDto
 import com.example.softwareproject.data.dto.room.RoomParticipantDto
 import com.example.softwareproject.data.dto.room.CsRoomDto
@@ -78,6 +79,24 @@ class RoomRepositoryImpl @Inject constructor(
             return roomParticipant
         } catch (e: Exception) {
             Log.e("Firestore", "room_participant 저장 실패: ${e.message}")
+            throw e
+        }
+    }
+
+    override suspend fun createParticipantProblemState(participantProblemState: ParticipantProblemState): ParticipantProblemState {
+        return try {
+            val firestore = FirebaseFirestore.getInstance()
+            val docId = "${participantProblemState.roomId}_${participantProblemState.userId}_${participantProblemState.problemIndex}"
+
+            firestore.collection("participant_problem_state")
+                .document(docId)
+                .set(participantProblemState)
+                .await()
+
+            Log.d("Firestore", "participant_problem_state 저장 성공: $docId")
+            participantProblemState
+        } catch (e: Exception) {
+            Log.e("Firestore", "participant_problem_state 저장 실패: ${e.message}")
             throw e
         }
     }

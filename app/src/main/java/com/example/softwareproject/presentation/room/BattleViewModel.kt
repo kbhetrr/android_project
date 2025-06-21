@@ -35,4 +35,7 @@ class BattleViewModel @Inject constructor(
     suspend fun createRoomParticipant(roomId: String) {
         battleUseCase.createRoomParticipant(roomId)
     }
+    suspend fun createParticipantProblemState(roomId: String){
+        battleUseCase.createParticipantProblemState()
+    }
 }

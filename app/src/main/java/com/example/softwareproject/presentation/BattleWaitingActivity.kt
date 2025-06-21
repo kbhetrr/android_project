@@ -40,7 +40,9 @@ class BattleWaitingActivity : AppCompatActivity(){
 
                 battleViewModel.createProblem(roomId)
 
-                battil
+                battleViewModel.createRoomParticipant(roomId)
+
+                b
                 val roomType = battleViewModel.getRoomType(roomId)
 
                 val intent = when (roomType) {
