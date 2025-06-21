@@ -10,26 +10,26 @@ import androidx.recyclerview.widget.RecyclerView
 import android.content.Intent // Intent import
 import android.util.Log
 import androidx.fragment.app.viewModels
-import com.example.softwareproject.BattleLoadingActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.softwareproject.MakeRoomActivity
 import com.example.softwareproject.R
-import com.example.softwareproject.RoomRecyclerAdapter
-import com.example.softwareproject.presentation.room.RoomViewModel
+import com.example.softwareproject.com.example.softwareproject.presentation.BattleWaitingActivity
+import com.example.softwareproject.com.example.softwareproject.presentation.room.viewmodel.RoomViewModel
 import com.example.softwareproject.presentation.room.adapter.CsRoomAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.firebase.firestore.ListenerRegistration
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class TabCsFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
-    private lateinit var myAdapter: CsRoomAdapter // 어댑터 타입
+    private lateinit var myAdapter: CsRoomAdapter
     private lateinit var fabPs: FloatingActionButton
 
     private var isFirstLoaded = false
 
-    private val viewModel: RoomViewModel by viewModels()//임준식 추가
+    private val viewModel: RoomViewModel by viewModels()
 
 
     override fun onCreateView(
@@ -47,7 +47,14 @@ class TabCsFragment : Fragment() {
 
         // RecyclerView 설정
         recyclerView.layoutManager = LinearLayoutManager(context)
-        myAdapter = CsRoomAdapter(emptyList()) // 🔥 어댑터 초기화
+        myAdapter = CsRoomAdapter(emptyList()) { room ->
+            lifecycleScope.launch {
+                val intent = Intent(requireContext(), BattleWaitingActivity::class.java)
+                intent.putExtra("roomId", room.roomId)
+                startActivity(intent)
+            }
+        }
+
         recyclerView.adapter = myAdapter
 
 //        // 더미 데이터 생성 (실제로는 ViewModel 등에서 가져옴)

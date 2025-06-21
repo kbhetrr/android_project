@@ -1,11 +1,14 @@
 package com.example.softwareproject.domain.repository
 
+import com.example.softwareproject.com.example.softwareproject.data.dto.room.ParticipantProblemState
+import com.example.softwareproject.data.dto.problem.CsProblemDto
 import com.example.softwareproject.data.dto.room.RoomDto
 import com.example.softwareproject.data.dto.room.RoomParticipantDto
 import com.example.softwareproject.data.dto.room.CsRoomDto
 import com.example.softwareproject.data.dto.room.PsRoomDto
 import com.example.softwareproject.data.remote.room.CsWaitingRoomInfo
 import com.example.softwareproject.data.remote.room.PsWaitingRoomInfo
+import com.example.softwareproject.util.RoomState
 import com.example.softwareproject.util.RoomType
 import com.google.firebase.firestore.ListenerRegistration
 
@@ -15,10 +18,11 @@ interface RoomRepository {
     suspend fun createCsRoom(csRoom : CsRoomDto) : CsRoomDto
     suspend fun createPsRoom(psRoom : PsRoomDto) : PsRoomDto
     suspend fun createRoomParticipant(roomParticipant: RoomParticipantDto) : RoomParticipantDto
+    suspend fun createParticipantProblemState(participantProblemState: ParticipantProblemState) : ParticipantProblemState
 
     suspend fun getRoomInfo(roomId: String) : RoomDto?
-    suspend fun getCsRoomInfo(csRoomId: String) : CsRoomDto?
-    suspend fun getPsRoomInfo(psRoomId: String) : PsRoomDto?
+    suspend fun getCsRoomInfoByRoomId(csRoomId: String) : CsRoomDto?
+    suspend fun getPsRoomInfoByRoomId(psRoomId: String) : PsRoomDto?
     suspend fun getRoomParticipantInfo(userId: String, roomId:String) : RoomParticipantDto?
     suspend fun getRoomParticipantList(roomId: String) : List<RoomParticipantDto>
 
@@ -35,6 +39,8 @@ interface RoomRepository {
     suspend fun deletePsRoom(roomId: String) : String?
     suspend fun deleteRoomParticipant(roomId: String) : String?
 
+
+    suspend fun roomStateChange(roomId: String, roomState: RoomState)
     fun observeRoomList(roomType: RoomType, onChanged: (List<RoomDto>) -> Unit): ListenerRegistration
 
 }

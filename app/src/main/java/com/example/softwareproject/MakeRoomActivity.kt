@@ -8,7 +8,7 @@ import android.widget.EditText
 import android.widget.Spinner
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.example.softwareproject.presentation.room.RoomViewModel
+import com.example.softwareproject.com.example.softwareproject.presentation.room.viewmodel.RoomViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

@@ -1,18 +1,14 @@
-package com.example.softwareproject.presentation.room
+package com.example.softwareproject.com.example.softwareproject.presentation.room.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.softwareproject.util.DifficultyPs
-import com.example.softwareproject.data.remote.room.CsWaitingRoomInfo
-import com.example.softwareproject.data.remote.room.PsWaitingRoomInfo
 import com.example.softwareproject.data.remote.room.UiCsRoomItem
 import com.example.softwareproject.data.remote.room.UiPsRoomItem
 import com.example.softwareproject.domain.usecase.room.RoomUseCase
 
-import com.example.softwareproject.util.DifficultyCs
 import com.example.softwareproject.util.RoomType
 import com.google.firebase.firestore.ListenerRegistration
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -95,6 +91,13 @@ class RoomViewModel @Inject constructor(
             else -> null
         }
     }
+
+    fun battleStart(roomId: String){
+        viewModelScope.launch {
+            roomUseCase.battleStart(roomId)
+        }
+    }
+
     fun observeCsRooms() {
         if (csRoomListener != null) return
 

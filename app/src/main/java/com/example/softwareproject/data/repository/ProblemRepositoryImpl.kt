@@ -16,8 +16,10 @@ class ProblemRepositoryImpl @Inject constructor(
     override suspend fun createCsProblem(csProblemDto: CsProblemDto) {
         val firestore = FirebaseFirestore.getInstance()
 
+        val docId = "${csProblemDto.csRoomId}_${csProblemDto.problemIndex}"
+
         firestore.collection("cs_problem")
-            .document(csProblemDto.csRoomId)
+            .document(docId)
             .set(csProblemDto)
             .addOnSuccessListener {
                 Log.d("Firestore", "CS 문제 생성 성공: ${csProblemDto.problemIndex}")
@@ -29,8 +31,11 @@ class ProblemRepositoryImpl @Inject constructor(
     override suspend fun createPsProblem(psProblemDto: PsProblemDto) {
         val firestore = FirebaseFirestore.getInstance()
 
+        // 예: codingRoomId = 1, problemIndex = 1 이면 → 문서 ID: 1_1
+        val docId = "${psProblemDto.codingRoomId}_${psProblemDto.problemIndex}"
+
         firestore.collection("coding_problem")
-            .document(psProblemDto.codingRoomId)
+            .document(docId)
             .set(psProblemDto)
             .addOnSuccessListener {
                 Log.d("Firestore", "PS 문제 생성 성공: ${psProblemDto.problemId}")
@@ -84,6 +89,45 @@ class ProblemRepositoryImpl @Inject constructor(
             .await()
 
         return snapshot.documents.mapNotNull { it.toObject(PsProblemDto::class.java) }
+    }
+
+    override suspend fun getCsProblemByIndex(roomId: String, index: Int): CsProblemDto {
+        return try {
+            val snapshot = fireBaseStore.collection("cs_problem")
+                .whereEqualTo("csRoomId", roomId)
+                .whereEqualTo("problemIndex", index.toString())
+                .get()
+                .await()
+
+            snapshot.documents.first().toObject(CsProblemDto::class.java) ?: CsProblemDto()
+        } catch (e: Exception) {
+            Log.e("Repository", "문제 불러오기 실패: ${e.message}")
+            CsProblemDto()
+        }
+    }
+    override suspend fun getPsProblemByIndex(roomId: String, index: Int): PsProblemDto {
+        return try {
+            val snapshot = fireBaseStore.collection("coding_problem")
+                .whereEqualTo("codingRoomId", roomId)
+                .whereEqualTo("problemIndex", index.toString())
+                .get()
+                .await()
+
+            val document = snapshot.documents.firstOrNull()
+
+            // 🔥 로그 찍기
+            Log.d("Repository", "불러온 문서 수: ${snapshot.size()}")
+            Log.d("Repository", "문제 인덱스: $index, 방 ID: $roomId")
+            Log.d("Repository", "문서 내용: ${document?.data}")
+
+            val problem = document?.toObject(PsProblemDto::class.java)
+            Log.d("Repository", "변환된 객체: $problem")
+
+            problem ?: PsProblemDto()
+        } catch (e: Exception) {
+            Log.e("Repository", "문제 불러오기 실패: ${e.message}")
+            PsProblemDto()
+        }
     }
 
 }

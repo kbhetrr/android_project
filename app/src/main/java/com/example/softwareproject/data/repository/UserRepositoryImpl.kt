@@ -85,11 +85,11 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun getUserAbilityInfo(userId: String): UserAbilityDto? {
         return try {
             val snapshot = fireBaseStore.collection("user_ability")
-                .document(userId)
+                .whereEqualTo("userId", userId)
                 .get()
                 .await()
 
-            snapshot.toObject(UserAbilityDto::class.java)
+            snapshot.documents.firstOrNull()?.toObject(UserAbilityDto::class.java)
         } catch (e: Exception) {
             Log.e("Repository", "getUserAbilityInfo failed: ${e.message}")
             null
