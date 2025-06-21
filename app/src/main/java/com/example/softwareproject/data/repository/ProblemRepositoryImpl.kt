@@ -31,8 +31,11 @@ class ProblemRepositoryImpl @Inject constructor(
     override suspend fun createPsProblem(psProblemDto: PsProblemDto) {
         val firestore = FirebaseFirestore.getInstance()
 
+        // 예: codingRoomId = 1, problemIndex = 1 이면 → 문서 ID: 1_1
+        val docId = "${psProblemDto.codingRoomId}_${psProblemDto.problemIndex}"
+
         firestore.collection("coding_problem")
-            .document(psProblemDto.codingRoomId)
+            .document(docId)
             .set(psProblemDto)
             .addOnSuccessListener {
                 Log.d("Firestore", "PS 문제 생성 성공: ${psProblemDto.problemId}")

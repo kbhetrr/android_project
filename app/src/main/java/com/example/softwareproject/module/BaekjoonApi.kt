@@ -6,13 +6,9 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface BaekjoonApi {
-    @GET("v1/problem/search")
+    @GET("v3/search/problem")
     suspend fun getProblemsByTag(
-        @Query("tierFrom") tierFrom: Int,
-        @Query("tierTo") tierTo: Int,
+        @Query("query") query: String,
         @Query("page") page: Int
     ): BaekjoonApiResponse
-
-
-
 }

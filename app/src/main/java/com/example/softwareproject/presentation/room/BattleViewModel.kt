@@ -25,6 +25,7 @@ class BattleViewModel @Inject constructor(
         }
         else{
             battleUseCase.createPsProblem(roomId)
+            Log.d("GeminiAPI", "BattleViewModel : CreateProblem-PS 시작")
         }
     }
 

@@ -147,17 +147,15 @@ class BattleUseCase@Inject constructor(
             else -> 6..10
         }
 
+        val query = "tier:${levelRange.first}..${levelRange.last}"
         val result = mutableListOf<BaekjoonProblemDto>()
         var page = 1
 
         while (result.size < count) {
-            val response = baekjoonApi.getProblemsByTag(
-                tierFrom = levelRange.first,
-                tierTo = levelRange.last,
-                page = page
-            )
+            val response = baekjoonApi.getProblemsByTag(query = query, page = page)
 
             if (response.items.isEmpty()) break
+
             result.addAll(response.items)
             page++
         }
