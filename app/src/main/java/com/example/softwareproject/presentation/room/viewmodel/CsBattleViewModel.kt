@@ -26,8 +26,8 @@ class CsBattleViewModel @Inject constructor(
     private val _problemCount = MutableLiveData<Int>()
     val problemCount: LiveData<Int> = _problemCount
 
-    private val _currentProblem = MutableLiveData<CsProblemDto>()
-    val currentProblem: LiveData<CsProblemDto> = _currentProblem
+    private val _currentProblem = MutableLiveData<CsProblemDto?>()
+    val currentProblem: LiveData<CsProblemDto?> = _currentProblem
 
     private val _yourHp = MutableLiveData<Int>()
     val yourHp: LiveData<Int> = _yourHp
@@ -73,7 +73,8 @@ class CsBattleViewModel @Inject constructor(
 
     fun loadProblem(roomId: String, problemIndex: Int) {
         viewModelScope.launch {
-            val problem = problemUseCase.getProblemByIndex(roomId, problemIndex)
+            val csRoom = roomUseCase.getCsRoomInfo(roomId)
+            val problem = csRoom?.let { problemUseCase.getCsProblemByIndex(it.csRoomId, problemIndex) }
             _currentProblem.value = problem
         }
     }

@@ -12,5 +12,6 @@ interface ProblemRepository {
     suspend fun getPsProblem(psRoomId: String, problemIndex: Int) : PsProblemDto?
     suspend fun getCsProblemList(csRoomId: String) :  List<CsProblemDto>
     suspend fun getPsProblemList(psRoomId: String) : List<PsProblemDto>
-    suspend fun getProblemByIndex(roomId: String, index: Int): CsProblemDto
+    suspend fun getCsProblemByIndex(roomId: String, index: Int): CsProblemDto
+    suspend fun getPsProblemByIndex(roomId: String, index: Int): PsProblemDto
 }

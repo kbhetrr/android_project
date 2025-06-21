@@ -91,7 +91,7 @@ class ProblemRepositoryImpl @Inject constructor(
         return snapshot.documents.mapNotNull { it.toObject(PsProblemDto::class.java) }
     }
 
-    override suspend fun getProblemByIndex(roomId: String, index: Int): CsProblemDto {
+    override suspend fun getCsProblemByIndex(roomId: String, index: Int): CsProblemDto {
         return try {
             val snapshot = fireBaseStore.collection("cs_problem")
                 .whereEqualTo("csRoomId", roomId)
@@ -103,6 +103,30 @@ class ProblemRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Log.e("Repository", "문제 불러오기 실패: ${e.message}")
             CsProblemDto()
+        }
+    }
+    override suspend fun getPsProblemByIndex(roomId: String, index: Int): PsProblemDto {
+        return try {
+            val snapshot = fireBaseStore.collection("coding_problem")
+                .whereEqualTo("codingRoomId", roomId)
+                .whereEqualTo("problemIndex", index.toString())
+                .get()
+                .await()
+
+            val document = snapshot.documents.firstOrNull()
+
+            // 🔥 로그 찍기
+            Log.d("Repository", "불러온 문서 수: ${snapshot.size()}")
+            Log.d("Repository", "문제 인덱스: $index, 방 ID: $roomId")
+            Log.d("Repository", "문서 내용: ${document?.data}")
+
+            val problem = document?.toObject(PsProblemDto::class.java)
+            Log.d("Repository", "변환된 객체: $problem")
+
+            problem ?: PsProblemDto()
+        } catch (e: Exception) {
+            Log.e("Repository", "문제 불러오기 실패: ${e.message}")
+            PsProblemDto()
         }
     }
 

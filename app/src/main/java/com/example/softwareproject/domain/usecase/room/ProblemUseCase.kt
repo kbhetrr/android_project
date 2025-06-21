@@ -1,6 +1,7 @@
 package com.example.softwareproject.domain.usecase.room
 
 import com.example.softwareproject.data.dto.problem.CsProblemDto
+import com.example.softwareproject.data.dto.problem.PsProblemDto
 import com.example.softwareproject.data.dto.room.RoomDto
 import com.example.softwareproject.data.entity.Room
 import com.example.softwareproject.domain.repository.ProblemRepository
@@ -14,8 +15,12 @@ class ProblemUseCase @Inject constructor(
     suspend fun getRoomInfo(roomId : String) : RoomDto? {
         return roomRepository.getRoomInfo(roomId)
     }
-    suspend fun getProblemByIndex(roomId: String, index: Int): CsProblemDto {
-        return problemRepository.getProblemByIndex(roomId, index)
+    suspend fun getCsProblemByIndex(roomId: String, index: Int): CsProblemDto {
+        return problemRepository.getCsProblemByIndex(roomId, index)
+    }
+
+    suspend fun getPsProblemByIndex(roomId: String, index: Int): PsProblemDto {
+        return problemRepository.getPsProblemByIndex(roomId, index)
     }
 
 }

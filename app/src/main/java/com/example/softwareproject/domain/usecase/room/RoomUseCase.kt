@@ -263,10 +263,13 @@ class RoomUseCase @Inject constructor(
         return room?.roomType ?: RoomType.CS
     }
 
-    suspend fun getCsRoomInfo(csRoomId: String): CsRoomDto? {
-        return roomRepository.getCsRoomInfoByRoomId(csRoomId)
+    suspend fun getCsRoomInfo(roomId: String): CsRoomDto? {
+        return roomRepository.getCsRoomInfoByRoomId(roomId)
     }
     suspend fun getRoom(roomId: String) : RoomDto? {
         return roomRepository.getRoomInfo(roomId)
+    }
+    suspend fun getPsRoomInfo(roomId: String): PsRoomDto? {
+        return roomRepository.getPsRoomInfoByRoomId(roomId)
     }
 }

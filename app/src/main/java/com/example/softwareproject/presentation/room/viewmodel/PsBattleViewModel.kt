@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.softwareproject.com.example.softwareproject.domain.usecase.room.BattleUseCase
 import com.example.softwareproject.com.example.softwareproject.domain.usecase.room.UserUseCase
 import com.example.softwareproject.data.dto.problem.CsProblemDto
+import com.example.softwareproject.data.dto.problem.PsProblemDto
 import com.example.softwareproject.domain.usecase.room.ProblemUseCase
 import com.example.softwareproject.domain.usecase.room.RoomUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,8 +27,8 @@ class PsBattleViewModel @Inject constructor(
     private val _problemCount = MutableLiveData<Int>()
     val problemCount: LiveData<Int> = _problemCount
 
-    private val _currentProblem = MutableLiveData<CsProblemDto>()
-    val currentProblem: LiveData<CsProblemDto> = _currentProblem
+    private val _currentProblem = MutableLiveData<PsProblemDto?>()
+    val currentProblem: LiveData<PsProblemDto?> = _currentProblem
 
     private val _yourHp = MutableLiveData<Int>()
     val yourHp: LiveData<Int> = _yourHp
@@ -73,7 +74,8 @@ class PsBattleViewModel @Inject constructor(
 
     fun loadProblem(roomId: String, problemIndex: Int) {
         viewModelScope.launch {
-            val problem = problemUseCase.getProblemByIndex(roomId, problemIndex)
+            val psRoom = roomUseCase.getPsRoomInfo(roomId)
+            val problem = psRoom?.let { problemUseCase.getPsProblemByIndex(it.codingRoomId, problemIndex) }
             _currentProblem.value = problem
         }
     }

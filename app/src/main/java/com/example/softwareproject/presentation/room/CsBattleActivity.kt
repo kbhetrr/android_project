@@ -73,14 +73,14 @@ class CsBattleActivity : AppCompatActivity() {
 
             // 🔘 문제 정보 Observe해서 문제 UI 갱신
             csBattleViewModels.currentProblem.observe(this) { problem ->
-                findViewById<TextView>(R.id.problem_title).text = "문제 ${problem.problemIndex}"
-                findViewById<TextView>(R.id.problem_description).text = problem.question
+                findViewById<TextView>(R.id.problem_title).text = "문제 ${problem?.problemIndex}"
+                findViewById<TextView>(R.id.problem_description).text = problem?.question
 
                 val options = listOf(
-                    problem.choice1,
-                    problem.choice2,
-                    problem.choice3,
-                    problem.choice4
+                    problem?.choice1,
+                    problem?.choice2,
+                    problem?.choice3,
+                    problem?.choice4
                 )
 
                 listOf(
