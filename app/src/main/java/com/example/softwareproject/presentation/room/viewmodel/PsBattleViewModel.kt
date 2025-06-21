@@ -110,4 +110,46 @@ class PsBattleViewModel @Inject constructor(
             }
         }
     }
+    fun attackOpponent(roomId: String) {
+        viewModelScope.launch {
+            val problem = _currentProblem.value ?: return@launch
+            val problemId = problem.problemId.toString()
+
+            val currentUser = battleUseCase.getCurrentRoomParticipant(roomId) ?: return@launch
+            val opponentUser = battleUseCase.getOpponentRoomParticipant(roomId) ?: return@launch
+
+            val baekjoonInfo = userUseCase.getBaekjoonInfo(currentUser.userId)
+            val baekjoonId = baekjoonInfo?.baekjoonId
+
+
+            val latestSolvedProblemIds = baekjoonId?.let { userUseCase.getLatestSolvedProblemIds(it) }
+            latestSolvedProblemIds?.let {
+                userUseCase.isExistedBaekjoonInfo(
+                    userId = currentUser.userId,
+                    newSolvedProblems = it
+                )
+            }
+            val hasSolved = latestSolvedProblemIds?.contains(problemId) == true
+            if (hasSolved) {
+                val newOpponentHp = (opponentUser.hp - 1).coerceAtLeast(0)
+                battleUseCase.updateParticipantHp(opponentUser.userId, roomId, newOpponentHp)
+            } else {
+                val newYourHp = (currentUser.hp - 1).coerceAtLeast(0)
+                battleUseCase.updateParticipantHp(currentUser.userId, roomId, newYourHp)
+            }
+        }
+    }
+
+    fun observeParticipantHp(roomId: String) {
+        viewModelScope.launch {
+            battleUseCase.observeRoomParticipants(roomId).collect { participants ->
+                val currentUser = userUseCase.getCurrentUserAbility()
+                val currentParticipant = participants.find { it.userId == currentUser?.userId }
+                val opponentParticipant = participants.find { it.userId != currentUser?.userId }
+
+                _yourHp.value = currentParticipant?.hp
+                _opponentHp.value = opponentParticipant?.hp
+            }
+        }
+    }
 }

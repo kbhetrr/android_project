@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity // AppCompatActivity 상속
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.softwareproject.R
@@ -42,7 +43,7 @@ class PsBattleActivity : AppCompatActivity() {
         val roomId = intent.getStringExtra("roomId") ?: return
 
         psBattleViewModel.loadAbility(roomId)
-
+        psBattleViewModel.observeParticipantHp(roomId)
 
         val yourHpText = findViewById<TextView>(R.id.your_hp_text)
         val yourHpBar = findViewById<ProgressBar>(R.id.xp_progress_bar)
@@ -95,13 +96,17 @@ class PsBattleActivity : AppCompatActivity() {
                     finish() // 그 다음 종료
                 }
             }
+            val attackBtn: Button = findViewById(R.id.attack_btn)
+            attackBtn.setOnClickListener {
+                lifecycleScope.launch {
+                    psBattleViewModel.attackOpponent(roomId)
+                }
+            }
 
-            // TODO: 상대방 대기, 상태 갱신 로직 여기에 추가 가능
         }
         // 사용자가 시스템의 뒤로가기 버튼을 눌렀을 때도 finish()와 동일하게 동작
     }
 
-    // 사용자가 시스템의 뒤로가기 버튼을 눌렀을 때도 finish()와 동일하게 동작
     override fun onBackPressed() {
         super.onBackPressed() // 기본 동작 (finish() 호출)
     }

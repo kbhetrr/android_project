@@ -323,8 +323,12 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
-
-
+    override suspend fun updateBaekjoonInfo(baekjoonInfoDto: BaekjoonInfoDto) {
+        fireBaseStore.collection("baekjoon_info")
+            .document(baekjoonInfoDto.userId)
+            .set(baekjoonInfoDto) // 덮어쓰기
+            .await()
+    }
 
 
 
