@@ -1,7 +1,9 @@
 package com.example.softwareproject.com.example.softwareproject.presentation.room
 
+import android.util.Log
 import android.view.View
 import androidx.lifecycle.ViewModel
+import com.example.softwareproject.BuildConfig
 import com.example.softwareproject.com.example.softwareproject.domain.usecase.room.BattleUseCase
 import com.example.softwareproject.domain.usecase.room.RoomUseCase
 import com.example.softwareproject.util.RoomType
@@ -18,6 +20,7 @@ class BattleViewModel @Inject constructor(
 
         val roomType = roomUseCase.getRoomType(roomId)
         if(roomType == RoomType.CS){
+            Log.d("GeminiAPI", "BattleViewModel : CreateProblem 시작")
             battleUseCase.createCsProblem(roomId)
         }
         else{

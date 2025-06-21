@@ -16,8 +16,10 @@ class ProblemRepositoryImpl @Inject constructor(
     override suspend fun createCsProblem(csProblemDto: CsProblemDto) {
         val firestore = FirebaseFirestore.getInstance()
 
+        val docId = "${csProblemDto.csRoomId}_${csProblemDto.problemIndex}"
+
         firestore.collection("cs_problem")
-            .document(csProblemDto.csRoomId)
+            .document(docId)
             .set(csProblemDto)
             .addOnSuccessListener {
                 Log.d("Firestore", "CS 문제 생성 성공: ${csProblemDto.problemIndex}")

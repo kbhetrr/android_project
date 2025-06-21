@@ -1,8 +1,8 @@
 package com.example.softwareproject.com.example.softwareproject.domain.usecase.room
 
+import android.util.Log
 import com.example.softwareproject.BuildConfig
 import com.example.softwareproject.com.example.softwareproject.module.BaekjoonApi
-import com.example.softwareproject.com.example.softwareproject.module.GeminiApiService
 import com.example.softwareproject.data.dto.problem.BaekjoonProblemDto
 import com.example.softwareproject.data.dto.problem.CsProblemDto
 import com.example.softwareproject.data.dto.problem.PsProblemDto
@@ -32,6 +32,7 @@ class BattleUseCase@Inject constructor(
         val difficultyLevel = csRoomInfo?.difficultyLevel
         val topic = csRoomInfo?.topic ?: "컴퓨터공학"
         val csRoomId = csRoomInfo?.csRoomId ?:"0"
+        Log.d("GeminiAPI", "createCsProblem 시작!")
         val prompt = buildPrompt(
             count = problemCount,
             topic = topic.toString(),
@@ -40,16 +41,27 @@ class BattleUseCase@Inject constructor(
         val request = GeminiRequest(
             contents = listOf(Content(parts = listOf(Part(text = prompt))))
         )
+        Log.d("GeminiAPI", "API Key = ${BuildConfig.GEMINI_API_KEY}")
+        try {
+            val response = geminiApiService.generateCSQuestions(request, BuildConfig.GEMINI_API_KEY)
 
-        val response = geminiApiService.generateCSQuestions(request, BuildConfig.GEMINI_API_KEY)
+            val responseText = response.candidates.firstOrNull()?.content?.parts?.firstOrNull()?.text
+                ?: throw Exception("Gemini 응답에 텍스트 없음")
 
+            Log.d("GeminiAPI", "응답 원본:\n$responseText")
 
-        val responseText = response.candidates.firstOrNull()?.content?.parts?.firstOrNull()?.text
-            ?: throw Exception("Gemini 응답에 텍스트 없음")
-
-        val problems = parseGeminiToCsProblemList(responseText, csRoomId)
-        problems.forEach { problem ->
-            problemRepository.createCsProblem(problem)
+            val problems = parseGeminiToCsProblemList(responseText, csRoomId)
+            problems.forEachIndexed { i, problem ->
+                try {
+                    problemRepository.createCsProblem(problem)
+                } catch (e: Exception) {
+                    Log.e("GeminiAPI", "문제 저장 실패 at index $i: ${e.localizedMessage}")
+                }
+            }
+        } catch (e: retrofit2.HttpException) {
+            Log.e("GeminiAPI", "HTTP 에러 - 코드: ${e.code()}, 메시지: ${e.message()}, 오류 바디: ${e.response()?.errorBody()?.string()}")
+        } catch (e: Exception) {
+            Log.e("GeminiAPI", "일반 예외 발생: ${e.localizedMessage}")
         }
     }
     private fun buildPrompt(count: Int, topic: String, level: String): String {
@@ -64,34 +76,43 @@ class BattleUseCase@Inject constructor(
         4. ...
         정답: (1~4 중 하나)
 
-        각 문제는 줄로 나누고, 문제 사이엔 빈 줄로 구분해줘.
+        각 문제는 줄로 나누고, 문제 사이에는 '---' 기호 3개로 구분해줘.
     """.trimIndent()
     }
     private fun parseGeminiToCsProblemList(response: String, csRoomId: String): List<CsProblemDto> {
-        val blocks = response.trim().split("\n\n")
+        val problems = mutableListOf<CsProblemDto>()
 
-        return blocks.mapIndexed { index, block ->
-            val lines = block.lines().map { it.trim() }
+        // --- 기준으로 문제 블록 분리
+        val blocks = response.trim().split(Regex("-{3,}")).map { it.trim() }.filter { it.isNotEmpty() }
 
-            val question = lines.getOrNull(0)?.removePrefix("문제: ") ?: ""
-            val choice1 = lines.getOrNull(1)?.removePrefix("1. ") ?: ""
-            val choice2 = lines.getOrNull(2)?.removePrefix("2. ") ?: ""
-            val choice3 = lines.getOrNull(3)?.removePrefix("3. ") ?: ""
-            val choice4 = lines.getOrNull(4)?.removePrefix("4. ") ?: ""
-            val correctRaw = lines.getOrNull(5)?.removePrefix("정답: ") ?: "1"
-            val correct = correctRaw.filter { it.isDigit() }.take(1) // 첫 숫자 하나만
+        for ((index, block) in blocks.withIndex()) {
+            val lines = block.lines().map { it.trim() }.filter { it.isNotBlank() }
 
-            CsProblemDto(
-                question = question,
-                choice1 = choice1,
-                choice2 = choice2,
-                choice3 = choice3,
-                choice4 = choice4,
-                correctChoice = correct,
-                csRoomId = csRoomId,
-                problemIndex = (index + 1).toString()
+            if (lines.size < 6) continue
+
+            val question = lines[0].removePrefix("문제:").trim()
+            val choice1 = lines[1].removePrefix("1.").trim()
+            val choice2 = lines[2].removePrefix("2.").trim()
+            val choice3 = lines[3].removePrefix("3.").trim()
+            val choice4 = lines[4].removePrefix("4.").trim()
+            val correctRaw = lines[5].removePrefix("정답:").trim()
+            val correct = correctRaw.filter { it.isDigit() }.take(1)
+
+            problems.add(
+                CsProblemDto(
+                    question = question,
+                    choice1 = choice1,
+                    choice2 = choice2,
+                    choice3 = choice3,
+                    choice4 = choice4,
+                    correctChoice = correct,
+                    csRoomId = csRoomId,
+                    problemIndex = (index + 1).toString()
+                )
             )
         }
+
+        return problems
     }
 
     suspend fun createPsProblem(roomId: String) {

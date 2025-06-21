@@ -271,17 +271,29 @@ class RoomRepositoryImpl @Inject constructor(
 
     override suspend fun roomStateChange(roomId: String, roomState: RoomState) {
         try {
-            val db = FirebaseFirestore.getInstance()
-            val roomRef = db.collection("room").document(roomId)
+            val snapshot = firebaseStore.collection("room")
+                .whereEqualTo("roomId", roomId)
+                .get()
+                .await()
 
-            val stateString = when (roomState) {
-                RoomState.WAITING -> "WAITING"
-                RoomState.PROGRESS -> "PROGRESS"
-                RoomState.FINISHED -> "FINISHED"
+            val doc = snapshot.documents.firstOrNull()
+            if (doc != null) {
+                val documentId = doc.id
+                val stateString = when (roomState) {
+                    RoomState.WAITING -> "WAITING"
+                    RoomState.PROGRESS -> "PROGRESS"
+                    RoomState.FINISHED -> "FINISHED"
+                }
+
+                firebaseStore.collection("room")
+                    .document(documentId)
+                    .update("roomState", stateString)
+                    .await()
+
+                Log.d("RoomRepository", "방 상태 업데이트 성공: $stateString")
+            } else {
+                Log.e("RoomRepository", "roomId: $roomId 문서를 찾을 수 없음")
             }
-
-            roomRef.update("roomState", stateString).await()
-            Log.d("RoomRepository", "방 상태 업데이트 성공: $stateString")
         } catch (e: Exception) {
             Log.e("RoomRepository", "방 상태 업데이트 실패: ${e.message}")
         }
