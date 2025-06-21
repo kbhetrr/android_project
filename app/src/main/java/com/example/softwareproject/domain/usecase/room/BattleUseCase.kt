@@ -121,7 +121,7 @@ class BattleUseCase@Inject constructor(
 
         val problemCount = roomInfo?.problemCount ?: 5
         val difficultyLevel = psRoomInfo?.difficultyLevel ?: "silver"  // silver, bronze, etc.
-
+        Log.e("BattleWaiting", "문제 레벨: $difficultyLevel")
         val problems = fetchBaekjoonProblems(difficultyLevel.toString(), problemCount)
 
         problems.forEachIndexed { index, problem ->
@@ -139,6 +139,7 @@ class BattleUseCase@Inject constructor(
     }
 
     private suspend fun fetchBaekjoonProblems(level: String, count: Int): List<BaekjoonProblemDto> {
+        Log.e("BattleWaiting", "문제 레벨: $level")
         val levelRange = when (level.lowercase()) {
             "bronze" -> 1..5
             "silver" -> 6..10
@@ -148,15 +149,27 @@ class BattleUseCase@Inject constructor(
         }
 
         val query = "tier:${levelRange.first}..${levelRange.last}"
+        Log.e("BattleWaiting", "문제 레벨: ${levelRange.first}..${levelRange.last}")
         val result = mutableListOf<BaekjoonProblemDto>()
+        val seenIds = mutableSetOf<Int>()  // 중복 방지
         var page = 1
+        val maxPage = 20  // 무한루프 방지
 
-        while (result.size < count) {
+        while (result.size < count && page <= maxPage) {
             val response = baekjoonApi.getProblemsByTag(query = query, page = page)
 
-            if (response.items.isEmpty()) break
+            if (response.items.isEmpty()) {
+                Log.w("BAEKJOON", "Page $page - 빈 응답")
+                break
+            }
 
-            result.addAll(response.items)
+            val filtered = response.items.filter {
+                it.level != null && it.level in levelRange && seenIds.add(it.problemId.toInt())
+            }
+
+            Log.d("BAEKJOON", "Page $page - 필터 전: ${response.items.size}, 필터 후: ${filtered.size}")
+
+            result.addAll(filtered)
             page++
         }
 

@@ -7,6 +7,6 @@ data class BaekjoonProblemDto (
     val titleKo: String,
     val acceptedUserCount: Int,
     val averageTries: Double,
-    val tags: List<TagDto>
-
+    val tags: List<TagDto>,
+    val level: Int?
 )
