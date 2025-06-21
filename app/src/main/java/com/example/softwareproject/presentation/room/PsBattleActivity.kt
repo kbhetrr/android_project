@@ -12,6 +12,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity // AppCompatActivity 상속
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.softwareproject.R
@@ -20,6 +21,7 @@ import com.example.softwareproject.SelectableItem
 import com.example.softwareproject.com.example.softwareproject.presentation.room.viewmodel.PsBattleViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -88,7 +90,10 @@ class PsBattleActivity : AppCompatActivity() {
 
             val homeBtn: Button = findViewById(R.id.home_btn)
             homeBtn.setOnClickListener {
-                finish()
+                lifecycleScope.launch {
+                    psBattleViewModel.giveUp(roomId)  // 비동기 작업 다 끝날 때까지 기다림
+                    finish() // 그 다음 종료
+                }
             }
 
             // TODO: 상대방 대기, 상태 갱신 로직 여기에 추가 가능

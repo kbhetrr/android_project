@@ -13,7 +13,9 @@ import com.example.softwareproject.data.dto.problem.PsProblemDto
 import com.example.softwareproject.domain.usecase.room.ProblemUseCase
 import com.example.softwareproject.domain.usecase.room.RoomUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -95,6 +97,17 @@ class PsBattleViewModel @Inject constructor(
             _opponentMaxHp.value = opponentUser?.hp
 
             Log.d("TabCsFragment", "받은 방 개수: ${_yourHp.value} ${yourMaxHp.value} ${_opponentHp.value} ${_opponentMaxHp.value}")
+        }
+    }
+    fun giveUp(roomId: String) {
+        viewModelScope.launch {
+            withContext(NonCancellable) {
+                problemUseCase.deletePsProblem(roomId)
+                //roomUseCase.deletePsRoom(roomId)
+                roomUseCase.deleteRoomParticipant(roomId)
+                roomUseCase.deleteParticipantProblemStatus(roomId)
+//            roomUseCase.deleteRoom(roomId)
+            }
         }
     }
 }

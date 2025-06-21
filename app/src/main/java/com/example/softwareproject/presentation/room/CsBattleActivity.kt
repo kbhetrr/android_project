@@ -9,6 +9,7 @@ import android.widget.RadioButton
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.softwareproject.R
@@ -16,6 +17,7 @@ import com.example.softwareproject.RadioSelectionAdapter
 import com.example.softwareproject.SelectableItem
 import com.example.softwareproject.presentation.room.viewmodel.CsBattleViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class CsBattleActivity : AppCompatActivity() {
@@ -95,7 +97,10 @@ class CsBattleActivity : AppCompatActivity() {
 
             val homeBtn: Button = findViewById(R.id.home_btn)
             homeBtn.setOnClickListener {
-                finish()
+                lifecycleScope.launch {
+                    csBattleViewModels.giveUp(roomId)
+                    finish()
+                }
             }
 
             // TODO: 상대방 대기, 상태 갱신 로직 여기에 추가 가능

@@ -288,6 +288,24 @@ class RoomRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun deleteParticipantProblemStatus(roomId: String): String? {
+        return try {
+            val snapshot = firebaseStore.collection("participant_problem_status")
+                .whereEqualTo("roomId", roomId)
+                .get()
+                .await()
+
+            for (doc in snapshot.documents) {
+                doc.reference.delete().await()
+            }
+
+            Log.d("Repository", "참가자 문제 상태 삭제 완료: $roomId")
+            roomId
+        } catch (e: Exception) {
+            Log.e("Repository", "참가자 문제 상태 삭제 실패: ${e.message}")
+            null
+        }
+    }
     override suspend fun roomStateChange(roomId: String, roomState: RoomState) {
         try {
             val snapshot = firebaseStore.collection("room")

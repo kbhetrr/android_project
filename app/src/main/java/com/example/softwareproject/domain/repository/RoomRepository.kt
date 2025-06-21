@@ -38,6 +38,7 @@ interface RoomRepository {
     suspend fun deleteCsRoom(roomId: String) : String?
     suspend fun deletePsRoom(roomId: String) : String?
     suspend fun deleteRoomParticipant(roomId: String) : String?
+    suspend fun deleteParticipantProblemStatus(roomId: String) : String?
 
 
     suspend fun roomStateChange(roomId: String, roomState: RoomState)

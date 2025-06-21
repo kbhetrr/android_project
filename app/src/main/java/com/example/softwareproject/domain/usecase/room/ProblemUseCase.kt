@@ -22,5 +22,12 @@ class ProblemUseCase @Inject constructor(
     suspend fun getPsProblemByIndex(roomId: String, index: Int): PsProblemDto {
         return problemRepository.getPsProblemByIndex(roomId, index)
     }
-
+    suspend fun deleteCsProblem(roomId: String){
+        val csRoom = roomRepository.getCsRoomInfoByRoomId(roomId)
+        csRoom?.let { problemRepository.deleteCsProblem(it.csRoomId) }
+    }
+    suspend fun deletePsProblem(roomId: String){
+        val psRoom = roomRepository.getPsRoomInfoByRoomId(roomId)
+        psRoom?.let { problemRepository.deletePsProblem(it.codingRoomId) }
+    }
 }
