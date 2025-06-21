@@ -70,8 +70,12 @@ class BattleUseCase@Inject constructor(
         }
     }
     private fun buildPrompt(count: Int, topic: String, level: String): String {
+        val randomizer = System.currentTimeMillis()
         return """
         $topic 분야의 $level 수준 컴퓨터공학 객관식 퀴즈를 총 $count 문제 생성해줘.
+
+        문제 유형은 정의형, 응용형, 사례형, 오류 찾기형, 출력 결과 예측형 등을 골고루 섞어서 구성해줘.
+        문제마다 내용이 겹치지 않도록 주의하고, 다양한 개념과 난이도를 포함시켜줘.
 
         형식은 아래와 같이:
         문제: ...
@@ -81,7 +85,9 @@ class BattleUseCase@Inject constructor(
         4. ...
         정답: (1~4 중 하나)
 
-        각 문제는 줄로 나누고, 문제 사이에는 '---' 기호 3개로 구분해줘.
+        각 문제는 줄바꿈으로 구분하고, 문제와 문제 사이에는 '---' 기호 3개로 나눠줘.
+
+        문제에 랜덤성을 부여하기 위한 시드값: $randomizer
     """.trimIndent()
     }
     private fun parseGeminiToCsProblemList(response: String, csRoomId: String): List<CsProblemDto> {
