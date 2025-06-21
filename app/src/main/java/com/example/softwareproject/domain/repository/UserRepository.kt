@@ -1,5 +1,6 @@
 package com.example.softwareproject.domain.repository
 
+import com.example.softwareproject.com.example.softwareproject.data.dto.user.BaekjoonInfoDto
 import com.example.softwareproject.data.dto.user.GitHubInfoDto
 import com.example.softwareproject.data.dto.user.UserAbilityDto
 import com.example.softwareproject.data.dto.user.UserBattleLogDto
@@ -17,11 +18,13 @@ interface UserRepository {
     suspend fun createUserAbility(userAbility: UserAbilityDto)
     suspend fun createUserBattleLog(userBattleLogDto: UserBattleLogDto)
     suspend fun createUserGithubInfo(githubInfo:GitHubInfoDto)
+    suspend fun createUserBaekjoonInfo(baekjoonInfo: BaekjoonInfoDto)
+    suspend fun saveBaekjoonInfo(userId: String, solvedAcHandle: String)
 
     suspend fun getUserInfo(userId: String) : UserDto?
     suspend fun getUserAbilityInfo(userId: String) : UserAbilityDto?
     suspend fun getUserBattleLogInfo(userId: String) : UserBattleLogDto?
     suspend fun getUSerGithubInfo(userId: String) : GitHubInfoDto?
     suspend fun getUserGithubInfoByFirebaseUid(firebaseUid: String) : GitHubInfoDto?
-
+    suspend fun getUserBaekjoonInfoByUserId(userId: String) : BaekjoonInfoDto?
 }

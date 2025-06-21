@@ -9,6 +9,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.activity.viewModels
+import androidx.fragment.app.viewModels
+import com.example.softwareproject.com.example.softwareproject.presentation.fragmentc.ScreenCViewModel
+import com.example.softwareproject.com.example.softwareproject.presentation.room.viewmodel.PsBattleViewModel
 import com.example.softwareproject.util.UserPreferences
 
 @AndroidEntryPoint
@@ -17,6 +21,8 @@ class ScreenCFragment : Fragment() {
     private lateinit var editTextGithubId: EditText
     private lateinit var editTextSolvedAcHandle: EditText
     private lateinit var buttonSaveUserIds: Button
+
+    private val screencViewModel: ScreenCViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -61,7 +67,8 @@ class ScreenCFragment : Fragment() {
         context?.let {
             UserPreferences.saveGithubId(it, githubId)
             UserPreferences.saveSolvedAcHandle(it, solvedAcHandle)
-            Toast.makeText(it, "정보가 저장되었습니다.", Toast.LENGTH_SHORT).show()
         }
+        screencViewModel.saveBaekjoonInfo(solvedAcHandle)
+        Toast.makeText(context, "정보가 저장되었습니다.", Toast.LENGTH_SHORT).show()
     }
 }

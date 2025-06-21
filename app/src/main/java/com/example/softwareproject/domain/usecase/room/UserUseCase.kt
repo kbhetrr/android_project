@@ -1,5 +1,7 @@
 package com.example.softwareproject.com.example.softwareproject.domain.usecase.room
 
+import com.example.softwareproject.com.example.softwareproject.data.dto.user.BaekjoonInfoDto
+import com.example.softwareproject.data.dto.user.GitHubInfoDto
 import com.example.softwareproject.data.dto.user.UserAbilityDto
 import com.example.softwareproject.domain.repository.ProblemRepository
 import com.example.softwareproject.domain.repository.RoomRepository
@@ -15,6 +17,10 @@ class UserUseCase@Inject constructor(
 
     suspend fun getUserAbility(userId : String) : UserAbilityDto? {
         return userRepository.getUserAbilityInfo(userId)
+    }
+    suspend fun getCurrentGitHubInfo() : GitHubInfoDto? {
+        val uid = FirebaseAuth.getInstance().uid.toString()
+        return userRepository.getUserGithubInfoByFirebaseUid(uid)
     }
     suspend fun getCurrentUserAbility() :UserAbilityDto? {
         val uid = FirebaseAuth.getInstance().uid.toString()
@@ -33,6 +39,24 @@ class UserUseCase@Inject constructor(
         val opponent = participantList.firstOrNull { it.userId != myUserId } ?: return null
 
         return userRepository.getUserAbilityInfo(opponent.userId)
+    }
+
+    suspend fun saveBaekjoonInfo(solvedAcHandle: String) {
+        val firebaseUid = FirebaseAuth.getInstance().uid ?: return
+
+        val githubInfo = userRepository.getUserGithubInfoByFirebaseUid(firebaseUid)
+            ?: return
+
+        val userId = githubInfo.userId
+
+        val existingInfo = userRepository.getUserBaekjoonInfoByUserId(userId)
+
+        if (existingInfo == null) {
+            userRepository.saveBaekjoonInfo(
+                userId = userId,
+                solvedAcHandle = solvedAcHandle
+            )
+        }
     }
 
 }
