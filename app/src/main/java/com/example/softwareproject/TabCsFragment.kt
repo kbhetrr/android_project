@@ -1,6 +1,5 @@
 package  com.example.softwareproject.com.example.softwareproject // 실제 패키지 이름으로 변경
 
-import android.app.ProgressDialog
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -10,14 +9,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import android.content.Intent // Intent import
 import android.util.Log
-import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.example.softwareproject.CsBattleActivity
 import com.example.softwareproject.MakeRoomActivity
 import com.example.softwareproject.R
 import com.example.softwareproject.com.example.softwareproject.presentation.BattleWaitingActivity
-import com.example.softwareproject.presentation.room.RoomViewModel
+import com.example.softwareproject.com.example.softwareproject.presentation.room.viewmodel.RoomViewModel
 import com.example.softwareproject.presentation.room.adapter.CsRoomAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint

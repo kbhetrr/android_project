@@ -3,21 +3,18 @@ package com.example.softwareproject.com.example.softwareproject.presentation
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.example.softwareproject.CsBattleActivity
-import com.example.softwareproject.PsBattleActivity
+import com.example.softwareproject.com.example.softwareproject.presentation.room.CsBattleActivity
+import com.example.softwareproject.com.example.softwareproject.presentation.room.PsBattleActivity
 import com.example.softwareproject.R
-import com.example.softwareproject.com.example.softwareproject.domain.usecase.room.BattleUseCase
-import com.example.softwareproject.com.example.softwareproject.presentation.room.BattleViewModel
-import com.example.softwareproject.presentation.room.RoomViewModel
+import com.example.softwareproject.com.example.softwareproject.presentation.room.viewmodel.BattleViewModel
+import com.example.softwareproject.com.example.softwareproject.presentation.room.viewmodel.RoomViewModel
 import com.example.softwareproject.util.RoomType
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class BattleWaitingActivity : AppCompatActivity(){
@@ -42,7 +39,8 @@ class BattleWaitingActivity : AppCompatActivity(){
 
                 battleViewModel.createRoomParticipant(roomId)
 
-                b
+                battleViewModel.createParticipantProblemState(roomId)
+
                 val roomType = battleViewModel.getRoomType(roomId)
 
                 val intent = when (roomType) {

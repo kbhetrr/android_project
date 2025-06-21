@@ -7,8 +7,10 @@ import com.example.softwareproject.data.dto.problem.PsProblemDto
 interface ProblemRepository {
     suspend fun createCsProblem(csProblemDto: CsProblemDto)
     suspend fun createPsProblem(psProblemDto: PsProblemDto)
+
     suspend fun getCsProblem(csRoomId: String, problemIndex: Int) : CsProblemDto?
     suspend fun getPsProblem(psRoomId: String, problemIndex: Int) : PsProblemDto?
     suspend fun getCsProblemList(csRoomId: String) :  List<CsProblemDto>
     suspend fun getPsProblemList(psRoomId: String) : List<PsProblemDto>
+    suspend fun getProblemByIndex(roomId: String, index: Int): CsProblemDto
 }

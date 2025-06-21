@@ -6,7 +6,7 @@ import android.widget.Button
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity // AppCompatActivity 상속
 import androidx.lifecycle.lifecycleScope
-import com.example.softwareproject.presentation.room.RoomViewModel
+import com.example.softwareproject.com.example.softwareproject.presentation.room.viewmodel.RoomViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 

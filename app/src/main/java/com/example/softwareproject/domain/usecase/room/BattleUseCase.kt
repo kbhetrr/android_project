@@ -183,8 +183,9 @@ class BattleUseCase@Inject constructor(
 
     suspend fun createRoomParticipant(roomId: String){
         val roomInfo =roomRepository.getRoomInfo(roomId)
-        val hostUserId = roomInfo?.userId ?: "0"
 
+        val hostUserId = roomInfo?.userId ?: "0"
+        Log.d("BattleWaiting", "hostUserId: $hostUserId")
         val uid = FirebaseAuth.getInstance().currentUser?.uid.toString()
         val participantUserId = userRepository.getUserGithubInfoByFirebaseUid(uid)
 
@@ -193,10 +194,11 @@ class BattleUseCase@Inject constructor(
 
         val hostUserAbility = userRepository.getUserAbilityInfo(hostUserId)
         val participantUserAbility = participantUser?.let { userRepository.getUserAbilityInfo(it.userId) }
-
+        Log.d("BattleWaiting", "hostUserId: $hostUserId $hostUser $hostUserAbility")
 
         if(hostUserAbility != null && hostUser != null)
         {
+            Log.e("BattleWaiting", " 호스트유저 정보 생성!")
             roomRepository.createRoomParticipant(RoomParticipantDto(
                 userId = hostUserId,
                 attack = hostUserAbility.attack,
@@ -211,12 +213,13 @@ class BattleUseCase@Inject constructor(
         }
         if(participantUserAbility != null && participantUser != null)
         {
+            Log.e("BattleWaiting", " 참가 유저 정보 생성!")
             roomRepository.createRoomParticipant(RoomParticipantDto(
                 userId = participantUser.userId,
                 attack = participantUserAbility.attack,
                 hp = participantUserAbility.hp,
                 shield = participantUserAbility.shield,
-                role = UserRole.HOST,
+                role = UserRole.GUEST,
                 roomId = roomId,
                 solvedProblem = 0,
                 createdAt = Timestamp.now(),
@@ -262,4 +265,31 @@ class BattleUseCase@Inject constructor(
             )
         }
     }
+    suspend fun getCurrentRoomParticipant(roomId: String): RoomParticipantDto? {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return null
+        val githubInfo = userRepository.getUserGithubInfoByFirebaseUid(uid) ?: return null
+        val userId = githubInfo.userId
+
+        return try {
+            roomRepository.getRoomParticipantInfo(userId, roomId)
+        } catch (e: Exception) {
+            Log.e("UserUseCase", "getCurrentRoomParticipant failed: ${e.message}")
+            null
+        }
+    }
+
+    suspend fun getOpponentRoomParticipant(roomId: String): RoomParticipantDto? {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return null
+        val githubInfo = userRepository.getUserGithubInfoByFirebaseUid(uid) ?: return null
+        val myUserId = githubInfo.userId
+
+        return try {
+            val participantList = roomRepository.getRoomParticipantList(roomId) ?: return null
+            participantList.firstOrNull { it.userId != myUserId }
+        } catch (e: Exception) {
+            Log.e("UserUseCase", "getOpponentRoomParticipant failed: ${e.message}")
+            null
+        }
+    }
+
 }

@@ -1,9 +1,7 @@
-package com.example.softwareproject.com.example.softwareproject.presentation.room
+package com.example.softwareproject.com.example.softwareproject.presentation.room.viewmodel
 
 import android.util.Log
-import android.view.View
 import androidx.lifecycle.ViewModel
-import com.example.softwareproject.BuildConfig
 import com.example.softwareproject.com.example.softwareproject.domain.usecase.room.BattleUseCase
 import com.example.softwareproject.domain.usecase.room.RoomUseCase
 import com.example.softwareproject.util.RoomType
@@ -36,6 +34,6 @@ class BattleViewModel @Inject constructor(
         battleUseCase.createRoomParticipant(roomId)
     }
     suspend fun createParticipantProblemState(roomId: String){
-        battleUseCase.createParticipantProblemState()
+        battleUseCase.createParticipantProblemState(roomId)
     }
 }

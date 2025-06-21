@@ -43,6 +43,7 @@
 
 
                 <TextView
+                    android:id="@+id/your_hp_text"
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
@@ -90,6 +91,7 @@
 
 
                 <TextView
+                    android:id="@+id/opponent_hp_text"
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
@@ -139,6 +141,7 @@
     </androidx.core.widget.NestedScrollView>
 
     <TextView
+        android:id="@+id/problem_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="문제 X"
@@ -162,6 +165,7 @@
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/problem_description"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Given an array of integers, find the maximum sum of a contiguous subarray. For example, in the array [-2, -3, 4, -1, -2, 1, 5, -3], the contiguous subarray with the largest sum is [4, -1, -2, 1, 5] with a sum of 7." />

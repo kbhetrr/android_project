@@ -91,4 +91,19 @@ class ProblemRepositoryImpl @Inject constructor(
         return snapshot.documents.mapNotNull { it.toObject(PsProblemDto::class.java) }
     }
 
+    override suspend fun getProblemByIndex(roomId: String, index: Int): CsProblemDto {
+        return try {
+            val snapshot = fireBaseStore.collection("cs_problem")
+                .whereEqualTo("csRoomId", roomId)
+                .whereEqualTo("problemIndex", index.toString())
+                .get()
+                .await()
+
+            snapshot.documents.first().toObject(CsProblemDto::class.java) ?: CsProblemDto()
+        } catch (e: Exception) {
+            Log.e("Repository", "문제 불러오기 실패: ${e.message}")
+            CsProblemDto()
+        }
+    }
+
 }

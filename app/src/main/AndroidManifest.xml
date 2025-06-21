@@ -46,8 +46,8 @@
         <activity android:name=".presentation.login.LoginActivity" />
         <activity android:name=".BattleLoadingActivity" android:exported="false" />
         <activity android:name=".MakeRoomActivity" android:exported="false" />
-        <activity android:name=".CsBattleActivity" android:exported="false" />
-        <activity android:name=".PsBattleActivity" android:exported="false" />
+        <activity android:name=".com.example.softwareproject.presentation.room.CsBattleActivity" android:exported="false" />
+        <activity android:name=".com.example.softwareproject.presentation.room.PsBattleActivity" android:exported="false" />
     </application>
 
 

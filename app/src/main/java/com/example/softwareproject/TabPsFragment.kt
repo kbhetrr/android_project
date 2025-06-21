@@ -13,8 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.softwareproject.com.example.softwareproject.presentation.BattleWaitingActivity
-import com.example.softwareproject.presentation.room.RoomViewModel
-import com.example.softwareproject.presentation.room.adapter.CsRoomAdapter
+import com.example.softwareproject.com.example.softwareproject.presentation.room.viewmodel.RoomViewModel
 import com.example.softwareproject.presentation.room.adapter.PsRoomAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
