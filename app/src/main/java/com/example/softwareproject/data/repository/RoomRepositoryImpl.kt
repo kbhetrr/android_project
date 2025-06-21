@@ -88,7 +88,7 @@ class RoomRepositoryImpl @Inject constructor(
             val firestore = FirebaseFirestore.getInstance()
             val docId = "${participantProblemState.roomId}_${participantProblemState.userId}_${participantProblemState.problemIndex}"
 
-            firestore.collection("participant_problem_state")
+            firestore.collection("participant_problem_status")
                 .document(docId)
                 .set(participantProblemState)
                 .await()

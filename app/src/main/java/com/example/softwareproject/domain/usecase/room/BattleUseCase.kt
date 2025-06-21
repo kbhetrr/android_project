@@ -240,7 +240,7 @@ class BattleUseCase@Inject constructor(
         val participantId = participantUserId?.userId ?: "0"
 
         for (index in 1..problemCount) {
-            // 방장용 저장
+            Log.e("BattleWaiting", "roomParticipant생성")
             roomRepository.createParticipantProblemState(
                 ParticipantProblemState(
                     createdAt = Timestamp.now(),
