@@ -1,4 +1,4 @@
-package com.example.softwareproject.com.example.softwareproject.data.dto.room
+package com.example.softwareproject.data.dto.room
 
 import com.google.firebase.Timestamp
 

@@ -272,4 +272,17 @@ class RoomUseCase @Inject constructor(
     suspend fun getPsRoomInfo(roomId: String): PsRoomDto? {
         return roomRepository.getPsRoomInfoByRoomId(roomId)
     }
+
+    suspend fun deleteCsRoom(roomId: String){
+        roomRepository.deleteCsRoom(roomId)
+    }
+    suspend fun deletePsRoom(roomId: String){
+        roomRepository.deletePsRoom(roomId)
+    }
+    suspend fun deleteParticipantProblemStatus(roomId: String){
+        roomRepository.deleteParticipantProblemStatus(roomId)
+    }
+    suspend fun deleteRoomParticipant(roomId: String){
+        roomRepository.deleteRoomParticipant(roomId)
+    }
 }

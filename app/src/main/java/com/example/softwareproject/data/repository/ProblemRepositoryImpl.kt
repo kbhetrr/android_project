@@ -5,7 +5,9 @@ import com.example.softwareproject.domain.repository.ProblemRepository
 import com.example.softwareproject.data.dto.problem.CsProblemDto
 import com.example.softwareproject.data.dto.problem.PsProblemDto
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class ProblemRepositoryImpl @Inject constructor(
@@ -127,6 +129,40 @@ class ProblemRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Log.e("Repository", "문제 불러오기 실패: ${e.message}")
             PsProblemDto()
+        }
+    }
+
+    override suspend fun deleteCsProblem(csRoomId: String): Unit = withContext(NonCancellable) {
+        try {
+            val snapshot = fireBaseStore.collection("cs_problem")
+                .whereEqualTo("csRoomId", csRoomId)
+                .get()
+                .await()
+
+            for (doc in snapshot.documents) {
+                doc.reference.delete().await()
+            }
+
+            Log.d("Repository", "CS 문제 삭제 완료: $csRoomId")
+        } catch (e: Exception) {
+            Log.e("Repository", "CS 문제 삭제 실패: ${e.message}")
+        }
+    }
+
+    override suspend fun deletePsProblem(psRoomId: String): Unit = withContext(NonCancellable) {
+        try {
+            val snapshot = fireBaseStore.collection("coding_problem")
+                .whereEqualTo("codingRoomId", psRoomId)
+                .get()
+                .await()
+
+            for (doc in snapshot.documents) {
+                doc.reference.delete().await()
+            }
+
+            Log.d("Repository", "PS 문제 삭제 완료: $psRoomId")
+        } catch (e: Exception) {
+            Log.e("Repository", "PS 문제 삭제 실패: ${e.message}")
         }
     }
 

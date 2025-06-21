@@ -1,17 +1,15 @@
 package com.example.softwareproject.data.repository
 
 import android.util.Log
-import com.example.softwareproject.com.example.softwareproject.data.dto.room.ParticipantProblemState
+import com.example.softwareproject.data.dto.room.ParticipantProblemState
 import com.example.softwareproject.data.dto.room.RoomDto
 import com.example.softwareproject.data.dto.room.RoomParticipantDto
 import com.example.softwareproject.data.dto.room.CsRoomDto
 import com.example.softwareproject.data.dto.room.PsRoomDto
-import com.example.softwareproject.data.nosql_entity.CodingProblem
 import com.example.softwareproject.data.remote.room.CsWaitingRoomInfo
 import com.example.softwareproject.data.remote.room.PsWaitingRoomInfo
 import com.example.softwareproject.domain.repository.RoomRepository
 import com.example.softwareproject.domain.repository.UserRepository
-import com.example.softwareproject.domain.repository.solvedac.RetrofitInstance
 import com.example.softwareproject.util.RoomState
 import com.example.softwareproject.util.RoomType
 import com.google.firebase.firestore.FirebaseFirestore
@@ -288,6 +286,24 @@ class RoomRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun deleteParticipantProblemStatus(roomId: String): String? {
+        return try {
+            val snapshot = firebaseStore.collection("participant_problem_status")
+                .whereEqualTo("roomId", roomId)
+                .get()
+                .await()
+
+            for (doc in snapshot.documents) {
+                doc.reference.delete().await()
+            }
+
+            Log.d("Repository", "참가자 문제 상태 삭제 완료: $roomId")
+            roomId
+        } catch (e: Exception) {
+            Log.e("Repository", "참가자 문제 상태 삭제 실패: ${e.message}")
+            null
+        }
+    }
     override suspend fun roomStateChange(roomId: String, roomState: RoomState) {
         try {
             val snapshot = firebaseStore.collection("room")

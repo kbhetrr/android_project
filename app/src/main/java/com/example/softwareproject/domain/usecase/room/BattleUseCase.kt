@@ -2,7 +2,8 @@ package com.example.softwareproject.com.example.softwareproject.domain.usecase.r
 
 import android.util.Log
 import com.example.softwareproject.BuildConfig
-import com.example.softwareproject.com.example.softwareproject.data.dto.room.ParticipantProblemState
+import com.example.softwareproject.data.dto.room.ParticipantProblemState
+import com.example.softwareproject.domain.repository.BattleRepository
 import com.example.softwareproject.com.example.softwareproject.module.BaekjoonApi
 import com.example.softwareproject.data.dto.problem.BaekjoonProblemDto
 import com.example.softwareproject.data.dto.problem.CsProblemDto
@@ -15,10 +16,13 @@ import com.example.softwareproject.domain.repository.Part
 import com.example.softwareproject.domain.repository.ProblemRepository
 import com.example.softwareproject.domain.repository.RoomRepository
 import com.example.softwareproject.domain.repository.UserRepository
+import com.example.softwareproject.domain.usecase.room.ProblemUseCase
+import com.example.softwareproject.domain.usecase.room.RoomUseCase
 import com.example.softwareproject.util.RoomType
 import com.example.softwareproject.util.UserRole
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class BattleUseCase@Inject constructor(
@@ -26,6 +30,9 @@ class BattleUseCase@Inject constructor(
     private val userRepository: UserRepository,
     private val problemRepository: ProblemRepository,
     private val geminiApiService: GeminiApi,
+    private val battleRepository: BattleRepository,
+    private val roomUseCase: RoomUseCase,
+    private val problemUseCase: ProblemUseCase,
     private val baekjoonApi: BaekjoonApi
 
 ) {
@@ -70,8 +77,12 @@ class BattleUseCase@Inject constructor(
         }
     }
     private fun buildPrompt(count: Int, topic: String, level: String): String {
+        val randomizer = System.currentTimeMillis()
         return """
         $topic 분야의 $level 수준 컴퓨터공학 객관식 퀴즈를 총 $count 문제 생성해줘.
+
+        문제 유형은 정의형, 응용형, 사례형, 오류 찾기형, 출력 결과 예측형 등을 골고루 섞어서 구성해줘.
+        문제마다 내용이 겹치지 않도록 주의하고, 다양한 개념과 난이도를 포함시켜줘.
 
         형식은 아래와 같이:
         문제: ...
@@ -81,7 +92,9 @@ class BattleUseCase@Inject constructor(
         4. ...
         정답: (1~4 중 하나)
 
-        각 문제는 줄로 나누고, 문제 사이에는 '---' 기호 3개로 구분해줘.
+        각 문제는 줄바꿈으로 구분하고, 문제와 문제 사이에는 '---' 기호 3개로 나눠줘.
+
+        문제에 랜덤성을 부여하기 위한 시드값: $randomizer
     """.trimIndent()
     }
     private fun parseGeminiToCsProblemList(response: String, csRoomId: String): List<CsProblemDto> {
@@ -203,6 +216,7 @@ class BattleUseCase@Inject constructor(
                 userId = hostUserId,
                 attack = hostUserAbility.attack,
                 hp = hostUserAbility.hp,
+                maxHp = hostUserAbility.hp,
                 shield = hostUserAbility.shield,
                 role = UserRole.HOST,
                 roomId = roomId,
@@ -218,6 +232,7 @@ class BattleUseCase@Inject constructor(
                 userId = participantUser.userId,
                 attack = participantUserAbility.attack,
                 hp = participantUserAbility.hp,
+                maxHp = participantUserAbility.hp,
                 shield = participantUserAbility.shield,
                 role = UserRole.GUEST,
                 roomId = roomId,
@@ -229,7 +244,105 @@ class BattleUseCase@Inject constructor(
 
 
     }
+    suspend fun finishGame(roomId: String, winnerUserId: String, losserUserId: String) {
+        try {
+            val winnerLog = userRepository.getUserBattleLogInfo(winnerUserId)
+            val loserLog = userRepository.getUserBattleLogInfo(losserUserId)
 
+            val winnerAbility = userRepository.getUserAbilityInfo(winnerUserId)
+            val loserAbility = userRepository.getUserAbilityInfo(losserUserId)
+
+            // 1. 전적 처리
+            winnerLog?.let {
+                val updatedWin = it.win + 1
+                val updatedMatch = it.match + 1
+                val updatedRate = if (updatedMatch > 0) updatedWin * 100 / updatedMatch else 0
+
+                userRepository.updateBattleLogInfo(
+                    it.copy(
+                        win = updatedWin,
+                        match = updatedMatch,
+                        rate = updatedRate
+                    )
+                )
+            }
+
+            loserLog?.let {
+                val updatedLose = it.lose + 1
+                val updatedMatch = it.match + 1
+                val updatedRate = if (it.win > 0) it.win * 100 / updatedMatch else 0
+
+                userRepository.updateBattleLogInfo(
+                    it.copy(
+                        lose = updatedLose,
+                        match = updatedMatch,
+                        rate = updatedRate
+                    )
+                )
+            }
+
+            // 2. 능력치 처리
+            winnerAbility?.let {
+                var newExp = it.exp + 10
+                var newLevel = it.level
+                var newTargetExp = it.targetExp
+
+                if (newExp >= newTargetExp) {
+                    newLevel += 1
+                    newExp = 0
+                    newTargetExp += 20 // 레벨업마다 경험치 요구 증가 가능
+                }
+
+                userRepository.updateUserAbilityInfo(
+                    it.copy(
+                        exp = newExp,
+                        level = newLevel,
+                        targetExp = newTargetExp
+                    )
+                )
+            }
+
+            loserAbility?.let {
+                var newExp = it.exp + 2
+                var newLevel = it.level
+                var newTargetExp = it.targetExp
+
+                if (newExp >= newTargetExp) {
+                    newLevel += 1
+                    newExp = 0
+                    newTargetExp += 20
+                }
+
+                userRepository.updateUserAbilityInfo(
+                    it.copy(
+                        exp = newExp,
+                        level = newLevel,
+                        targetExp = newTargetExp
+                    )
+                )
+            }
+
+            // 3. 게임 종료 정리
+            val room = roomRepository.getRoomInfo(roomId)
+            roomUseCase.deleteRoomParticipant(roomId)
+            roomUseCase.deleteParticipantProblemStatus(roomId)
+            if (room != null) {
+                if(room.roomType == RoomType.PS)
+                {
+//                    roomUseCase.deletePsRoom(roomId)
+                    problemUseCase.deletePsProblem(roomId)
+                }
+                else{
+//                    roomUseCase.deleteCsRoom(roomId)
+                    problemUseCase.deleteCsProblem(roomId)
+                }
+            }
+//            roomUseCase.deleteRoom(roomId)
+
+        } catch (e: Exception) {
+            Log.e("finishGame", "게임 종료 처리 실패: ${e.message}")
+        }
+    }
     suspend fun createParticipantProblemState(roomId: String) {
         val roomInfo = roomRepository.getRoomInfo(roomId)
         val hostUserId = roomInfo?.userId ?: "0"
@@ -291,5 +404,17 @@ class BattleUseCase@Inject constructor(
             null
         }
     }
+    suspend fun updateParticipantHp(userId :String, roomId: String, newHp:Int){
+        battleRepository.updateParticipantHp(
+            userId = userId,
+            roomId = roomId,
+            newHp = newHp
+            )
+    }
+
+    fun observeRoomParticipants(roomId: String): Flow<List<RoomParticipantDto>> {
+        return battleRepository.observeRoomParticipants(roomId)
+    }
+
 
 }

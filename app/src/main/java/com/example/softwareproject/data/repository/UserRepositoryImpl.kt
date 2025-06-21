@@ -1,6 +1,7 @@
 package com.example.softwareproject.data.repository
 
 import android.util.Log
+import com.example.softwareproject.com.example.softwareproject.data.dto.user.BaekjoonInfoDto
 import com.example.softwareproject.data.dto.user.GitHubInfoDto
 import com.example.softwareproject.data.dto.user.UserAbilityDto
 import com.example.softwareproject.data.dto.user.UserBattleLogDto
@@ -18,9 +19,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import com.example.softwareproject.com.example.softwareproject.module.BaekjoonApi as BaekjoonApi1
 
 class UserRepositoryImpl @Inject constructor(
-    private val fireBaseStore : FirebaseFirestore
+    private val fireBaseStore : FirebaseFirestore,
+    private val baekjoonApi: BaekjoonApi1
 ) : UserRepository{
 
     override suspend fun createUser(user: UserDto) {
@@ -66,7 +69,51 @@ class UserRepositoryImpl @Inject constructor(
             Log.e("Repository", "createUserGithubInfo failed: ${e.message}")
         }
     }
+    override suspend fun createUserBaekjoonInfo(baekjoonInfo: BaekjoonInfoDto){
+        try {
+            fireBaseStore.collection("baekjoon_info")
+                .document(baekjoonInfo.userId)
+                .set(baekjoonInfo)
+                .await()
+        } catch (e: Exception) {
+            Log.e("Repository", "createUserBaekjoonInfo failed: ${e.message}")
+        }
+    }
 
+    override suspend fun saveBaekjoonInfo(userId: String, solvedAcHandle: String) {
+        val allProblems = mutableListOf<String>()
+        var page = 1
+        var totalCount = 0
+
+        while (true) {
+            val response = baekjoonApi.getSolvedProblemByTag("s@$solvedAcHandle", page)
+
+            // 첫 페이지일 때 총 문제 수 저장
+            if (page == 1) {
+                totalCount = response.count
+            }
+
+            val currentProblems = response.items.map { it.problemId.toString() }
+            allProblems.addAll(currentProblems)
+
+            // 더 이상 읽을 게 없거나 전부 읽었으면 종료
+            if (currentProblems.isEmpty() || allProblems.size >= totalCount) break
+
+            page++
+        }
+
+        val dto = BaekjoonInfoDto(
+            userId = userId,
+            baekjoonId = solvedAcHandle,
+            count = totalCount,
+            items = allProblems
+        )
+
+        fireBaseStore.collection("baekjoon_info")
+            .document(userId)
+            .set(dto)
+            .await()
+    }
     override suspend fun getUserInfo(userId: String): UserDto? {
         return try {
             val snapshot = fireBaseStore.collection("user")
@@ -262,8 +309,73 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getUserBaekjoonInfoByUserId(userId: String): BaekjoonInfoDto? {
+        return try {
+            val snapshot = fireBaseStore.collection("baekjoon_info")
+                .whereEqualTo("userId", userId)
+                .get()
+                .await()
 
+            snapshot.documents.firstOrNull()?.toObject(BaekjoonInfoDto::class.java)
+        } catch (e: Exception) {
+            Log.e("UserRepository", "Baekjoon 정보 불러오기 실패: ${e.message}")
+            null
+        }
+    }
 
+    override suspend fun updateBaekjoonInfo(baekjoonInfoDto: BaekjoonInfoDto) {
+        fireBaseStore.collection("baekjoon_info")
+            .document(baekjoonInfoDto.userId)
+            .set(baekjoonInfoDto) // 덮어쓰기
+            .await()
+    }
+    override suspend fun updateBattleLogInfo(userBattleLogDto: UserBattleLogDto) {
+        try {
+            val snapshot = fireBaseStore.collection("user_battle_Log")
+                .whereEqualTo("userId", userBattleLogDto.userId)
+                .get()
+                .await()
+
+            val doc = snapshot.documents.firstOrNull()
+            if (doc != null) {
+                fireBaseStore.collection("user_battle_Log")
+                    .document(doc.id)
+                    .set(userBattleLogDto)
+                    .await()
+            } else {
+                // 문서가 없으면 새로 생성 (선택 사항)
+                fireBaseStore.collection("user_battle_Log")
+                    .add(userBattleLogDto)
+                    .await()
+            }
+        } catch (e: Exception) {
+            Log.e("UserRepository", "updateBattleLogInfo 실패: ${e.message}")
+        }
+    }
+
+    override suspend fun updateUserAbilityInfo(userAbility: UserAbilityDto) {
+        try {
+            val snapshot = fireBaseStore.collection("user_ability")
+                .whereEqualTo("userId", userAbility.userId)
+                .get()
+                .await()
+
+            val doc = snapshot.documents.firstOrNull()
+            if (doc != null) {
+                fireBaseStore.collection("user_ability")
+                    .document(doc.id)
+                    .set(userAbility)
+                    .await()
+            } else {
+                // 문서가 없으면 새로 생성 (선택 사항)
+                fireBaseStore.collection("user_ability")
+                    .add(userAbility)
+                    .await()
+            }
+        } catch (e: Exception) {
+            Log.e("UserRepository", "updateUserAbilityInfo 실패: ${e.message}")
+        }
+    }
 
 
 }

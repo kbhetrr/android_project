@@ -9,10 +9,15 @@ import androidx.lifecycle.viewModelScope
 import com.example.softwareproject.com.example.softwareproject.domain.usecase.room.BattleUseCase
 import com.example.softwareproject.com.example.softwareproject.domain.usecase.room.UserUseCase
 import com.example.softwareproject.data.dto.problem.CsProblemDto
+import com.example.softwareproject.data.dto.room.RoomParticipantDto
 import com.example.softwareproject.domain.usecase.room.ProblemUseCase
 import com.example.softwareproject.domain.usecase.room.RoomUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -22,6 +27,11 @@ class CsBattleViewModel @Inject constructor(
     private val userUseCase: UserUseCase,
     private val roomUseCase: RoomUseCase
 ) : ViewModel() {
+    private val _battleResult = MutableLiveData<String?>()
+    val battleResult: LiveData<String?> = _battleResult
+
+    private val _selectedAnswerIndex = MutableLiveData<Int>() // 1~4
+    val selectedAnswerIndex: LiveData<Int> = _selectedAnswerIndex
 
     private val _problemCount = MutableLiveData<Int>()
     val problemCount: LiveData<Int> = _problemCount
@@ -96,4 +106,75 @@ class CsBattleViewModel @Inject constructor(
             Log.d("TabCsFragment", "받은 방 개수: ${_yourHp.value} ${yourMaxHp.value} ${_opponentHp.value} ${_opponentMaxHp.value}")
         }
     }
+
+    fun giveUp(roomId: String) {
+        viewModelScope.launch {
+            withContext(NonCancellable) {
+            problemUseCase.deleteCsProblem(roomId)
+//            roomUseCase.deleteCsRoom(roomId)
+            roomUseCase.deleteRoomParticipant(roomId)
+            roomUseCase.deleteParticipantProblemStatus(roomId)
+//            roomUseCase.deleteRoom(roomId)
+            }
+        }
+    }
+    fun attackOpponent(roomId: String) {
+        viewModelScope.launch {
+
+            val selected = _selectedAnswerIndex.value
+            val problem = _currentProblem.value
+
+            if(selected == null || problem == null) return@launch
+
+            val isCorrect = selected == problem.correctChoice.toInt()
+
+            if (isCorrect) {
+
+                val opponent = battleUseCase.getOpponentRoomParticipant(roomId)
+                val me = battleUseCase.getCurrentRoomParticipant(roomId)
+                val newHp = (opponent?.hp ?: 0) - 1
+                battleUseCase.updateParticipantHp(opponent?.userId ?: return@launch, roomId, newHp.coerceAtLeast(0))
+
+                if (newHp == 0) {
+                    me?.let { battleUseCase.finishGame(roomId, winnerUserId = it.userId,losserUserId = opponent.userId) }
+                    _battleResult.value = "WIN"
+                }
+            } else {
+                val me = battleUseCase.getCurrentRoomParticipant(roomId)
+                val opponent = battleUseCase.getOpponentRoomParticipant(roomId)
+                val newHp = (me?.hp ?: 0) - 1
+                battleUseCase.updateParticipantHp(me?.userId ?: return@launch, roomId, newHp.coerceAtLeast(0))
+
+                if (newHp == 0) {
+                    if (opponent != null) {
+                        battleUseCase.finishGame(roomId, winnerUserId = opponent.userId, losserUserId = me.userId)
+                        _battleResult.value = "LOSE"
+                    }
+                    // ➕ 여기서 UI에 알림 보내는 LiveData도 emit 가능
+                }
+            }
+        }
+    }
+
+    fun selectAnswer(index: Int) {
+        _selectedAnswerIndex.value = index
+    }
+
+    fun observeParticipants(roomId: String) {
+        viewModelScope.launch {
+            battleUseCase.observeRoomParticipants(roomId).collect { participants ->
+                val currentUserId = userUseCase.getCurrentUserAbility()?.userId
+                participants.forEach { participant ->
+                    if (participant.userId == currentUserId) {
+                        _yourHp.postValue(participant.hp)
+                        _yourMaxHp.postValue(participant.maxHp)
+                    } else {
+                        _opponentHp.postValue(participant.hp)
+                        _opponentMaxHp.postValue(participant.maxHp)
+                    }
+                }
+            }
+        }
+    }
+
 }

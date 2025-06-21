@@ -13,7 +13,9 @@ import com.example.softwareproject.data.dto.problem.PsProblemDto
 import com.example.softwareproject.domain.usecase.room.ProblemUseCase
 import com.example.softwareproject.domain.usecase.room.RoomUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,6 +26,10 @@ class PsBattleViewModel @Inject constructor(
     private val roomUseCase: RoomUseCase
 ) : ViewModel()
 {
+
+    private val _battleResult = MutableLiveData<String?>()
+    val battleResult: LiveData<String?> = _battleResult
+
     private val _problemCount = MutableLiveData<Int>()
     val problemCount: LiveData<Int> = _problemCount
 
@@ -95,6 +101,68 @@ class PsBattleViewModel @Inject constructor(
             _opponentMaxHp.value = opponentUser?.hp
 
             Log.d("TabCsFragment", "받은 방 개수: ${_yourHp.value} ${yourMaxHp.value} ${_opponentHp.value} ${_opponentMaxHp.value}")
+        }
+    }
+    fun giveUp(roomId: String) {
+        viewModelScope.launch {
+            withContext(NonCancellable) {
+                problemUseCase.deletePsProblem(roomId)
+                //roomUseCase.deletePsRoom(roomId)
+                roomUseCase.deleteRoomParticipant(roomId)
+                roomUseCase.deleteParticipantProblemStatus(roomId)
+//            roomUseCase.deleteRoom(roomId)
+            }
+        }
+    }
+    fun attackOpponent(roomId: String) {
+        viewModelScope.launch {
+            val problem = _currentProblem.value ?: return@launch
+            val problemId = problem.problemId.toString()
+
+            val currentUser = battleUseCase.getCurrentRoomParticipant(roomId) ?: return@launch
+            val opponentUser = battleUseCase.getOpponentRoomParticipant(roomId) ?: return@launch
+
+            val baekjoonInfo = userUseCase.getBaekjoonInfo(currentUser.userId)
+            val baekjoonId = baekjoonInfo?.baekjoonId
+
+
+            val latestSolvedProblemIds = baekjoonId?.let { userUseCase.getLatestSolvedProblemIds(it) }
+            latestSolvedProblemIds?.let {
+                userUseCase.isExistedBaekjoonInfo(
+                    userId = currentUser.userId,
+                    newSolvedProblems = it
+                )
+            }
+            val hasSolved = latestSolvedProblemIds?.contains(problemId) == true
+            if (hasSolved) {
+                val newOpponentHp = (opponentUser.hp - 1).coerceAtLeast(0)
+                battleUseCase.updateParticipantHp(opponentUser.userId, roomId, newOpponentHp)
+                if(newOpponentHp == 0)
+                {
+                    battleUseCase.finishGame(roomId, winnerUserId = currentUser.userId, losserUserId = opponentUser.userId)
+                    _battleResult.value = "WIN"
+                }
+            } else {
+                val newYourHp = (currentUser.hp - 1).coerceAtLeast(0)
+                battleUseCase.updateParticipantHp(currentUser.userId, roomId, newYourHp)
+                if(newYourHp == 0){
+                    battleUseCase.finishGame(roomId, winnerUserId = opponentUser.userId, losserUserId = currentUser.userId)
+                    _battleResult.value = "LOSE"
+                }
+            }
+        }
+    }
+
+    fun observeParticipantHp(roomId: String) {
+        viewModelScope.launch {
+            battleUseCase.observeRoomParticipants(roomId).collect { participants ->
+                val currentUser = userUseCase.getCurrentUserAbility()
+                val currentParticipant = participants.find { it.userId == currentUser?.userId }
+                val opponentParticipant = participants.find { it.userId != currentUser?.userId }
+
+                _yourHp.value = currentParticipant?.hp
+                _opponentHp.value = opponentParticipant?.hp
+            }
         }
     }
 }
