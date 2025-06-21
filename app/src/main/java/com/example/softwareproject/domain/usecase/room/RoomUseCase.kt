@@ -258,6 +258,10 @@ class RoomUseCase @Inject constructor(
         }
     }
 
+    suspend fun getRoomType(roomId: String): RoomType {
+        val room = roomRepository.getRoomInfo(roomId)
+        return room?.roomType ?: RoomType.CS
+    }
 
     suspend fun getCsRoomInfo(csRoomId: String): CsRoomDto? {
         return roomRepository.getCsRoomInfoByRoomId(csRoomId)

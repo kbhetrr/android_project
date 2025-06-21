@@ -4,6 +4,7 @@ import android.view.View
 import androidx.lifecycle.ViewModel
 import com.example.softwareproject.com.example.softwareproject.domain.usecase.room.BattleUseCase
 import com.example.softwareproject.domain.usecase.room.RoomUseCase
+import com.example.softwareproject.util.RoomType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -13,7 +14,18 @@ class BattleViewModel @Inject constructor(
     private val battleUseCase: BattleUseCase
 ) :ViewModel()
 {
-    suspend fun createCsProblem(roomId : String){
-        battleUseCase.createCsProblem(roomId)
+    suspend fun createProblem(roomId : String){
+
+        val roomType = roomUseCase.getRoomType(roomId)
+        if(roomType == RoomType.CS){
+            battleUseCase.createCsProblem(roomId)
+        }
+        else{
+            battleUseCase.createPsProblem(roomId)
+        }
+    }
+
+    suspend fun getRoomType(roomId: String) : RoomType{
+        return roomUseCase.getRoomType(roomId)
     }
 }

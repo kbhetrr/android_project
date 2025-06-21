@@ -9,10 +9,12 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.softwareproject.CsBattleActivity
+import com.example.softwareproject.PsBattleActivity
 import com.example.softwareproject.R
 import com.example.softwareproject.com.example.softwareproject.domain.usecase.room.BattleUseCase
 import com.example.softwareproject.com.example.softwareproject.presentation.room.BattleViewModel
 import com.example.softwareproject.presentation.room.RoomViewModel
+import com.example.softwareproject.util.RoomType
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -36,8 +38,14 @@ class BattleWaitingActivity : AppCompatActivity(){
 
                 roomViewModel.battleStart(roomId)
 
-                battleViewModel.createCsProblem(roomId)
-                val intent = Intent(this@BattleWaitingActivity, CsBattleActivity::class.java)
+                battleViewModel.createProblem(roomId)
+
+                val roomType = battleViewModel.getRoomType(roomId)
+
+                val intent = when (roomType) {
+                    RoomType.CS -> Intent(this@BattleWaitingActivity, CsBattleActivity::class.java)
+                    RoomType.PS -> Intent(this@BattleWaitingActivity, PsBattleActivity::class.java)
+                }
                 intent.putExtra("roomId", roomId)
                 startActivity(intent)
                 finish()

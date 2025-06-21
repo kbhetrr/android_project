@@ -1,8 +1,11 @@
 package com.example.softwareproject.com.example.softwareproject.domain.usecase.room
 
 import com.example.softwareproject.BuildConfig
+import com.example.softwareproject.com.example.softwareproject.module.BaekjoonApi
 import com.example.softwareproject.com.example.softwareproject.module.GeminiApiService
+import com.example.softwareproject.data.dto.problem.BaekjoonProblemDto
 import com.example.softwareproject.data.dto.problem.CsProblemDto
+import com.example.softwareproject.data.dto.problem.PsProblemDto
 import com.example.softwareproject.domain.repository.Content
 import com.example.softwareproject.domain.repository.GeminiApi
 import com.example.softwareproject.domain.repository.GeminiRequest
@@ -10,13 +13,15 @@ import com.example.softwareproject.domain.repository.Part
 import com.example.softwareproject.domain.repository.ProblemRepository
 import com.example.softwareproject.domain.repository.RoomRepository
 import com.example.softwareproject.domain.repository.UserRepository
+import com.example.softwareproject.util.RoomType
 import javax.inject.Inject
 
 class BattleUseCase@Inject constructor(
     private val roomRepository: RoomRepository,
     private val userRepository: UserRepository,
     private val problemRepository: ProblemRepository,
-    private val geminiApiService: GeminiApi // 여기를 주입!
+    private val geminiApiService: GeminiApi,
+    private val baekjoonApi: BaekjoonApi
 
 ) {
 
@@ -62,7 +67,6 @@ class BattleUseCase@Inject constructor(
         각 문제는 줄로 나누고, 문제 사이엔 빈 줄로 구분해줘.
     """.trimIndent()
     }
-
     private fun parseGeminiToCsProblemList(response: String, csRoomId: String): List<CsProblemDto> {
         val blocks = response.trim().split("\n\n")
 
@@ -90,4 +94,53 @@ class BattleUseCase@Inject constructor(
         }
     }
 
+    suspend fun createPsProblem(roomId: String) {
+        val roomInfo = roomRepository.getRoomInfo(roomId)
+        val psRoomInfo = roomRepository.getPsRoomInfoByRoomId(roomId)
+
+        val problemCount = roomInfo?.problemCount ?: 5
+        val difficultyLevel = psRoomInfo?.difficultyLevel ?: "silver"  // silver, bronze, etc.
+
+        val problems = fetchBaekjoonProblems(difficultyLevel.toString(), problemCount)
+
+        problems.forEachIndexed { index, problem ->
+            val psDto = PsProblemDto(
+                acceptedUserCount = problem.acceptedUserCount,
+                averageTries = problem.averageTries,
+                codingRoomId = psRoomInfo?.codingRoomId ?: "1",
+                problemId = problem.problemId,
+                problemIndex = (index + 1).toString(),
+                tag = problem.tags.firstOrNull()?.key ?: "etc",
+                title = problem.titleKo
+            )
+            problemRepository.createPsProblem(psDto)
+        }
+    }
+
+    private suspend fun fetchBaekjoonProblems(level: String, count: Int): List<BaekjoonProblemDto> {
+        val levelRange = when (level.lowercase()) {
+            "bronze" -> 1..5
+            "silver" -> 6..10
+            "gold" -> 11..15
+            "platinum" -> 16..20
+            else -> 6..10
+        }
+
+        val result = mutableListOf<BaekjoonProblemDto>()
+        var page = 1
+
+        while (result.size < count) {
+            val response = baekjoonApi.getProblemsByTag(
+                tierFrom = levelRange.first,
+                tierTo = levelRange.last,
+                page = page
+            )
+
+            if (response.items.isEmpty()) break
+            result.addAll(response.items)
+            page++
+        }
+
+        return result.shuffled().take(count)
+    }
 }
