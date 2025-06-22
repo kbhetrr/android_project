@@ -161,6 +161,19 @@ class PsBattleViewModel @Inject constructor(
                     battleUseCase.finishGame(roomId, winnerUserId = currentUser.userId, losserUserId = opponentUser.userId)
                     _battleResult.value = "WIN"
                 }
+                val allSolved =
+                    currentUser.let { roomUseCase.isAllSolved(roomId = roomId, userId = it.userId) }
+                if (allSolved) {
+                    markProblemAsSolved(problem.problemIndex.toInt())
+
+                    currentUser.let {
+                        battleUseCase.finishGame(
+                            roomId,
+                            winnerUserId = it.userId,
+                            losserUserId = it.userId
+                        )
+                    }
+                }
             } else {
                 val newYourHp = (currentUser.hp - 1).coerceAtLeast(0)
                 battleUseCase.updateParticipantHp(currentUser.userId, roomId, newYourHp)

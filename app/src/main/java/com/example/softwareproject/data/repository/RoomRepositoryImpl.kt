@@ -94,10 +94,10 @@ class RoomRepositoryImpl @Inject constructor(
                 .set(participantProblemState)
                 .await()
 
-            Log.d("Firestore", "participant_problem_state 저장 성공: $docId")
+            Log.d("Firestore", "participant_problem_status 저장 성공: $docId")
             participantProblemState
         } catch (e: Exception) {
-            Log.e("Firestore", "participant_problem_state 저장 실패: ${e.message}")
+            Log.e("Firestore", "participant_problem_status 저장 실패: ${e.message}")
             throw e
         }
     }
@@ -178,6 +178,44 @@ class RoomRepositoryImpl @Inject constructor(
             emptyList()
         }
     }
+
+    override suspend fun getParticipantProblemStatusByUserIdAndRoomId(
+        roomId: String,
+        userId: String
+    ): List<ParticipantProblemState> {
+        return try {
+            val snapshot = firebaseStore.collection("participant_problem_status")
+                .whereEqualTo("roomId", roomId)
+                .whereEqualTo("userId", userId)
+                .get()
+                .await()
+
+            snapshot.documents.mapNotNull { it.toObject(ParticipantProblemState::class.java) }
+        } catch (e: Exception) {
+            Log.e("Repository", "참가자 문제 상태 조회 실패: ${e.message}")
+            emptyList()
+        }
+    }
+
+    override suspend fun getParticipantProblemStatusByUserIdAndProblemIndex(
+        problemIndex: String,
+        userId: String
+    ): ParticipantProblemState? {
+        return try {
+            val snapshot = firebaseStore.collection("participant_problem_status")
+                .whereEqualTo("problemIndex", problemIndex.toInt())
+                .whereEqualTo("userId", userId)
+                .limit(1)
+                .get()
+                .await()
+
+            snapshot.documents.firstOrNull()?.toObject(ParticipantProblemState::class.java)
+        } catch (e: Exception) {
+            Log.e("Repository", "getParticipantProblemStatusByUserIdAndProblemIndex 실패: ${e.message}")
+            null
+        }
+    }
+
 
     override suspend fun roomList(): List<RoomDto> {
         return try {
@@ -307,6 +345,8 @@ class RoomRepositoryImpl @Inject constructor(
             null
         }
     }
+
+
     override suspend fun roomStateChange(roomId: String, roomState: RoomState) {
         try {
             val snapshot = firebaseStore.collection("room")
@@ -337,7 +377,47 @@ class RoomRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun updateParticipantProblemStatus(participantProblemState: ParticipantProblemState) {
+        try {
+            val snapshot = firebaseStore.collection("participant_problem_status")
+                .whereEqualTo("roomId", participantProblemState.roomId)
+                .whereEqualTo("userId", participantProblemState.userId)
+                .whereEqualTo("problemIndex", participantProblemState.problemIndex)
+                .get()
+                .await()
 
+            val document = snapshot.documents.firstOrNull()
+
+            document?.reference?.update(
+                mapOf(
+                    "solved" to participantProblemState.isSolved,
+                    "updatedAt" to participantProblemState.updatedAt
+                )
+            ) ?: Log.e("Repository", "문제 상태 문서 없음")
+        } catch (e: Exception) {
+            Log.e("Repository", "문제 상태 업데이트 실패: ${e.message}")
+        }
+    }
+
+    override suspend fun isAllSolved(roomId: String, userId: String): Boolean {
+        return try {
+            val snapshot = firebaseStore.collection("participant_problem_status")
+                .whereEqualTo("roomId", roomId)
+                .whereEqualTo("userId", userId)
+                .get()
+                .await()
+
+            if (snapshot.isEmpty) return false
+
+            snapshot.documents.all { doc ->
+                val solved = doc.getBoolean("solved") ?: false
+                solved
+            }
+        } catch (e: Exception) {
+            Log.e("Repository", "isAllSolved 실패: ${e.message}")
+            false
+        }
+    }
 
     override suspend fun createWaitingCsRoom(csWaitingRoomInfo: CsWaitingRoomInfo) {
 

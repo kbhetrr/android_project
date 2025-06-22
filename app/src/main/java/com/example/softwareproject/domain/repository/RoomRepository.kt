@@ -26,7 +26,8 @@ interface RoomRepository {
     suspend fun getPsRoomInfoByRoomId(psRoomId: String) : PsRoomDto?
     suspend fun getRoomParticipantInfo(userId: String, roomId:String) : RoomParticipantDto?
     suspend fun getRoomParticipantList(roomId: String) : List<RoomParticipantDto>
-
+    suspend fun getParticipantProblemStatusByUserIdAndRoomId(roomId: String, userId: String) : List<ParticipantProblemState>
+    suspend fun getParticipantProblemStatusByUserIdAndProblemIndex(problemIndex: String, userId: String) : ParticipantProblemState?
 
     suspend fun roomList() : List<RoomDto>
     suspend fun csRoomList() : List<CsRoomDto>
@@ -42,7 +43,9 @@ interface RoomRepository {
     suspend fun deleteParticipantProblemStatus(roomId: String) : String?
 
 
+    suspend fun isAllSolved(roomId: String, userId: String): Boolean
     suspend fun roomStateChange(roomId: String, roomState: RoomState)
+    suspend fun updateParticipantProblemStatus(participantProblemState: ParticipantProblemState)
     fun observeRoomList(roomType: RoomType, onChanged: (List<RoomDto>) -> Unit): ListenerRegistration
     fun observeRoomState(roomId: String): Flow<RoomState>
 }

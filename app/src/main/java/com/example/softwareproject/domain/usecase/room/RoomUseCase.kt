@@ -3,6 +3,7 @@ package com.example.softwareproject.domain.usecase.room
 
 import android.util.Log
 import com.example.softwareproject.data.dto.room.CsRoomDto
+import com.example.softwareproject.data.dto.room.ParticipantProblemState
 import com.example.softwareproject.data.dto.room.PsRoomDto
 import com.example.softwareproject.data.dto.room.RoomDto
 import com.example.softwareproject.data.entity.Room
@@ -289,5 +290,27 @@ class RoomUseCase @Inject constructor(
 
     suspend fun observeRoomState(roomId: String): Flow<RoomState> {
         return roomRepository.observeRoomState(roomId)
+    }
+
+    suspend fun updateParticipantProblemStatus(roomId: String,problemIndex: String, userId: String) {
+        val room = roomRepository.getRoomInfo(roomId)
+        val problemStatus = roomRepository.getParticipantProblemStatusByUserIdAndProblemIndex(
+            problemIndex = problemIndex,
+            userId = userId
+        )
+        if (problemStatus != null) {
+            roomRepository.updateParticipantProblemStatus(ParticipantProblemState(
+                createdAt = problemStatus.createdAt,
+                updatedAt = Timestamp.now(),
+                isSolved = true,
+                problemIndex = problemIndex.toInt(),
+                roomId = roomId,
+                userId = userId
+            ))
+        }
+    }
+    suspend fun isAllSolved(roomId: String, userId: String) : Boolean{
+        Log.e("RoomUseCase", "다 풀었니?")
+        return roomRepository.isAllSolved(roomId,userId)
     }
 }
