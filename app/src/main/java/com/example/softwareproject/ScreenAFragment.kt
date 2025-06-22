@@ -45,6 +45,7 @@ import android.content.Intent
 // import android.media.MediaScannerConnection // API 29 미만에서 사용, 여기서는 불필요
 
 import android.os.Environment
+import android.widget.ProgressBar
 import androidx.compose.ui.input.key.type
 // import androidx.fragment.app.Fragment // Fragment 클래스 내에 있다면 필요
 import java.io.File // File.separator 사용을 위해
@@ -139,6 +140,11 @@ class ScreenAFragment : Fragment() {
             val losses = userInfo.userBattleLog.lose
             val total = wins + losses
             val rate = if (total > 0) (wins * 100 / total) else 0
+            val xpProgressBar = view.findViewById<ProgressBar>(R.id.xp_progress_bar)
+            val progress = if (targetExp > 0) (exp * 100 / targetExp) else 0
+
+            xpProgressBar.max = 100
+            xpProgressBar.progress = progress
 
             view.findViewById<TextView>(R.id.nickname).text = githubName
             view.findViewById<TextView>(R.id.level).text = "레벨 $level"
