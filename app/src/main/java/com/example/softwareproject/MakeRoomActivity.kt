@@ -2,6 +2,8 @@ package com.example.softwareproject // 실제 패키지 이름으로 변경
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
@@ -15,6 +17,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class MakeRoomActivity : AppCompatActivity() {
     private lateinit var makeButton: Button
     private lateinit var backButton: Button
+    private lateinit var spinner_tiers: Spinner
 
     private val viewModel: RoomViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,7 +39,8 @@ class MakeRoomActivity : AppCompatActivity() {
             spinner_types.adapter = adapter
         }
 
-        val spinner_tiers: Spinner = findViewById(R.id.spinner_tiers)
+        spinner_tiers = findViewById(R.id.spinner_tiers)
+        updateTierSpinner(getSelectedTypeArrayResourceId(spinner_types.selectedItemPosition))
         ArrayAdapter.createFromResource(
             this,
             R.array.tier,
@@ -46,6 +50,18 @@ class MakeRoomActivity : AppCompatActivity() {
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             // Apply the adapter to the spinner.
             spinner_tiers.adapter = adapter
+        }
+        // spinner_types의 아이템 선택 리스너 설정
+        spinner_types.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                // 선택된 문제 유형에 따라 spinner_tiers의 내용을 변경
+                val selectedTypeArrayResId = getSelectedTypeArrayResourceId(position)
+                updateTierSpinner(selectedTypeArrayResId)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {
+                // 아무것도 선택되지 않았을 때의 처리 (필요한 경우)
+            }
         }
 
         val spinner_counts: Spinner = findViewById(R.id.spinner_counts)
@@ -107,5 +123,23 @@ class MakeRoomActivity : AppCompatActivity() {
     // 사용자가 시스템의 뒤로가기 버튼을 눌렀을 때도 finish()와 동일하게 동작
     override fun onBackPressed() {
         super.onBackPressed() // 기본 동작 (finish() 호출)
+    }
+    private fun getSelectedTypeArrayResourceId(selectedTypePosition: Int): Int {
+        return when (selectedTypePosition) {
+            0 -> R.array.tier // "알고리즘" 선택 시
+            1 -> R.array.level        // "CS" 선택 시
+            else -> R.array.tier // 기본값 (또는 빈 배열 리소스 ID)
+        }
+    }
+    // spinner_tiers의 어댑터를 업데이트하는 함수
+    private fun updateTierSpinner(tierArrayResId: Int) {
+        ArrayAdapter.createFromResource(
+            this,
+            tierArrayResId,
+            android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            spinner_tiers.adapter = adapter
+        }
     }
 }
