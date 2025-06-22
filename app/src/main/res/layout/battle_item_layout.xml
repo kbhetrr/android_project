@@ -14,15 +14,16 @@
         android:id="@+id/user_profile_card"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_gravity="top|center_horizontal"
-        app:cardCornerRadius="48dp"
-        app:cardElevation="0dp">
+        android:layout_gravity="center|center_horizontal"
+        app:cardCornerRadius="0dp"
+        app:cardElevation="0dp"
+        android:layout_marginRight="4dp">
         <ImageView
-            android:id="@+id/user_profile_image_inside_card"
-            android:layout_width="match_parent"
+            android:id="@+id/battle_icon"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:scaleType="centerCrop"
-            android:src="@drawable/iconmonstr_github_1" />
+            android:scaleType="centerInside"
+            android:src="@drawable/linux_ubuntu" />
     </androidx.cardview.widget.CardView>
 
     <LinearLayout
@@ -38,30 +39,37 @@
             android:layout_height="wrap_content"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:text="아이템 제목"/>
+            android:textColor="#000000"
+            android:text="아이템 제목"
+            android:paddingBottom="8dp"/>
         <TextView
             android:id="@+id/room_topic"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="주제"/>
+            android:text="주제"
+            android:textColor="#4F7896"/>
 
         <TextView
             android:id="@+id/room_difficulty"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="난이도"/>
+            android:text="난이도"
+            android:textColor="#4F7896"/>
 
         <TextView
             android:id="@+id/host_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="호스트"/>
+            android:text="호스트"
+            android:textColor="#4F7896"/>
         <TextView
             android:id="@+id/item_description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="14sp"
-            android:text="아이템 설명"/>
+            android:text="아이템 설명"
+            android:textColor="#4F7896"
+            android:visibility="gone"/>
 
     </LinearLayout>
 

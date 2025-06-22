@@ -14,7 +14,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="1v1 Battle"
+            android:text="1v1 배틀 - CS"
             android:textColor="#000000"
             android:textStyle="bold"
             android:textSize="24dp"
@@ -35,7 +35,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Your HP"
+                    android:text="나의 HP"
                     android:textColor="#000000"
                     android:textSize="16dp"
                     android:textStyle="bold"
@@ -83,7 +83,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Opponent HP"
+                    android:text="상대 HP"
                     android:textColor="#000000"
                     android:textSize="16dp"
                     android:textStyle="bold"
@@ -126,7 +126,8 @@
         android:layout_marginLeft="16dp"
         android:textSize="20dp"
         android:textStyle="bold"
-        android:textColor="#000000"/>
+        android:textColor="#000000"
+        android:layout_marginBottom="16dp"/>
 
 
     <androidx.core.widget.NestedScrollView
@@ -137,7 +138,10 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/problem_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            />
     </androidx.core.widget.NestedScrollView>
 
     <TextView
@@ -149,6 +153,7 @@
         android:textStyle="bold"
         android:textSize="24dp"
         android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
         android:paddingBottom="8dp"/>
 
 

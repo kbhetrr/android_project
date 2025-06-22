@@ -39,7 +39,7 @@ class CsRoomAdapter(
     override fun onBindViewHolder(holder: RoomViewHolder, position: Int) {
         val room = roomList[position]
         holder.roomTitle.text = room.roomTitle
-        holder.topic.text = "주제: ${room.topic}"
+        holder.topic.text = "주제: ${if (room.topic.toString() == "OPERATINGSYSTEM") "운영체제" else room.topic}"
         holder.difficulty.text = "난이도: ${room.difficulty}"
         holder.githubName.text = room.githubName ?: "익명 호스트"
         holder.description.text = room.description ?: "설명 없음"

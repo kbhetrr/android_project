@@ -41,6 +41,8 @@ class PsBattleActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.problem_view) // RecyclerView ID
         recyclerView.layoutManager = LinearLayoutManager(this)
 
+        ProblemLinkButton = findViewById(R.id.problem_link)
+
         val roomId = intent.getStringExtra("roomId") ?: return
 
         psBattleViewModel.loadAbility(roomId)
@@ -93,12 +95,26 @@ class PsBattleActivity : AppCompatActivity() {
 
             // 🔘 문제 정보 Observe해서 문제 UI 갱신
             psBattleViewModel.currentProblem.observe(this) { problem ->
-                findViewById<TextView>(R.id.problem_title).text = "문제 ${problem?.problemIndex}"
+                ProblemLinkButton.visibility = Button.VISIBLE
+                findViewById<TextView>(R.id.problem_title).text = "문제 ${problem?.problemIndex} - ${problem?.title}"
                 findViewById<TextView>(R.id.problem_description).text = problem?.title
-                findViewById<TextView>(R.id.problem_baekjoon_id).text = "백준 ${problem?.problemId}번 (${problem?.title})"
-                findViewById<TextView>(R.id.user_count).text = "푼유저 수: ${problem?.acceptedUserCount}"
-                findViewById<TextView>(R.id.try_chance).text = "평균시도횟수: ${problem?.averageTries}"
+                findViewById<TextView>(R.id.problem_baekjoon_id).text = "백준 ${problem?.problemId}번"
+                findViewById<TextView>(R.id.user_count).text = "푼 유저 수: ${problem?.acceptedUserCount}"
+                findViewById<TextView>(R.id.try_chance).text = "평균 시도 횟수: ${problem?.averageTries}"
+
+                ProblemLinkButton.setOnClickListener{
+                    val problemUrl = "https://www.acmicpc.net/problem/${problem?.problemId}" // 여기에 실제 문제 링크 URL을 넣으세요.
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    intent.data = Uri.parse(problemUrl)
+
+                    if (intent.resolveActivity(packageManager) != null) {
+                        startActivity(intent)
+                    } else {
+                        Toast.makeText(this, "웹 링크를 열 수 있는 앱이 없습니다.", Toast.LENGTH_LONG).show()
+                    }
+                }
             }
+
 
             val homeBtn: Button = findViewById(R.id.home_btn)
             homeBtn.setOnClickListener {

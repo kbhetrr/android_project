@@ -140,7 +140,7 @@ class ScreenAFragment : Fragment() {
             val rate = if (total > 0) (wins * 100 / total) else 0
 
             view.findViewById<TextView>(R.id.nickname).text = githubName
-            view.findViewById<TextView>(R.id.level).text = "래벨 $level"
+            view.findViewById<TextView>(R.id.level).text = "레벨 $level"
             view.findViewById<TextView>(R.id.hp).text = hp.toString()
             view.findViewById<TextView>(R.id.attack).text = attack.toString()
             view.findViewById<TextView>(R.id.shield).text = shield.toString()
@@ -266,7 +266,7 @@ class ScreenAFragment : Fragment() {
                 put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg") // 또는 "image/png"
                 // RELATIVE_PATH를 사용하여 Pictures 폴더 아래에 앱 이름으로 된 하위 폴더를 지정합니다.
                 // Environment.DIRECTORY_PICTURES 는 "Pictures" 문자열을 반환합니다.
-                put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + File.separator + "YourAppName") // "YourAppName"을 실제 앱 이름이나 원하는 폴더명으로 변경
+                put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + File.separator + "CoPet") // "YourAppName"을 실제 앱 이름이나 원하는 폴더명으로 변경
                 put(MediaStore.Images.Media.IS_PENDING, 1) // 파일을 쓰는 동안 다른 앱에서 접근하지 못하도록 설정
             }
 
@@ -285,7 +285,7 @@ class ScreenAFragment : Fragment() {
                 contentValues.put(MediaStore.Images.Media.IS_PENDING, 0)
                 context.contentResolver.update(uri, contentValues, null, null)
 
-                Toast.makeText(context, "이미지가 갤러리에 저장되었습니다: $fileName", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "이미지가 갤러리에 저장되었습니다.", Toast.LENGTH_SHORT).show()
                 Log.d("SaveImageApi30Plus", "Image saved to MediaStore: $uri")
             } ?: throw Exception("MediaStore insert failed. ImageUri is null.")
 
