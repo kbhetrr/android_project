@@ -9,6 +9,7 @@ import com.example.softwareproject.R
 import com.example.softwareproject.data.remote.room.UiCsRoomItem
 import android.view.LayoutInflater
 import android.widget.Button
+import android.widget.ImageView
 import com.example.softwareproject.data.remote.room.UiPsRoomItem
 
 class CsRoomAdapter(
@@ -23,6 +24,8 @@ class CsRoomAdapter(
         val difficulty: TextView = itemView.findViewById(R.id.room_difficulty)
         val githubName: TextView = itemView.findViewById(R.id.host_name)
         val description: TextView = itemView.findViewById(R.id.item_description)
+
+        val icon: ImageView = itemView.findViewById(R.id.battle_icon)
 
         val button: Button = itemView.findViewById(R.id.battle_join)
     }
@@ -44,6 +47,9 @@ class CsRoomAdapter(
         holder.githubName.text = room.githubName ?: "익명 호스트"
         holder.description.text = room.description ?: "설명 없음"
 
+        if (room.topic.toString() == "NETWORK") {
+            holder.icon.setImageResource(R.drawable.network_wired_svgrepo_com)
+        }
         holder.button.setOnClickListener {
             onEnterClick(room)
         }

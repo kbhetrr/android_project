@@ -6,7 +6,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:padding="16dp"
     android:layout_marginBottom="8dp"
-    android:background="?android:attr/selectableItemBackground"
+    android:background="#ffffff"
     android:gravity="center">
 
 

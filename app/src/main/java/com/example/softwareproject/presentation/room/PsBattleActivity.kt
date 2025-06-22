@@ -22,6 +22,7 @@ import com.example.softwareproject.RadioSelectionAdapter
 import com.example.softwareproject.ResultActivity
 import com.example.softwareproject.ResultDefeatActivity
 import com.example.softwareproject.SelectableItem
+import com.example.softwareproject.com.example.softwareproject.model.DamageCalculator
 import com.example.softwareproject.com.example.softwareproject.presentation.room.viewmodel.PsBattleViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -35,6 +36,11 @@ class PsBattleActivity : AppCompatActivity() {
     private lateinit var ProblemLinkButton: Button
     private val psBattleViewModel: PsBattleViewModel by viewModels()
     private var isUiReset = false
+
+    private var tiers: Float = 0.0f
+    private var avgTries: Float = 0.0f
+    private var solvers: Float = 0.0f
+
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -123,6 +129,9 @@ class PsBattleActivity : AppCompatActivity() {
             findViewById<TextView>(R.id.try_chance).text =
                 "평균 시도 횟수: ${problem?.averageTries}"
 
+            solvers = problem?.acceptedUserCount?.toFloat() ?: 0f
+            avgTries = problem?.averageTries?.toFloat() ?: 0f
+
             ProblemLinkButton.setOnClickListener {
                 val problemUrl = "https://www.acmicpc.net/problem/${problem?.problemId}"
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(problemUrl))
@@ -133,6 +142,11 @@ class PsBattleActivity : AppCompatActivity() {
                 }
             }
         }
+        psBattleViewModel.toastData.observe(this) { result ->
+            Toast.makeText(this, result, Toast.LENGTH_SHORT).show()
+        }
+
+
 
         // 홈 버튼
         findViewById<Button>(R.id.home_btn).setOnClickListener {
@@ -144,8 +158,11 @@ class PsBattleActivity : AppCompatActivity() {
 
         // 공격 버튼
         findViewById<Button>(R.id.attack_btn).setOnClickListener {
+            val damage = DamageCalculator(this).use { calculator ->
+                calculator.predictDamage(5f, solvers, avgTries)
+            }
             lifecycleScope.launch {
-                psBattleViewModel.attackOpponent(roomId)
+                psBattleViewModel.attackOpponent(roomId, damage.toInt() + 1)
             }
         }
     }
