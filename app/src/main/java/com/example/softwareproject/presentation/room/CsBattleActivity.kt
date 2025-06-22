@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.softwareproject.R
 import com.example.softwareproject.RadioSelectionAdapter
 import com.example.softwareproject.ResultActivity
+import com.example.softwareproject.ResultDefeatActivity
 import com.example.softwareproject.SelectableItem
 import com.example.softwareproject.presentation.room.viewmodel.CsBattleViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -26,12 +27,16 @@ class CsBattleActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var radioAdapter: RadioSelectionAdapter
     private val csBattleViewModels: CsBattleViewModel by viewModels()
+    private var isUiReset = false
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_battle_cs) // activity_battle_loading.xml 설정
 
-
+        if (!isUiReset) {
+            resetUi()
+            isUiReset = true
+        }
         recyclerView = findViewById(R.id.problem_view)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
@@ -71,9 +76,14 @@ class CsBattleActivity : AppCompatActivity() {
 
             csBattleViewModels.battleResult.observe(this) { result ->
                 result?.let {
-                    val intent = Intent(this, ResultActivity::class.java).apply {
-                        putExtra("result", result) // "WIN" 또는 "LOSE"
+                    val intent = when (result) {
+                        "WIN" -> Intent(this, ResultActivity::class.java)
+                        "LOSE" -> Intent(this, ResultDefeatActivity::class.java)
+                        else -> return@observe  // 예상 못한 값이면 무시
+                    }.apply {
+                        putExtra("result", result)
                     }
+
                     startActivity(intent)
                     finish()
                 }
@@ -139,5 +149,28 @@ class CsBattleActivity : AppCompatActivity() {
     }
     override fun onBackPressed() {
         super.onBackPressed() // 기본 동작 (finish() 호출)
+    }
+
+    private fun resetUi() {
+        findViewById<TextView>(R.id.problem_title).text = ""
+        findViewById<TextView>(R.id.problem_description).text = ""
+
+        val radioButtons = listOf(
+            findViewById<RadioButton>(R.id.radio_button_option1),
+            findViewById<RadioButton>(R.id.radio_button_option2),
+            findViewById<RadioButton>(R.id.radio_button_option3),
+            findViewById<RadioButton>(R.id.radio_button_option4)
+        )
+
+        radioButtons.forEach { btn ->
+            btn.text = ""
+            btn.isChecked = false
+//            btn.isEnabled = false
+        }
+
+        findViewById<TextView>(R.id.your_hp_text).text = "0 / 0"
+        findViewById<TextView>(R.id.opponent_hp_text).text = "0 / 0"
+        findViewById<ProgressBar>(R.id.xp_progress_bar).progress = 0
+        findViewById<ProgressBar>(R.id.opponent_xp_progress_bar).progress = 0
     }
 }

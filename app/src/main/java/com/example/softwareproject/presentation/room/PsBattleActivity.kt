@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.softwareproject.R
 import com.example.softwareproject.RadioSelectionAdapter
 import com.example.softwareproject.ResultActivity
+import com.example.softwareproject.ResultDefeatActivity
 import com.example.softwareproject.SelectableItem
 import com.example.softwareproject.com.example.softwareproject.presentation.room.viewmodel.PsBattleViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -32,12 +33,18 @@ class PsBattleActivity : AppCompatActivity() {
     private lateinit var radioAdapter: RadioSelectionAdapter
     private lateinit var ProblemLinkButton: Button
     private val psBattleViewModel: PsBattleViewModel by viewModels()
+    private var isUiReset = false
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_battle_ps) // activity_battle_loading.xml 설정
 
+
+        if (!isUiReset) {
+            resetUi()
+            isUiReset = true
+        }
         recyclerView = findViewById(R.id.problem_view) // RecyclerView ID
         recyclerView.layoutManager = LinearLayoutManager(this)
 
@@ -79,9 +86,14 @@ class PsBattleActivity : AppCompatActivity() {
 
             psBattleViewModel.battleResult.observe(this) { result ->
                 result?.let {
-                    val intent = Intent(this, ResultActivity::class.java).apply {
-                        putExtra("result", result) // "WIN" 또는 "LOSE"
+                    val intent = when (result) {
+                        "WIN" -> Intent(this, ResultActivity::class.java)
+                        "LOSE" -> Intent(this, ResultDefeatActivity::class.java)
+                        else -> return@let  // 다른 값은 무시
+                    }.apply {
+                        putExtra("result", result)
                     }
+
                     startActivity(intent)
                     finish()
                 }
@@ -138,4 +150,22 @@ class PsBattleActivity : AppCompatActivity() {
     override fun onBackPressed() {
         super.onBackPressed() // 기본 동작 (finish() 호출)
     }
+    private fun resetUi() {
+        // 문제 정보 초기화
+        findViewById<TextView>(R.id.problem_title).text = ""
+        findViewById<TextView>(R.id.problem_description).text = ""
+        findViewById<TextView>(R.id.problem_baekjoon_id).text = ""
+        findViewById<TextView>(R.id.user_count).text = ""
+        findViewById<TextView>(R.id.try_chance).text = ""
+
+        // 링크 버튼 초기 숨김
+        findViewById<Button>(R.id.problem_link).visibility = Button.INVISIBLE
+
+        // 체력 초기화
+        findViewById<TextView>(R.id.your_hp_text).text = "0 / 0"
+        findViewById<TextView>(R.id.opponent_hp_text).text = "0 / 0"
+        findViewById<ProgressBar>(R.id.xp_progress_bar).progress = 0
+        findViewById<ProgressBar>(R.id.opponent_xp_progress_bar).progress = 0
+    }
+
 }

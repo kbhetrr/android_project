@@ -42,7 +42,7 @@
 
         <!-- 여기에 추가 -->
         <activity android:name=".com.example.softwareproject.presentation.BattleWaitingActivity" android:exported="false" />
-
+        <activity android:name=".ResultDefeatActivity" />
         <activity android:name=".presentation.login.LoginActivity" />
         <activity android:name=".BattleLoadingActivity" android:exported="false" />
         <activity android:name=".MakeRoomActivity" android:exported="false" />

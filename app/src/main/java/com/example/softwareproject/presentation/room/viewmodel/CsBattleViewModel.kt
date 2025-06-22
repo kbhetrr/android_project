@@ -111,11 +111,18 @@ class CsBattleViewModel @Inject constructor(
     fun giveUp(roomId: String) {
         viewModelScope.launch {
             withContext(NonCancellable) {
-            problemUseCase.deleteCsProblem(roomId)
-//            roomUseCase.deleteCsRoom(roomId)
-            roomUseCase.deleteRoomParticipant(roomId)
-            roomUseCase.deleteParticipantProblemStatus(roomId)
-//            roomUseCase.deleteRoom(roomId)
+                val currentUser = battleUseCase.getCurrentRoomParticipant(roomId)
+                val opponentUser = battleUseCase.getOpponentRoomParticipant(roomId)
+
+                if (opponentUser != null) {
+                    if (currentUser != null) {
+                        battleUseCase.finishGame(
+                            roomId = roomId,
+                            winnerUserId = opponentUser.userId,
+                            losserUserId = currentUser.userId
+                        )
+                    }
+                }
             }
         }
     }
