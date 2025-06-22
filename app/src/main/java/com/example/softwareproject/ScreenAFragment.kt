@@ -134,6 +134,7 @@ class ScreenAFragment : Fragment() {
             val shield = userInfo.userAbility.shield
             val level = userInfo.userAbility.level
             val exp = userInfo.userAbility.exp
+            val totalExp = userInfo.userAbility.targetExp
             val wins = userInfo.userBattleLog.win
             val losses = userInfo.userBattleLog.lose
             val total = wins + losses

@@ -33,8 +33,6 @@ class BattleWaitingActivity : AppCompatActivity(){
         lifecycleScope.launch {
             try {
 
-                roomViewModel.battleStart(roomId)
-
                 battleViewModel.createProblem(roomId)
 
                 battleViewModel.createRoomParticipant(roomId)
@@ -47,6 +45,9 @@ class BattleWaitingActivity : AppCompatActivity(){
                     RoomType.CS -> Intent(this@BattleWaitingActivity, CsBattleActivity::class.java)
                     RoomType.PS -> Intent(this@BattleWaitingActivity, PsBattleActivity::class.java)
                 }
+
+                roomViewModel.battleStart(roomId)
+
                 intent.putExtra("roomId", roomId)
                 startActivity(intent)
                 finish()
