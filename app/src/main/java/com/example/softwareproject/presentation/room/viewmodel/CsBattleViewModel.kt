@@ -46,6 +46,13 @@ class CsBattleViewModel @Inject constructor(
     private val _yourMaxHp = MutableLiveData<Int>()
     val yourMaxHp: LiveData<Int> = _yourMaxHp
 
+    private val _solvedProblems = MutableLiveData<MutableSet<Int>>(mutableSetOf())
+    val solvedProblems: MutableLiveData<MutableSet<Int>> get() = _solvedProblems
+
+
+    private val _hideProblemUi = MutableLiveData<Boolean>()
+    val hideProblemUi: LiveData<Boolean> get() = _hideProblemUi
+
     val yourHpStatus = MediatorLiveData<Pair<Int, Int>>().apply {
         addSource(_yourHp) { hp ->
             val max = _yourMaxHp.value ?: 100
@@ -132,19 +139,27 @@ class CsBattleViewModel @Inject constructor(
             val selected = _selectedAnswerIndex.value
             val problem = _currentProblem.value
 
-            if(selected == null || problem == null) return@launch
+            if (selected == null || problem == null) return@launch
 
             val isCorrect = selected == problem.correctChoice.toInt()
 
             if (isCorrect) {
+                // 문제 정답 맞췄을 때만!
+                markProblemAsSolved(problem.problemIndex.toInt())
 
                 val opponent = battleUseCase.getOpponentRoomParticipant(roomId)
                 val me = battleUseCase.getCurrentRoomParticipant(roomId)
                 val newHp = (opponent?.hp ?: 0) - 1
                 battleUseCase.updateParticipantHp(opponent?.userId ?: return@launch, roomId, newHp.coerceAtLeast(0))
-
+                _hideProblemUi.value = true
                 if (newHp == 0) {
-                    me?.let { battleUseCase.finishGame(roomId, winnerUserId = it.userId,losserUserId = opponent.userId) }
+                    me?.let {
+                        battleUseCase.finishGame(
+                            roomId,
+                            winnerUserId = it.userId,
+                            losserUserId = opponent.userId
+                        )
+                    }
                     _battleResult.value = "WIN"
                 }
             } else {
@@ -158,10 +173,15 @@ class CsBattleViewModel @Inject constructor(
                         battleUseCase.finishGame(roomId, winnerUserId = opponent.userId, losserUserId = me.userId)
                         _battleResult.value = "LOSE"
                     }
-                    // ➕ 여기서 UI에 알림 보내는 LiveData도 emit 가능
                 }
             }
         }
+    }
+
+    private fun markProblemAsSolved(index: Int) {
+        val updated = _solvedProblems.value ?: mutableSetOf()
+        updated.add(index)
+        _solvedProblems.value = updated
     }
 
     fun selectAnswer(index: Int) {

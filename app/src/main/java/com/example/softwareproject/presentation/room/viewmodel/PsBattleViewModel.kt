@@ -43,6 +43,12 @@ class PsBattleViewModel @Inject constructor(
     private val _yourMaxHp = MutableLiveData<Int>()
     val yourMaxHp: LiveData<Int> = _yourMaxHp
 
+    private val _solvedProblems = MutableLiveData<MutableSet<Int>>(mutableSetOf())
+    val solvedProblems: MutableLiveData<MutableSet<Int>> get() = _solvedProblems
+
+    private val _hideProblemUi = MutableLiveData<Boolean>()
+    val hideProblemUi: LiveData<Boolean> get() = _hideProblemUi
+
     val yourHpStatus = MediatorLiveData<Pair<Int, Int>>().apply {
         addSource(_yourHp) { hp ->
             val max = _yourMaxHp.value ?: 100
@@ -143,8 +149,13 @@ class PsBattleViewModel @Inject constructor(
             }
             val hasSolved = latestSolvedProblemIds?.contains(problemId) == true
             if (hasSolved) {
+
+                markProblemAsSolved(problem.problemIndex.toInt())
+
                 val newOpponentHp = (opponentUser.hp - 1).coerceAtLeast(0)
                 battleUseCase.updateParticipantHp(opponentUser.userId, roomId, newOpponentHp)
+
+                _hideProblemUi.value = true
                 if(newOpponentHp == 0)
                 {
                     battleUseCase.finishGame(roomId, winnerUserId = currentUser.userId, losserUserId = opponentUser.userId)
@@ -159,6 +170,11 @@ class PsBattleViewModel @Inject constructor(
                 }
             }
         }
+    }
+    fun markProblemAsSolved(index: Int) {
+        val updated = _solvedProblems.value ?: mutableSetOf()
+        updated.add(index)
+        _solvedProblems.value = updated
     }
 
     fun observeParticipantHp(roomId: String) {
