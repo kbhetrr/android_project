@@ -12,6 +12,7 @@ import com.example.softwareproject.data.dto.problem.CsProblemDto
 import com.example.softwareproject.data.dto.room.RoomParticipantDto
 import com.example.softwareproject.domain.usecase.room.ProblemUseCase
 import com.example.softwareproject.domain.usecase.room.RoomUseCase
+import com.example.softwareproject.util.RoomState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
@@ -44,6 +45,13 @@ class CsBattleViewModel @Inject constructor(
 
     private val _yourMaxHp = MutableLiveData<Int>()
     val yourMaxHp: LiveData<Int> = _yourMaxHp
+
+    private val _solvedProblems = MutableLiveData<MutableSet<Int>>(mutableSetOf())
+    val solvedProblems: MutableLiveData<MutableSet<Int>> get() = _solvedProblems
+
+
+    private val _hideProblemUi = MutableLiveData<Boolean>()
+    val hideProblemUi: LiveData<Boolean> get() = _hideProblemUi
 
     val yourHpStatus = MediatorLiveData<Pair<Int, Int>>().apply {
         addSource(_yourHp) { hp ->
@@ -110,11 +118,18 @@ class CsBattleViewModel @Inject constructor(
     fun giveUp(roomId: String) {
         viewModelScope.launch {
             withContext(NonCancellable) {
-            problemUseCase.deleteCsProblem(roomId)
-//            roomUseCase.deleteCsRoom(roomId)
-            roomUseCase.deleteRoomParticipant(roomId)
-            roomUseCase.deleteParticipantProblemStatus(roomId)
-//            roomUseCase.deleteRoom(roomId)
+                val currentUser = battleUseCase.getCurrentRoomParticipant(roomId)
+                val opponentUser = battleUseCase.getOpponentRoomParticipant(roomId)
+
+                if (opponentUser != null) {
+                    if (currentUser != null) {
+                        battleUseCase.finishGame(
+                            roomId = roomId,
+                            winnerUserId = opponentUser.userId,
+                            losserUserId = currentUser.userId
+                        )
+                    }
+                }
             }
         }
     }
@@ -124,21 +139,59 @@ class CsBattleViewModel @Inject constructor(
             val selected = _selectedAnswerIndex.value
             val problem = _currentProblem.value
 
-            if(selected == null || problem == null) return@launch
+            if (selected == null || problem == null) return@launch
 
             val isCorrect = selected == problem.correctChoice.toInt()
 
+
+
             if (isCorrect) {
+                // 문제 정답 맞췄을 때만!
+                markProblemAsSolved(problem.problemIndex.toInt())
 
                 val opponent = battleUseCase.getOpponentRoomParticipant(roomId)
                 val me = battleUseCase.getCurrentRoomParticipant(roomId)
                 val newHp = (opponent?.hp ?: 0) - 1
-                battleUseCase.updateParticipantHp(opponent?.userId ?: return@launch, roomId, newHp.coerceAtLeast(0))
+
+                if (me != null) {
+                    roomUseCase.updateParticipantProblemStatus(
+                        roomId = roomId,
+                        problemIndex = problem.problemIndex.toString(),
+                        userId = me.userId
+                    )
+                }
+                battleUseCase.updateParticipantHp(
+                    opponent?.userId ?: return@launch,
+                    roomId,
+                    newHp.coerceAtLeast(0)
+                )
+                _hideProblemUi.value = true
 
                 if (newHp == 0) {
-                    me?.let { battleUseCase.finishGame(roomId, winnerUserId = it.userId,losserUserId = opponent.userId) }
+                    me?.let {
+                        battleUseCase.finishGame(
+                            roomId,
+                            winnerUserId = it.userId,
+                            losserUserId = opponent.userId
+                        )
+                    }
                     _battleResult.value = "WIN"
                 }
+                val allSolved =
+                    me?.let { roomUseCase.isAllSolved(roomId = roomId, userId = it.userId) }
+                if (allSolved == true) {
+                    markProblemAsSolved(problem.problemIndex.toInt())
+
+                    me.let {
+                        battleUseCase.finishGame(
+                            roomId,
+                            winnerUserId = it.userId,
+                            losserUserId = it.userId
+                        )
+                    }
+                    _battleResult.value = "WIN"
+                }
+
             } else {
                 val me = battleUseCase.getCurrentRoomParticipant(roomId)
                 val opponent = battleUseCase.getOpponentRoomParticipant(roomId)
@@ -150,10 +203,15 @@ class CsBattleViewModel @Inject constructor(
                         battleUseCase.finishGame(roomId, winnerUserId = opponent.userId, losserUserId = me.userId)
                         _battleResult.value = "LOSE"
                     }
-                    // ➕ 여기서 UI에 알림 보내는 LiveData도 emit 가능
                 }
             }
         }
+    }
+
+    private fun markProblemAsSolved(index: Int) {
+        val updated = _solvedProblems.value ?: mutableSetOf()
+        updated.add(index)
+        _solvedProblems.value = updated
     }
 
     fun selectAnswer(index: Int) {
@@ -177,4 +235,25 @@ class CsBattleViewModel @Inject constructor(
         }
     }
 
+    fun observeRoomState(roomId: String) {
+        viewModelScope.launch {
+            roomUseCase.observeRoomState(roomId)
+                .collect { state ->
+                    if (state == RoomState.FINISHED) {
+                        checkResult(roomId)
+                    }
+                }
+        }
+    }
+    private suspend fun checkResult(roomId: String) {
+        val uid = userUseCase.getCurrentUserAbility()?.userId ?: return
+        val participant = battleUseCase.getCurrentRoomParticipant(roomId)
+        val opponent = battleUseCase.getOpponentRoomParticipant(roomId)
+
+        when {
+            participant?.hp == 0 -> _battleResult.value = "LOSE"
+            opponent?.hp == 0 -> _battleResult.value = "WIN"
+            else -> _battleResult.value = "DRAW" // 혹시 모를 무승부 대비
+        }
+    }
 }

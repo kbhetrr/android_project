@@ -154,7 +154,7 @@ class ScreenAFragment : Fragment() {
             view.findViewById<TextView>(R.id.total).text = total.toString()
             view.findViewById<TextView>(R.id.win).text = wins.toString()
             view.findViewById<TextView>(R.id.lose).text = losses.toString()
-            view.findViewById<TextView>(R.id.rate).text = rate.toString()
+            view.findViewById<TextView>(R.id.rate).text = "$rate%"
         }
         //임준식 추가 부분
 

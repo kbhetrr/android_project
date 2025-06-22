@@ -12,6 +12,7 @@ import com.example.softwareproject.data.dto.problem.CsProblemDto
 import com.example.softwareproject.data.dto.problem.PsProblemDto
 import com.example.softwareproject.domain.usecase.room.ProblemUseCase
 import com.example.softwareproject.domain.usecase.room.RoomUseCase
+import com.example.softwareproject.util.RoomState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
@@ -41,6 +42,12 @@ class PsBattleViewModel @Inject constructor(
 
     private val _yourMaxHp = MutableLiveData<Int>()
     val yourMaxHp: LiveData<Int> = _yourMaxHp
+
+    private val _solvedProblems = MutableLiveData<MutableSet<Int>>(mutableSetOf())
+    val solvedProblems: MutableLiveData<MutableSet<Int>> get() = _solvedProblems
+
+    private val _hideProblemUi = MutableLiveData<Boolean>()
+    val hideProblemUi: LiveData<Boolean> get() = _hideProblemUi
 
     val yourHpStatus = MediatorLiveData<Pair<Int, Int>>().apply {
         addSource(_yourHp) { hp ->
@@ -106,11 +113,18 @@ class PsBattleViewModel @Inject constructor(
     fun giveUp(roomId: String) {
         viewModelScope.launch {
             withContext(NonCancellable) {
-                problemUseCase.deletePsProblem(roomId)
-                //roomUseCase.deletePsRoom(roomId)
-                roomUseCase.deleteRoomParticipant(roomId)
-                roomUseCase.deleteParticipantProblemStatus(roomId)
-//            roomUseCase.deleteRoom(roomId)
+                val currentUser = battleUseCase.getCurrentRoomParticipant(roomId)
+                val opponentUser = battleUseCase.getOpponentRoomParticipant(roomId)
+
+                if (opponentUser != null) {
+                    if (currentUser != null) {
+                        battleUseCase.finishGame(
+                            roomId = roomId,
+                            winnerUserId = opponentUser.userId,
+                            losserUserId = currentUser.userId
+                        )
+                    }
+                }
             }
         }
     }
@@ -135,12 +149,30 @@ class PsBattleViewModel @Inject constructor(
             }
             val hasSolved = latestSolvedProblemIds?.contains(problemId) == true
             if (hasSolved) {
+
+                markProblemAsSolved(problem.problemIndex.toInt())
+
                 val newOpponentHp = (opponentUser.hp - 1).coerceAtLeast(0)
                 battleUseCase.updateParticipantHp(opponentUser.userId, roomId, newOpponentHp)
+
+                _hideProblemUi.value = true
                 if(newOpponentHp == 0)
                 {
                     battleUseCase.finishGame(roomId, winnerUserId = currentUser.userId, losserUserId = opponentUser.userId)
                     _battleResult.value = "WIN"
+                }
+                val allSolved =
+                    currentUser.let { roomUseCase.isAllSolved(roomId = roomId, userId = it.userId) }
+                if (allSolved) {
+                    markProblemAsSolved(problem.problemIndex.toInt())
+
+                    currentUser.let {
+                        battleUseCase.finishGame(
+                            roomId,
+                            winnerUserId = it.userId,
+                            losserUserId = it.userId
+                        )
+                    }
                 }
             } else {
                 val newYourHp = (currentUser.hp - 1).coerceAtLeast(0)
@@ -151,6 +183,11 @@ class PsBattleViewModel @Inject constructor(
                 }
             }
         }
+    }
+    fun markProblemAsSolved(index: Int) {
+        val updated = _solvedProblems.value ?: mutableSetOf()
+        updated.add(index)
+        _solvedProblems.value = updated
     }
 
     fun observeParticipantHp(roomId: String) {
@@ -163,6 +200,27 @@ class PsBattleViewModel @Inject constructor(
                 _yourHp.value = currentParticipant?.hp
                 _opponentHp.value = opponentParticipant?.hp
             }
+        }
+    }
+    fun observeRoomState(roomId: String) {
+        viewModelScope.launch {
+            roomUseCase.observeRoomState(roomId)
+                .collect { state ->
+                    if (state == RoomState.FINISHED) {
+                        checkResult(roomId)
+                    }
+                }
+        }
+    }
+    private suspend fun checkResult(roomId: String) {
+        val uid = userUseCase.getCurrentUserAbility()?.userId ?: return
+        val participant = battleUseCase.getCurrentRoomParticipant(roomId)
+        val opponent = battleUseCase.getOpponentRoomParticipant(roomId)
+
+        when {
+            participant?.hp == 0 -> _battleResult.value = "LOSE"
+            opponent?.hp == 0 -> _battleResult.value = "WIN"
+            else -> _battleResult.value = "DRAW" // 혹시 모를 무승부 대비
         }
     }
 }

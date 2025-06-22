@@ -144,20 +144,8 @@
             />
     </androidx.core.widget.NestedScrollView>
 
-    <TextView
-        android:id="@+id/problem_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="문제 X"
-        android:textColor="#000000"
-        android:textStyle="bold"
-        android:textSize="24dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="16dp"
-        android:paddingBottom="8dp"/>
-
-
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/problem_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -169,20 +157,30 @@
             android:padding="16dp"
             android:orientation="vertical">
 
+            <!-- ✅ 문제 제목도 container 안으로 이동 -->
+            <TextView
+                android:id="@+id/problem_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="문제 X"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:textSize="24dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="16dp"
+                android:paddingBottom="8dp" />
+
             <TextView
                 android:id="@+id/problem_description"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Given an array of integers, find the maximum sum of a contiguous subarray. For example, in the array [-2, -3, 4, -1, -2, 1, 5, -3], the contiguous subarray with the largest sum is [4, -1, -2, 1, 5] with a sum of 7." />
-
-
-
+                android:text="Given an array of integers, find the maximum sum of a contiguous subarray." />
 
             <RadioGroup
                 android:id="@+id/radio_group_options"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"> <!-- 또는 horizontal -->
+                android:orientation="vertical">
 
                 <RadioButton
                     android:id="@+id/radio_button_option1"
@@ -196,13 +194,11 @@
                     android:layout_height="wrap_content"
                     android:text="옵션 2" />
 
-
                 <RadioButton
                     android:id="@+id/radio_button_option3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="옵션 3" />
-
 
                 <RadioButton
                     android:id="@+id/radio_button_option4"
@@ -211,7 +207,6 @@
                     android:text="옵션 4" />
             </RadioGroup>
         </LinearLayout>
-
     </androidx.core.widget.NestedScrollView>
 
 

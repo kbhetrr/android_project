@@ -144,31 +144,8 @@
             />
     </androidx.core.widget.NestedScrollView>
 
-    <TextView
-        android:id="@+id/problem_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="문제를 선택해주세요."
-        android:textColor="#000000"
-        android:textStyle="bold"
-        android:textSize="24dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="16dp"
-        android:paddingBottom="8dp"/>
-
-    <TextView
-        android:id="@+id/problem_description"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="문제 설명이 여기에 들어갑니다."
-        android:textColor="#000000"
-        android:textSize="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginBottom="8dp"
-        android:visibility="gone"/>
-
-
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/problem_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -176,13 +153,34 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:paddingTop="4dp"
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
             android:orientation="vertical">
 
+            <!-- ✅ 제목과 설명 포함 -->
+            <TextView
+                android:id="@+id/problem_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="문제를 선택해주세요."
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:textSize="24dp"
+                android:layout_marginTop="16dp"
+                android:paddingBottom="8dp"/>
 
+            <TextView
+                android:id="@+id/problem_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="문제 설명이 여기에 들어갑니다."
+                android:textColor="#000000"
+                android:textSize="16dp"
+                android:layout_marginBottom="8dp"/>
+
+            <!-- ✅ 실제 문제 정보 -->
             <TextView
                 android:id="@+id/problem_baekjoon_id"
                 android:layout_width="wrap_content"
@@ -207,8 +205,7 @@
                 android:layout_height="wrap_content"
                 android:text=""
                 android:textColor="#4F7896"
-                android:textSize="16dp"
-                android:layout_marginTop="0dp" />
+                android:textSize="16dp" />
 
             <Button
                 android:id="@+id/problem_link"
@@ -221,7 +218,6 @@
                 android:visibility="invisible"/>
 
         </LinearLayout>
-
     </androidx.core.widget.NestedScrollView>
 
 
