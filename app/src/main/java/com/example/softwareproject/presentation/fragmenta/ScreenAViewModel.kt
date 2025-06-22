@@ -31,7 +31,6 @@ class ScreenAViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val firestore = FirebaseFirestore.getInstance()
-
                 val githubInfoSnap = firestore.collection("github_info")
                     .whereEqualTo("firebaseUid", userId)
                     .limit(1)

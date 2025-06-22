@@ -12,7 +12,7 @@ interface UserRepository {
     suspend fun getUserFullInfo(userId: String) : UserFullInfo
     suspend fun createUserInfo(userSaveInfo: UserSaveInfo)
     suspend fun isUserExists(userId: String): Boolean
-    suspend fun getUserInfoByGithubId(githubId: String): UserFullInfo
+    suspend fun getUserInfoByGithubId(userId: String): UserFullInfo
 
     suspend fun createUser(user:UserDto)
     suspend fun createUserAbility(userAbility: UserAbilityDto)
