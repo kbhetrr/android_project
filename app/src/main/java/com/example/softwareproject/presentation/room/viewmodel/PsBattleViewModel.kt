@@ -43,6 +43,9 @@ class PsBattleViewModel @Inject constructor(
     private val _yourMaxHp = MutableLiveData<Int>()
     val yourMaxHp: LiveData<Int> = _yourMaxHp
 
+    private val _ToastData = MutableLiveData<String>()
+    val toastData: LiveData<String> get() = _ToastData
+
     private val _solvedProblems = MutableLiveData<MutableSet<Int>>(mutableSetOf())
     val solvedProblems: MutableLiveData<MutableSet<Int>> get() = _solvedProblems
 
@@ -128,7 +131,7 @@ class PsBattleViewModel @Inject constructor(
             }
         }
     }
-    fun attackOpponent(roomId: String) {
+    fun attackOpponent(roomId: String, damage: Int) {
         viewModelScope.launch {
             val problem = _currentProblem.value ?: return@launch
             val problemId = problem.problemId.toString()
@@ -152,14 +155,14 @@ class PsBattleViewModel @Inject constructor(
 
                 markProblemAsSolved(problem.problemIndex.toInt())
 
-                val newOpponentHp = (opponentUser.hp - 1).coerceAtLeast(0)
+                val newOpponentHp = (opponentUser.hp - damage).coerceAtLeast(0)
                 battleUseCase.updateParticipantHp(opponentUser.userId, roomId, newOpponentHp)
-
+                _ToastData.value = "공격 성공! 데미지: ${damage}"
                 _hideProblemUi.value = true
-                if(newOpponentHp == 0)
+                if(newOpponentHp <= 0)
                 {
-                    battleUseCase.finishGame(roomId, winnerUserId = currentUser.userId, losserUserId = opponentUser.userId)
                     _battleResult.value = "WIN"
+                    battleUseCase.finishGame(roomId, winnerUserId = currentUser.userId, losserUserId = opponentUser.userId)
                 }
                 val allSolved =
                     currentUser.let { roomUseCase.isAllSolved(roomId = roomId, userId = it.userId) }
@@ -175,11 +178,12 @@ class PsBattleViewModel @Inject constructor(
                     }
                 }
             } else {
-                val newYourHp = (currentUser.hp - 1).coerceAtLeast(0)
+                val newYourHp = (currentUser.hp - damage).coerceAtLeast(0)
                 battleUseCase.updateParticipantHp(currentUser.userId, roomId, newYourHp)
-                if(newYourHp == 0){
-                    battleUseCase.finishGame(roomId, winnerUserId = opponentUser.userId, losserUserId = currentUser.userId)
+                _ToastData.value = "공격 실패... 데미지: ${damage}"
+                if(newYourHp <= 0){
                     _battleResult.value = "LOSE"
+                    battleUseCase.finishGame(roomId, winnerUserId = opponentUser.userId, losserUserId = currentUser.userId)
                 }
             }
         }
@@ -217,10 +221,14 @@ class PsBattleViewModel @Inject constructor(
         val participant = battleUseCase.getCurrentRoomParticipant(roomId)
         val opponent = battleUseCase.getOpponentRoomParticipant(roomId)
 
-        when {
-            participant?.hp == 0 -> _battleResult.value = "LOSE"
-            opponent?.hp == 0 -> _battleResult.value = "WIN"
-            else -> _battleResult.value = "DRAW" // 혹시 모를 무승부 대비
+        if (opponent != null) {
+            if (participant != null) {
+                when {
+                    participant.hp <= 0 -> _battleResult.value = "LOSE"
+                    opponent.hp <= 0 -> _battleResult.value = "WIN"
+                    else -> _battleResult.value = "DRAW" // 혹시 모를 무승부 대비
+                }
+            }
         }
     }
 }
