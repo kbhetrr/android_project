@@ -11,6 +11,7 @@ import com.example.softwareproject.data.remote.room.PsWaitingRoomInfo
 import com.example.softwareproject.util.RoomState
 import com.example.softwareproject.util.RoomType
 import com.google.firebase.firestore.ListenerRegistration
+import kotlinx.coroutines.flow.Flow
 
 
 interface RoomRepository {
@@ -43,5 +44,5 @@ interface RoomRepository {
 
     suspend fun roomStateChange(roomId: String, roomState: RoomState)
     fun observeRoomList(roomType: RoomType, onChanged: (List<RoomDto>) -> Unit): ListenerRegistration
-
+    fun observeRoomState(roomId: String): Flow<RoomState>
 }

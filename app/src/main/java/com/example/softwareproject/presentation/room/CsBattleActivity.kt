@@ -62,6 +62,7 @@ class CsBattleActivity : AppCompatActivity() {
         }
 
         csBattleViewModels.loadProblemCount(roomId)
+        csBattleViewModels.observeRoomState(roomId)
 
         csBattleViewModels.problemCount.observe(this) { count ->
             val itemList = List(count) { index ->

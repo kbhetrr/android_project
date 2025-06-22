@@ -12,6 +12,7 @@ import com.example.softwareproject.data.dto.problem.CsProblemDto
 import com.example.softwareproject.data.dto.room.RoomParticipantDto
 import com.example.softwareproject.domain.usecase.room.ProblemUseCase
 import com.example.softwareproject.domain.usecase.room.RoomUseCase
+import com.example.softwareproject.util.RoomState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
@@ -177,4 +178,25 @@ class CsBattleViewModel @Inject constructor(
         }
     }
 
+    fun observeRoomState(roomId: String) {
+        viewModelScope.launch {
+            roomUseCase.observeRoomState(roomId)
+                .collect { state ->
+                    if (state == RoomState.FINISHED) {
+                        checkResult(roomId)
+                    }
+                }
+        }
+    }
+    private suspend fun checkResult(roomId: String) {
+        val uid = userUseCase.getCurrentUserAbility()?.userId ?: return
+        val participant = battleUseCase.getCurrentRoomParticipant(roomId)
+        val opponent = battleUseCase.getOpponentRoomParticipant(roomId)
+
+        when {
+            participant?.hp == 0 -> _battleResult.value = "LOSE"
+            opponent?.hp == 0 -> _battleResult.value = "WIN"
+            else -> _battleResult.value = "DRAW" // 혹시 모를 무승부 대비
+        }
+    }
 }

@@ -18,6 +18,7 @@ import com.example.softwareproject.domain.repository.RoomRepository
 import com.example.softwareproject.domain.repository.UserRepository
 import com.example.softwareproject.domain.usecase.room.ProblemUseCase
 import com.example.softwareproject.domain.usecase.room.RoomUseCase
+import com.example.softwareproject.util.RoomState
 import com.example.softwareproject.util.RoomType
 import com.example.softwareproject.util.UserRole
 import com.google.firebase.Timestamp
@@ -324,6 +325,8 @@ class BattleUseCase@Inject constructor(
 
             // 3. 게임 종료 정리
             val room = roomRepository.getRoomInfo(roomId)
+            roomRepository.roomStateChange(roomId, RoomState.FINISHED)
+
             roomUseCase.deleteRoomParticipant(roomId)
             roomUseCase.deleteParticipantProblemStatus(roomId)
             if (room != null) {
@@ -415,6 +418,8 @@ class BattleUseCase@Inject constructor(
     fun observeRoomParticipants(roomId: String): Flow<List<RoomParticipantDto>> {
         return battleRepository.observeRoomParticipants(roomId)
     }
+
+
 
 
 }

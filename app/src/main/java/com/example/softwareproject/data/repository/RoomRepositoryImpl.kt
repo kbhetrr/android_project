@@ -14,6 +14,9 @@ import com.example.softwareproject.util.RoomState
 import com.example.softwareproject.util.RoomType
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -356,6 +359,21 @@ class RoomRepositoryImpl @Inject constructor(
                 val rooms = snapshot.documents.mapNotNull { it.toObject(RoomDto::class.java) }
                 onChanged(rooms)
             }
+    }
+
+    override fun observeRoomState(roomId: String): Flow<RoomState> = callbackFlow {
+        val listener = firebaseStore.collection("room")
+            .document(roomId)
+            .addSnapshotListener { snapshot, _ ->
+                val stateStr = snapshot?.getString("roomState")
+                val state = try {
+                    RoomState.valueOf(stateStr ?: "READY")
+                } catch (e: Exception) {
+                    RoomState.WAITING
+                }
+                trySend(state)
+            }
+        awaitClose { listener.remove() }
     }
 
 

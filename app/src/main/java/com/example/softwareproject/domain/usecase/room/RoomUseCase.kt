@@ -21,6 +21,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -284,5 +285,9 @@ class RoomUseCase @Inject constructor(
     }
     suspend fun deleteRoomParticipant(roomId: String){
         roomRepository.deleteRoomParticipant(roomId)
+    }
+
+    suspend fun observeRoomState(roomId: String): Flow<RoomState> {
+        return roomRepository.observeRoomState(roomId)
     }
 }

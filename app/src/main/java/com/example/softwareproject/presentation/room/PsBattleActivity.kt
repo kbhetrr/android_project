@@ -70,6 +70,7 @@ class PsBattleActivity : AppCompatActivity() {
         }
 
         psBattleViewModel.loadProblemCount(roomId)
+        psBattleViewModel.observeRoomState(roomId)
 
         psBattleViewModel.problemCount.observe(this) { count ->
             val itemList = List(count) { index ->
