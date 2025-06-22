@@ -8,4 +8,5 @@ data class UserAbility(
     var hp: Int = 100,
     var attack: Int = 10,
     var shield: Int = 5,
+    var targetExp: Int = 100,
 )

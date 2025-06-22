@@ -189,20 +189,24 @@ class UserRepositoryImpl @Inject constructor(
 
 
 
-    override suspend fun getUserFullInfo(userId: String) : UserFullInfo{
-        val userDoc = fireBaseStore.collection("user").document(userId).get().await()
-        val githubDoc = fireBaseStore.collection("github_info").document(userId).get().await()
-        val abilityDoc = fireBaseStore.collection("user_ability").document(userId).get().await()
-        val battleDoc = fireBaseStore.collection("user_battle_log").document(userId).get().await()
+    override suspend fun getUserFullInfo(userId: String) : UserFullInfo {
+        val userQuery = fireBaseStore.collection("user")
+            .whereEqualTo("userId", userId).get().await()
+        val githubQuery = fireBaseStore.collection("github_info")
+            .whereEqualTo("userId", userId).get().await()
+        val abilityQuery = fireBaseStore.collection("user_ability")
+            .whereEqualTo("userId", userId).get().await()
+        val battleQuery = fireBaseStore.collection("user_battle_log")
+            .whereEqualTo("userId", userId).get().await()
 
-        if (!userDoc.exists() || !githubDoc.exists() || !abilityDoc.exists() || !battleDoc.exists()) {
+        if (userQuery.isEmpty || githubQuery.isEmpty || abilityQuery.isEmpty || battleQuery.isEmpty) {
             throw Exception("유저 정보 중 일부가 존재하지 않습니다.")
         }
 
-        val user = userDoc.toObject(User::class.java)!!
-        val github = githubDoc.toObject(GithubInfo::class.java)!!
-        val ability = abilityDoc.toObject(UserAbility::class.java)!!
-        val battle = battleDoc.toObject(UserBattleLog::class.java)!!
+        val user = userQuery.documents.first().toObject(User::class.java)!!
+        val github = githubQuery.documents.first().toObject(GithubInfo::class.java)!!
+        val ability = abilityQuery.documents.first().toObject(UserAbility::class.java)!!
+        val battle = battleQuery.documents.first().toObject(UserBattleLog::class.java)!!
 
         return UserFullInfo(user, github, ability, battle)
     }
@@ -255,11 +259,12 @@ class UserRepositoryImpl @Inject constructor(
         return doc.exists()
     }
 
-    override suspend fun getUserInfoByGithubId(githubId: String): UserFullInfo {
+    override suspend fun getUserInfoByGithubId(userId: String): UserFullInfo {
         return withContext(Dispatchers.IO) {
 
+            // github_info: userId 기준으로 검색
             val githubQuery = fireBaseStore.collection("github_info")
-                .whereEqualTo("userId", githubId)
+                .whereEqualTo("userId", userId)
                 .limit(1)
                 .get()
                 .await()
@@ -270,37 +275,44 @@ class UserRepositoryImpl @Inject constructor(
             val githubInfo = githubDoc.toObject(GithubInfo::class.java)
                 ?: throw Exception("GitHubInfo 변환 실패")
 
-            val userId = githubInfo.userId
-
-
-            val userSnap = fireBaseStore.collection("user")
-                .document(userId)
+            // user: userId 필드 기준 검색
+            val userQuery = fireBaseStore.collection("user")
+                .whereEqualTo("userId", userId)
+                .limit(1)
                 .get()
                 .await()
 
-            val user = userSnap.toObject(User::class.java)
+            val user = userQuery.documents.firstOrNull()
+                ?.toObject(User::class.java)
                 ?: throw Exception("User 정보 없음")
 
-
-            val abilitySnap = fireBaseStore.collection("user_ability")
-                .document(userId)
+            // user_ability: userId 필드 기준 검색
+            val abilityQuery = fireBaseStore.collection("user_ability")
+                .whereEqualTo("userId", userId)
+                .limit(1)
                 .get()
                 .await()
 
-            val ability = abilitySnap.toObject(UserAbility::class.java)
-                ?: UserAbility(userId) // 기본값 설정
+            val ability = abilityQuery.documents.firstOrNull()
+                ?.toObject(UserAbility::class.java)
+                ?: UserAbility(userId) // 기본값으로 fallback
 
-
-            val battleSnap = fireBaseStore.collection("user_battle_log")
-                .document(userId)
+            // user_battle_log: userId 필드 기준 검색
+            val battleQuery = fireBaseStore.collection("user_battle_Log")
+                .whereEqualTo("userId", userId)
+                .limit(1)
                 .get()
                 .await()
 
-            val battleLog = battleSnap.toObject(UserBattleLog::class.java)
+
+            val battleLog = battleQuery.documents.firstOrNull()
+                ?.toObject(UserBattleLog::class.java)
                 ?: UserBattleLog(userId)
+            Log.d("DEBUG", "battleQuery documents size = $userId")
+            Log.d("DEBUG", "battleQuery documents size = ${battleQuery.documents.size}")
+            Log.d("DEBUG", "battleQuery docs = ${battleQuery.documents.joinToString { it.id }}")
 
-
-            UserFullInfo(
+            return@withContext UserFullInfo(
                 user = user,
                 githubInfo = githubInfo,
                 userAbility = ability,
@@ -308,6 +320,7 @@ class UserRepositoryImpl @Inject constructor(
             )
         }
     }
+
 
     override suspend fun getUserBaekjoonInfoByUserId(userId: String): BaekjoonInfoDto? {
         return try {
