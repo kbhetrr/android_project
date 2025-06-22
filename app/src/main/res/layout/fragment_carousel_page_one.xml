@@ -74,11 +74,69 @@
 
             <ImageView
                 android:id="@+id/github_svg"
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="matrix"
-                android:layout_marginTop="12dp"
-                android:src="@drawable/iconmonstr_github_1" />
+                android:layout_marginTop="12dp" />
+
+            <LinearLayout
+                android:id="@+id/github_loading_text"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:visibility="visible">
+
+
+                <ProgressBar
+                    android:id="@+id/progress_bar_loading"
+                    style="?android:attr/progressBarStyleLarge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:indeterminate="true"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" />
+
+                <TextView
+                    android:layout_marginTop="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:textColor="#000000"
+                    android:text="로딩 중..." />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/github_error_text"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:visibility="gone">
+
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:src="@drawable/error_svgrepo_com"
+                    />
+
+                <TextView
+                    android:layout_marginTop="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:textColor="#000000"
+                    android:text="에러 발생. 아이디를 확인해주세요." />
+
+            </LinearLayout>
+
         </LinearLayout>
 
     </FrameLayout>

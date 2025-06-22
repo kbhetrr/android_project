@@ -14,7 +14,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="1v1 Battle"
+            android:text="1v1 배틀 - PS"
             android:textColor="#000000"
             android:textStyle="bold"
             android:textSize="24dp"
@@ -35,7 +35,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Your HP"
+                    android:text="나의 HP"
                     android:textColor="#000000"
                     android:textSize="16dp"
                     android:textStyle="bold"
@@ -83,7 +83,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Opponent HP"
+                    android:text="상대 HP"
                     android:textColor="#000000"
                     android:textSize="16dp"
                     android:textStyle="bold"
@@ -126,7 +126,8 @@
         android:layout_marginLeft="16dp"
         android:textSize="20dp"
         android:textStyle="bold"
-        android:textColor="#000000"/>
+        android:textColor="#000000"
+        android:layout_marginBottom="16dp"/>
 
 
     <androidx.core.widget.NestedScrollView
@@ -137,18 +138,22 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/problem_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            />
     </androidx.core.widget.NestedScrollView>
 
     <TextView
         android:id="@+id/problem_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="문제 X: DP"
+        android:text="문제를 선택해주세요."
         android:textColor="#000000"
         android:textStyle="bold"
         android:textSize="24dp"
         android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
         android:paddingBottom="8dp"/>
 
     <TextView
@@ -159,7 +164,8 @@
         android:textColor="#000000"
         android:textSize="16dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginBottom="8dp"/>
+        android:layout_marginBottom="8dp"
+        android:visibility="gone"/>
 
 
     <androidx.core.widget.NestedScrollView
@@ -171,7 +177,9 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="16dp"
+            android:paddingTop="4dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
             android:orientation="vertical">
 
 
@@ -179,27 +187,38 @@
                 android:id="@+id/problem_baekjoon_id"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="백준 1111번 (Test)" />
+                android:text=""
+                android:textColor="#4F7896"
+                android:textStyle="bold"
+                android:textSize="18dp"/>
 
             <TextView
                 android:id="@+id/try_chance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="티어: 실버 5" />
+                android:text=""
+                android:textColor="#4F7896"
+                android:textSize="16dp"
+                android:layout_marginTop="8dp"/>
 
             <TextView
                 android:id="@+id/user_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="키워드: DP, 구현" />
+                android:text=""
+                android:textColor="#4F7896"
+                android:textSize="16dp"
+                android:layout_marginTop="0dp" />
 
             <Button
                 android:id="@+id/problem_link"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="문제 보기"
+                android:textStyle="bold"
                 android:background="@drawable/battle_join_button"
-                android:layout_marginTop="16dp"/>
+                android:layout_marginTop="24dp"
+                android:visibility="invisible"/>
 
         </LinearLayout>
 
@@ -218,6 +237,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="나가기"
+            android:textStyle="bold"
             android:background="@drawable/battle_join_button"
             android:layout_margin="8dp"/>
 
@@ -227,6 +247,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="공격"
+            android:textStyle="bold"
             android:background="@drawable/share_button"
             android:layout_margin="8dp"/>
 

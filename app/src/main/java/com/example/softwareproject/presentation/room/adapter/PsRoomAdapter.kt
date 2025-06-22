@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.softwareproject.R
@@ -22,6 +23,8 @@ class PsRoomAdapter(
         val difficulty: TextView = itemView.findViewById(R.id.room_difficulty)
         val githubName: TextView = itemView.findViewById(R.id.host_name)
         val description: TextView = itemView.findViewById(R.id.item_description)
+
+        val icon: ImageView = itemView.findViewById(R.id.battle_icon)
 
         val button: Button = itemView.findViewById(R.id.battle_join)
     }
@@ -42,6 +45,7 @@ class PsRoomAdapter(
         holder.githubName.text = room.githubName ?: "익명 호스트"
         holder.description.text = room.description ?: "설명 없음"
 
+        holder.icon.setImageResource(R.drawable.boj)
         holder.button.setOnClickListener {
             onEnterClick(room)
         }

@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.compose.ui.graphics.Matrix
 import androidx.fragment.app.Fragment
@@ -21,6 +22,8 @@ class CarouselPageOneFragment : Fragment() {
 
     private lateinit var githubImageView: ImageView
     private lateinit var githubIdView: TextView
+    private lateinit var githubLoadingText: LinearLayout
+    private lateinit var githubErrorText: LinearLayout
     //private val githubChartUrl = "https://ghchart.rshah.org/kbhetrr" // 사용자 이름 변경 가능
     private lateinit var githubChartUrl: String
 
@@ -50,6 +53,8 @@ class CarouselPageOneFragment : Fragment() {
             githubChartUrl = "https://ghchart.rshah.org/" + githubId
         }
         githubIdView = view.findViewById(R.id.github_id)
+        githubLoadingText = view.findViewById(R.id.github_loading_text)
+        githubErrorText = view.findViewById(R.id.github_error_text)
         githubIdView.setText("@" + githubId)
         githubImageView = view.findViewById(R.id.github_svg)
 
@@ -67,12 +72,15 @@ class CarouselPageOneFragment : Fragment() {
             size(1326, 208)
             // 로딩 중 또는 에러 시 보여줄 플레이스홀더 및 에러 이미지 (선택 사항)
 
-            placeholder(R.drawable.sword_icon) // 예시: res/drawable/ic_placeholder.xml
-            error(R.drawable.shield_sedo_line_icon)         // 예시: res/drawable/ic_error.xml
+            //placeholder(R.drawable.sword_icon) // 예시: res/drawable/ic_placeholder.xml
+            //error(R.drawable.baseline_error_24)         // 예시: res/drawable/ic_error.xml
             // crossfade(true) // 부드러운 이미지 전환 효과 (선택 사항)
 
             listener(
                 onSuccess = { _, result ->
+                    githubImageView.visibility = ImageView.VISIBLE
+                    githubLoadingText.visibility = LinearLayout.GONE
+                    githubErrorText.visibility = LinearLayout.GONE
                     val drawable = result.drawable
                     if (drawable != null) {
                         // ImageView의 크기가 확정된 후에 Matrix를 설정하기 위해 post 사용
@@ -83,6 +91,10 @@ class CarouselPageOneFragment : Fragment() {
                 },
                 onError = { _, throwable ->
                     // 에러 처리
+                    githubImageView.visibility = ImageView.GONE
+                    githubLoadingText.visibility = LinearLayout.GONE
+                    githubErrorText.visibility = LinearLayout.VISIBLE
+                    //githubImageView.scaleType = ImageView.ScaleType.CENTER_INSIDE
                     Log.e("MatrixImageView", "Image load error")
                 }
             )
