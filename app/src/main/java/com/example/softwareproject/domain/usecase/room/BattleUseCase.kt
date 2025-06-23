@@ -327,8 +327,8 @@ class BattleUseCase@Inject constructor(
             val room = roomRepository.getRoomInfo(roomId)
             roomRepository.roomStateChange(roomId, RoomState.FINISHED)
 
-            roomUseCase.deleteRoomParticipant(roomId)
-            roomUseCase.deleteParticipantProblemStatus(roomId)
+//            roomUseCase.deleteRoomParticipant(roomId)
+//            roomUseCase.deleteParticipantProblemStatus(roomId)
             if (room != null) {
                 if(room.roomType == RoomType.PS)
                 {
