@@ -167,7 +167,7 @@ class CsBattleViewModel @Inject constructor(
                 )
                 _hideProblemUi.value = true
 
-                if (newHp == 0) {
+                if (newHp <= 0) {
                     me?.let {
                         battleUseCase.finishGame(
                             roomId,
@@ -198,7 +198,7 @@ class CsBattleViewModel @Inject constructor(
                 val newHp = (me?.hp ?: 0) - 1
                 battleUseCase.updateParticipantHp(me?.userId ?: return@launch, roomId, newHp.coerceAtLeast(0))
 
-                if (newHp == 0) {
+                if (newHp <= 0) {
                     if (opponent != null) {
                         battleUseCase.finishGame(roomId, winnerUserId = opponent.userId, losserUserId = me.userId)
                         _battleResult.value = "LOSE"
@@ -250,10 +250,14 @@ class CsBattleViewModel @Inject constructor(
         val participant = battleUseCase.getCurrentRoomParticipant(roomId)
         val opponent = battleUseCase.getOpponentRoomParticipant(roomId)
 
-        when {
-            participant?.hp == 0 -> _battleResult.value = "LOSE"
-            opponent?.hp == 0 -> _battleResult.value = "WIN"
-            else -> _battleResult.value = "DRAW" // 혹시 모를 무승부 대비
+        if (opponent != null) {
+            if (participant != null) {
+                when {
+                    participant.hp <= 0 -> _battleResult.value = "LOSE"
+                    opponent.hp <= 0 -> _battleResult.value = "WIN"
+                    else -> _battleResult.value = "DRAW" // 혹시 모를 무승부 대비
+                }
+            }
         }
     }
 }

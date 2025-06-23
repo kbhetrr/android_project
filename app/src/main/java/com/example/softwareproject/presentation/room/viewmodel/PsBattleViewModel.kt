@@ -161,8 +161,8 @@ class PsBattleViewModel @Inject constructor(
                 _hideProblemUi.value = true
                 if(newOpponentHp <= 0)
                 {
-                    _battleResult.value = "WIN"
                     battleUseCase.finishGame(roomId, winnerUserId = currentUser.userId, losserUserId = opponentUser.userId)
+                    _battleResult.value = "WIN"
                 }
                 val allSolved =
                     currentUser.let { roomUseCase.isAllSolved(roomId = roomId, userId = it.userId) }
@@ -182,8 +182,8 @@ class PsBattleViewModel @Inject constructor(
                 battleUseCase.updateParticipantHp(currentUser.userId, roomId, newYourHp)
                 _ToastData.value = "공격 실패... 데미지: ${damage}"
                 if(newYourHp <= 0){
-                    _battleResult.value = "LOSE"
                     battleUseCase.finishGame(roomId, winnerUserId = opponentUser.userId, losserUserId = currentUser.userId)
+                    _battleResult.value = "LOSE"
                 }
             }
         }
